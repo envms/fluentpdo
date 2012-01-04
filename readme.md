@@ -68,18 +68,14 @@ Write colon after joined table for back reference:
 If you use referenced column in `select(), where(), groupBy() or orderBy()` clauses, you don't need to write any joins manualy. E.g.:
 
 	$query = $fpdo->from('article')->orderBy('user.name');
-	// or
-	$query = $fpdo->from('article')->select('user.name');
 	
-both commands add clause `LEFT JOIN user ON user.id = article.user_id` automatically.
+this command adds clause `LEFT JOIN user ON user.id = article.user_id` automatically.
 
 References across more tables with dots and colons are also possible:
 
 	$query = $fpdo->from('comment')
 		->select('user.name AS comment_author')
 		->select('article.user.name AS article_author');
-	// or
-	$query = $fpdo->from('article')
 		->where('comment:user.country = ?', $country_id);
 
 Really smart, isn't it? ;-) *(this syntax was inspired by NotORM.)*
