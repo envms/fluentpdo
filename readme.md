@@ -24,35 +24,23 @@ Just copy `FluentPDO.php` file into your `libs/` directory then:
 	$pdo = new PDO("mysql:dbname=fblog", "root");
 	$fpdo = new FluentPDO($pdo);
 	
-### Simple usage
+### Simple usage with fluent interface
 
 FluentPDO has simple API based on well-known SQL syntax:
 
 	$query = $fpdo->from('article')
-				->where('user_id = ?', $user_id)
-				->orderBy('published_at DESC');
-	
+				->where('published_at > ?', $date)
+				->orderBy('published_at DESC')
+				->limit(5);
+	if ($user_id) {
+		$query = $query->where('user_id', $user_id);
+	}
 	foreach ($query->execute() as $row) {
 		echo "$row[title]\n";
 	}
 
 *(function execute() return [PDOStatement](http://www.php.net/manual/en/class.pdostatement.php))*
 
-### Fluent interface
-
-You can build a query step by step:
-
-	$query = $fpdo->from('article')->where('published_at > ?', $date);
-	if ($user_id) {
-		$query = $query->where('user_id', $user_id);
-	}
-	if ($order) {
-		$query = $query->orderBy($order);
-	} else {
-		$query = $query->orderBy('published_at');
-	}
-
-	
 ### Smart join builder
 
 You can use "full sql join syntax":
