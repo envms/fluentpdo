@@ -80,7 +80,7 @@ class FluentQuery {
 	/** @var FluentStructure */
 	private $structure;
 	private $clauses = array(), $statements = array(), $parameters = array();
-	private $createdAliases = array();
+	private $joins = array();
 
 	function __construct($pdo, $structure, $from) {
 		$this->pdo = $pdo;
@@ -138,10 +138,6 @@ class FluentQuery {
 		if ($statement === null) {
 			return $this->resetClause($clause);
 		}
-		if ($clause == 'JOIN' && in_array($statement, $this->statements['JOIN'])) {
-			# not add two same joins
-			return $this;
-		}
 		if (in_array($clause, array('WHERE', 'SELECT', 'ORDER BY', 'GROUP BY'))) {
 			$statement = $this->createUndefinedJoins($statement);
 		}
@@ -174,7 +170,7 @@ class FluentQuery {
 	private function createUndefinedJoins($statement) {
 		preg_match_all('~\\b([a-z_][a-z0-9_.:]*[.:])[a-z_]*~i', $statement, $matches);
 		foreach ($matches[1] as $join) {
-			if (!in_array(substr($join, 0, -1), $this->createdAliases)) {
+			if (!in_array(substr($join, 0, -1), $this->joins)) {
 				$this->addJoinStatements('LEFT JOIN', $join);
 			}
 		}
@@ -183,43 +179,55 @@ class FluentQuery {
 		return $statement;
 	}
 
-	/** Statement could contain more tables (e.g. "table1.table2:table3:")
+	/** Statement can contain more tables (e.g. "table1.table2:table3:")
 	 * @return FluentQuery 
 	 */
 	private function addJoinStatements($clause, $statement, $parameters = array()) {
 		if ($statement === null) {
+			$this->joins = array();
 			return $this->resetClause('JOIN');
 		}
-		if (strpos(strtoupper($statement), ' ON ') || strpos(strtoupper($statement), ' USING')) {
-			$statement = " $clause $statement";
-			return $this->addStatement('JOIN', $statement, $parameters);
-		} 
-		/* @var $matches ClassName */
-		# match "tables as alias"
+		
+		# match "tables AS alias"
 		preg_match('~([a-z_][a-z0-9_\.:]*)(\s+AS)?(\s+([a-z_][a-z0-9_]*))?~i', $statement, $matches);
+		$joinAlias = '';
 		if ($matches) {
-			$joinList = $matches[1];
-			if (!in_array(substr($joinList, -1), array('.', ':'))) {
-				# for simplicity: $joinList always end with (. or :)
-				$joinList .= '.';
-			}
-			$joinAlias = '';
-			if (isset($matches[4])) {
+			$joinTable = $matches[1];
+			if (isset($matches[4]) && strtoupper($matches[4]) != 'ON') {
 				$joinAlias = $matches[4];
 			}
 		}
 		
-		# match all table1.table2:table3....
-		preg_match_all('~([a-z_][a-z0-9_]*[\.:]?)~i', $joinList, $matches);
-		$mainTable = $this->statements['FROM'];
+		if (strpos(strtoupper($statement), ' ON ') || strpos(strtoupper($statement), ' USING')) {
+			if (!$joinAlias) $joinAlias = $joinTable;
+			if (in_array($joinAlias, $this->joins)) {
+				return $this;
+			} else {
+				$this->joins[] = $joinAlias;
+				$statement = " $clause $statement";
+				return $this->addStatement('JOIN', $statement, $parameters);
+			}
+		} 
 		
-		$lastTable = array_pop($matches[1]);
-		array_push($matches[1], $lastTable);
-		foreach ($matches[1] as $joinTable) {
-			if ($mainTable == substr($joinTable, 0, -1)) continue;
-			$newJoin = $this->createJoin($clause, $mainTable, $joinTable, ($joinTable == $lastTable ? $joinAlias : ''));
-			$this->addStatement('JOIN', $newJoin, $parameters);
-			$mainTable = $joinTable;
+		# $joinTable is list of tables for join e.g.: table1.table2:table3....
+		if (!in_array(substr($joinTable, -1), array('.', ':'))) {
+			$joinTable .= '.';
+		}
+		
+		preg_match_all('~([a-z_][a-z0-9_]*[\.:]?)~i', $joinTable, $matches);
+		$mainTable = $this->statements['FROM'];
+		$lastItem = array_pop($matches[1]);
+		array_push($matches[1], $lastItem);
+		foreach ($matches[1] as $joinItem) {
+			if ($mainTable == substr($joinItem, 0, -1)) continue;
+			
+			# use $joinAlias only for $lastItem
+			$alias = '';
+			if ($joinItem == $lastItem) $alias = $joinAlias;
+			
+			$newJoin = $this->createJoinStatement($clause, $mainTable, $joinItem, $alias);
+			if ($newJoin) $this->addStatement('JOIN', $newJoin, $parameters);
+			$mainTable = $joinItem;
 		}
 		return $this;
 	}
@@ -227,7 +235,7 @@ class FluentQuery {
 	/** Create join string
 	 * @return string 
 	 */
-	private function createJoin($clause, $mainTable, $joinTable, $joinAlias = '') {
+	private function createJoinStatement($clause, $mainTable, $joinTable, $joinAlias = '') {
 		if (in_array(substr($mainTable, -1), array(':', '.'))) {
 			$mainTable = substr($mainTable, 0, -1);
 		}
@@ -236,11 +244,14 @@ class FluentQuery {
 		$asJoinAlias = '';
 		if ($joinAlias) {
 			$asJoinAlias = " AS $joinAlias";
-			if (!in_array($joinAlias, $this->createdAliases)) {
-				$this->createdAliases[] = $joinAlias;
-			}
 		} else {
 			$joinAlias = $joinTable;
+		}
+		if (in_array($joinAlias, $this->joins)) {
+			# if join exists don't create same again
+			return '';
+		} else {
+			$this->joins[] = $joinAlias;
 		}
 		if ($referenceDirection == ':') {
 			# back reference
