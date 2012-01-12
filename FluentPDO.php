@@ -138,9 +138,6 @@ class FluentQuery {
 		if ($statement === null) {
 			return $this->resetClause($clause);
 		}
-		if (in_array($clause, array('WHERE', 'SELECT', 'ORDER BY', 'GROUP BY'))) {
-			$statement = $this->createUndefinedJoins($statement);
-		}
 		# $statement !== null 
 		if ($this->clauses[$clause]) {
 			$this->statements[$clause][] = $statement;
@@ -163,22 +160,6 @@ class FluentQuery {
 		return $this;
 	}
 	
-	/** Create undefined joins from statement and return rewrited statement
-	 * @param string $statement
-	 * @return string  rewrited $statement
-	 */
-	private function createUndefinedJoins($statement) {
-		preg_match_all('~\\b([a-z_][a-z0-9_.:]*[.:])[a-z_]*~i', $statement, $matches);
-		foreach ($matches[1] as $join) {
-			if (!in_array(substr($join, 0, -1), $this->joins)) {
-				$this->addJoinStatements('LEFT JOIN', $join);
-			}
-		}
-		#remove extra dots => rewrite tab1.tab2.col
-		$statement = preg_replace('~(?:\\b[a-z_][a-z0-9_.:]*[.:])?([a-z_][a-z0-9_]*)[.:]([a-z_*])~i', '\\1.\\2', $statement);
-		return $statement;
-	}
-
 	/** Statement can contain more tables (e.g. "table1.table2:table3:")
 	 * @return FluentQuery 
 	 */
@@ -309,14 +290,14 @@ class FluentQuery {
         return ($result && $result->execute($parameters) ? $result : false);
 	}
 	
-	/** Get added parameters (for debug purpose)
+	/** Get added parameters
 	 * @return array
 	 */
 	function getParameters() {
 		return $this->buildParameters();
 	}
 	
-	/** Get built query (for debug purpose)
+	/** Get built query
 	 * @param boolean $formated  return formated query
 	 * @return string
 	 */
@@ -330,20 +311,41 @@ class FluentQuery {
 	 * @return string
 	 */
 	private function buildQuery() {
+		# first create extra join from statements with columns with referenced tables 
+		$statementsWithReferences = array('WHERE', 'SELECT', 'GROUP BY', 'ORDER BY');
+		foreach ($statementsWithReferences as $clause) {
+			$this->statements[$clause] = array_map(array($this, 'createUndefinedJoins'), $this->statements[$clause]);
+		}
 		$query = '';
 		foreach ($this->clauses as $clause => $separator) {
 			if ($this->clauseNotEmpty($clause)) {
 				if ($clause !== 'JOIN') $query .= " $clause ";
 				if (is_array($this->statements[$clause])) {
-					 $query .= implode($separator, $this->statements[$clause]);
+					$query .= implode($separator, $this->statements[$clause]);
 				} else {
 					$query .= $this->statements[$clause];
 				}
 			}
-		} 
+		}
 		return trim($query);
 	}
 	
+	/** Create undefined joins from statement with column with referenced tables
+	 * @param string $statement
+	 * @return string  rewrited $statement (e.g. tab1.tab2:col => tab2.col)
+	 */
+	private function createUndefinedJoins($statement) {
+		preg_match_all('~\\b([a-z_][a-z0-9_.:]*[.:])[a-z_]*~i', $statement, $matches);
+		foreach ($matches[1] as $join) {
+			if (!in_array(substr($join, 0, -1), $this->joins)) {
+				$this->addJoinStatements('LEFT JOIN', $join);
+			}
+		}
+		# remove extra referenced tables (rewrite tab1.tab2:col => tab2.col)
+		$statement = preg_replace('~(?:\\b[a-z_][a-z0-9_.:]*[.:])?([a-z_][a-z0-9_]*)[.:]([a-z_*])~i', '\\1.\\2', $statement);
+		return $statement;
+	}
+
 	private function clauseNotEmpty($clause) {
 		if ($this->clauses[$clause]) {
 			return (boolean) count($this->statements[$clause]);
@@ -351,7 +353,7 @@ class FluentQuery {
 			return (boolean) $this->statements[$clause];
 		}
 	}
-
+	
 	private function buildParameters() {
 		$parameters = array();
 		foreach ($this->parameters as $clauses) {
