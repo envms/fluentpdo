@@ -2,7 +2,7 @@
 
 FluentPDO - simple and smart SQL query builder for PDO.
 
-With FluentPDO you can build simple and mainly difficult queries quickly and effectively. Killer feature of FluentPDO is *smart query builder* which is able generate joins automatically. FluentPDO is perfect choice for small projects. And if you are not *"in-doctrine-ated"* ;-) you can use FluentPDO also for large projects as a base of your models or repositories.
+With FluentPDO you can build simple and mainly difficult queries quickly and effectively. Killer feature of FluentPDO is *"smart query builder"* which is able generate joins automatically. FluentPDO is perfect choice for small projects. If you are not *"in-doctrine-ated"* ;-) you can use FluentPDO also for large projects as a base of your models or repositories.
 
 ## Features
 
@@ -58,7 +58,7 @@ you can use also `AS`
 	
 	$query = $fpdo->from('article')->innerJoin('user AS author');
 	
-colon after joined table means back reference:
+### Colon after joined table means back reference
 
 	$query = $fpdo->from('user')->innerJoin('article:');
 	
@@ -66,7 +66,7 @@ then result is:
 	
 	SELECT user.* FROM user INNER JOIN article ON article.user_id = user.id
 	
-#### Best practice how to write joins is don't write any joins ;-)
+### Best practice how to write joins is don't write any joins ;-)
 
 If you use referenced column in `select(), where(), groupBy() or orderBy()` clauses, you don't need to write any joins manualy. E.g.:
 
