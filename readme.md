@@ -2,7 +2,7 @@
 
 FluentPDO - simple and smart SQL query builder for PDO.
 
-With FluentPDO you can build simple and mainly difficult queries quickly and effectively. Killer feature of FluentPDO is *"smart query builder"* which is able generate joins automatically. FluentPDO is perfect choice for small projects. If you are not *"in-doctrine-ated"* ;-) you can use FluentPDO also for large projects as a base of your models or repositories.
+With FluentPDO you can build simple and mainly difficult queries quickly and effectively. Killer feature of FluentPDO is *"Smart join builder"* which is able generate joins automatically. FluentPDO is perfect choice for small projects. If you are not *"in-doctrine-ated"* ;-) you can use FluentPDO also for large projects as a base of your models or repositories.
 
 ## Features
 
