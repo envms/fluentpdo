@@ -2,14 +2,13 @@
 
 FluentPDO - simple and smart SQL query builder for PDO.
 
-FluentPDO was inspired by very good NotORM library. I use it often but sometimes I need to build a large query *"in classical way"* with many joins and clauses and with full control over generated query string. For this reason I created FluentPDO. *(I also made it for my fun during Christmas holiday 2011;-)*
+With FluentPDO you can build simple and mainly difficult queries quickly and effectively. Killer feature of FluentPDO is *smart query builder* which is able generate joins automatically. FluentPDO is perfect choice for small projects. And if you are not *"in-doctrine-ated"* ;-) you can use FluentPDO also for large projects as a base of your models or repositories.
 
 ## Features
 
-- Simple API based on SQL syntax
-- Fluent interface
+- Fluent interface for creating queries step by step
 - Smart join builder
-- both PDO bind param syntax support (? and :name)
+- Simple API based on PDO and SQL syntax
 - small and fast - only one file with less then 500 lines
 - type hinting with code completion for smart IDEs
 - requires PHP 5.1+ with any database supported by PDO
@@ -41,7 +40,7 @@ FluentPDO has simple API based on well-known SQL syntax:
 
 *(function execute() return [PDOStatement](http://www.php.net/manual/en/class.pdostatement.php))*
 
-### Smart join builder
+## Smart join builder
 
 You can use "full sql join syntax":
 
@@ -55,13 +54,17 @@ Smarter? May be. As you expected, both commands create same query:
 
 	SELECT article.* FROM article INNER JOIN user ON user.id = article.user_id
 	
-*note: you can use also `AS`*
+you can use also `AS`
 	
 	$query = $fpdo->from('article')->innerJoin('user AS author');
 	
-Write colon after joined table for back reference:
+colon after joined table means back reference:
 
 	$query = $fpdo->from('user')->innerJoin('article:');
+	
+then result is:
+	
+	SELECT user.* FROM user INNER JOIN article ON article.user_id = user.id
 	
 #### Best practice how to write joins is don't write any joins ;-)
 
@@ -69,18 +72,32 @@ If you use referenced column in `select(), where(), groupBy() or orderBy()` clau
 
 	$query = $fpdo->from('article')->orderBy('user.name');
 	
-this command adds clause `LEFT JOIN user ON user.id = article.user_id` automatically.
+this command adds join clause automatically.
+
+	SELECT article.* FROM article LEFT JOIN user ON user.id = article.user_id
 
 References across more tables with dots and colons are also possible:
 
-	$query = $fpdo->from('comment')
-		->select('user.name AS comment_author')
-		->select('article.user.name AS article_author');
-		->where('comment:user.country = ?', $country_id);
+	$query = $fpdo->from('article')
+		->select('comment:user.name AS comment_author')
+		->leftJoin('user AS article_author')
+			->select('article_author.name')
+			->where('article_author.country.name = ?',  $country);
+		
+then result is:
 
-Really smart, isn't it? ;-) *(this syntax was inspired by NotORM.)*
+	SELECT article.*, user.name AS comment_author, article_author.name 
+	FROM article 
+    	LEFT JOIN user AS article_author ON article_author.id = article.user_id
+    	LEFT JOIN country ON country.id = article_author.country_id
+   		LEFT JOIN comment ON comment.article_id = article.id
+    	LEFT JOIN user ON user.id = comment.user_id 
+	WHERE country.name = ?
 
-*Note: For more examples see subdirectory tests/*
+
+Really smart, isn't it? ;-)
+
+*For more examples see subdirectory tests/*
 
 ## API
 
@@ -93,8 +110,7 @@ Every SELECT query begins with `$fpdo->from($table)` followed by as many clauses
 `from($table)`                     | set *$table* in **FROM** clause 
 `from($table, $id)`                | shortcut for `from($table)->where('id = ?', $id)`
 `select($columns[, ...])`          | appends **SELECT** clause with *$column* or any expresion (e.g. `CURDATE() AS today`)
-`leftJoin($joinedTable)`           | appends **LEFT JOIN** clause, *$joinedTable* could be "tableName" only or full join statement <br>*("tableName:" means back reference, see **Smart join builder**)*
-`innerJoin($joinedTable)`          | appends **INNER JOIN** clause, $joinedTable could be "tableName" only or full join statement <br>*("tableName:" means back reference, see **Smart join builder**)*
+`leftJoin($joinedTable)`<br>`innerJoin($joinedTable)` | appends **LEFT JOIN** or **INNER JOIN** clause,<br>*$joinedTable* could be "tableName" only or full join statement <br>*("tableName:" colon means back reference, see **Smart join builder**)*
 `where($condition[, $parameters])` | explained later
 `groupBy($columns[, ...])`         | appends **GROUP BY** clause
 `having($columns[, ...])`          | appends **HAVING** clause
@@ -107,7 +123,7 @@ Every SELECT query begins with `$fpdo->from($table)` followed by as many clauses
 You can add clauses `select(), where(), groupBy(), having(), orderBy()`
 as many times as you want. All will be appended into query. Clauses `from(), limit(), offset()` rewrite previous setting.	
 
-*Note: If you want to reset a clause (i.e. remove previous defined statement), call any clause with `null`. E.g.:*
+*If you want to reset a clause (i.e. remove previous defined statements), call any clause with `null`. E.g.:*
 
 	$query = $query->where(null);   // remove all prev defined where() clauses
 	$query = $query->orderBy(null); // remove all prev defined orderBy() clauses
@@ -129,14 +145,11 @@ Repetitive calls of `where()` are connected with `AND`. The `where()` *$conditio
 
 Every values are automatically escaped.
 
-phew ... this readme was harder to write then the FluentPDO itself ;-)
+*Syntax of this library was inspired by NotORM library.*
 
 ## Licence
 
 Free for commercial and non-commercial use ([Apache License](http://www.apache.org/licenses/LICENSE-2.0.html) or [GPL](http://www.gnu.org/licenses/gpl-2.0.html)).
 
 *Copyright (c) 2012, Marek Lichtner*
-
-
-
 
