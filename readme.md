@@ -2,7 +2,7 @@
 
 FluentPDO - simple and smart SQL query builder for PDO.
 
-With FluentPDO you can build simple and mainly difficult queries quickly and effectively. Killer feature of FluentPDO is *"Smart join builder"* which is able generate joins automatically. FluentPDO is perfect choice for small projects. If you are not *"in-doctrine-ated"* ;-) you can use FluentPDO also for large projects as a base of your models or repositories.
+With FluentPDO you can build simple and mainly difficult queries quickly and effectively. Killer feature of FluentPDO is *"Smart join builder"* which is able generate joins automatically. FluentPDO is a perfect choice for small projects. If you are not *"in-doctrine-ated"* ;-) you can use FluentPDO also for large projects as a base of your models or repositories.
 
 ## Features
 
@@ -66,7 +66,7 @@ then result is:
 	
 	SELECT user.* FROM user INNER JOIN article ON article.user_id = user.id
 	
-### Best practice how to write joins is don't write any joins ;-)
+### Best practice how to write joins is not to write any joins ;-)
 
 If you use referenced column in `select(), where(), groupBy() or orderBy()` clauses, you don't need to write any joins manualy. E.g.:
 
@@ -76,7 +76,7 @@ this command adds join clause automatically.
 
 	SELECT article.* FROM article LEFT JOIN user ON user.id = article.user_id
 
-References across more tables with dots and colons are also possible:
+References across more tables with dots and colons are possible as well:
 
 	$query = $fpdo->from('article')
 		->select('comment:user.name AS comment_author')
@@ -121,7 +121,7 @@ Every SELECT query begins with `$fpdo->from($table)` followed by as many clauses
 
 
 You can add clauses `select(), where(), groupBy(), having(), orderBy()`
-as many times as you want. All will be appended into query. Clauses `from(), limit(), offset()` rewrite previous setting.	
+as many times as you want. Everything will be appended into query. Clauses `from(), limit(), offset()` rewrite previous setting.
 
 *If you want to reset a clause (i.e. remove previous defined statements), call any clause with `null`. E.g.:*
 
@@ -143,7 +143,7 @@ Repetitive calls of `where()` are connected with `AND`. The `where()` *$conditio
 `$table->where("field > :name", array(':name' => 'x'))` | bound by PDO
 `$table->where(array("field1" => "value1", ...))`       | Translated to `field1 = 'value1' AND ...`
 
-Every values are automatically escaped.
+Every value is automatically escaped.
 
 *Syntax of this library was inspired by NotORM library.*
 
