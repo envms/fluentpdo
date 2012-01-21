@@ -74,7 +74,7 @@ If you use referenced column in `select(), where(), groupBy() or orderBy()` clau
 	
 this command adds join clause automatically.
 
-	SELECT article.* FROM article LEFT JOIN user ON user.id = article.user_id
+	SELECT article.* FROM article LEFT JOIN user ON user.id = article.user_id ORDER BY user.name
 
 References across more tables with dots and colons are possible as well:
 
