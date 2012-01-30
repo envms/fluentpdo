@@ -124,6 +124,8 @@ class FluentQuery {
 	 */
 	function __call($clause, $parameters = array()) {
 		$clause = FluentUtils::toUpperWords($clause);
+		if ($clause == 'GROUP') $clause = 'GROUP BY';
+		if ($clause == 'ORDER') $clause = 'ORDER BY';
 		$statement = array_shift($parameters);
 		if (strpos($clause, 'JOIN')) {
 			return $this->addJoinStatements($clause, $statement, $parameters);
