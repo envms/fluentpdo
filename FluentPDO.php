@@ -2,10 +2,11 @@
 /** 
  * FluentPDO is simple and smart SQL query builder for PDO
  * 
- * FluentPDO was inspired by very good NotORM library. I use it often but
- * sometimes I need to build a large query *"in classical way"* with many joins 
- * and clauses and with full control over generated query string. 
- * For this reason I created FluentPDO.
+ * With FluentPDO you can build simple and difficult queries quickly
+ * and effectively. Killer feature of FluentPDO is "Smart join builder"
+ * which is able generate joins automatically. FluentPDO is a perfect choice
+ * for small projects. If you are not "in-doctrine-ated" ;-) you can use
+ * FluentPDO also for large projects as a base of your models or repositories.
  * 
  * For more information @see readme.md
  * 
