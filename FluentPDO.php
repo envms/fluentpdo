@@ -293,6 +293,18 @@ class FluentQuery {
         return ($result && $result->execute($parameters) ? $result : false);
 	}
 	
+	/** Fetch first row or column
+	* @param string column name or empty string for the whole row
+	* @return mixed string, array or false if there is no row
+	*/
+	function fetch($column = '') {
+		$return = $this->execute()->fetch();
+		if ($return && $column != '') {
+			return $return[$column];
+		}
+		return $return;
+	}
+	
 	/** Get added parameters
 	 * @return array
 	 */

@@ -118,6 +118,7 @@ Every SELECT query begins with `$fpdo->from($table)` followed by as many clauses
 `limit($limit)`	                   | sets **LIMIT** clause
 `offset($offset)`	               | sets **OFFSET** clause
 `execute()`                        | executes query and return [PDOStatement](http://www.php.net/manual/en/class.pdostatement.php)
+`fetch($column = '')`              | fetch first row or column only from first row
 
 
 You can add clauses `select(), where(), groupBy(), having(), orderBy()`
