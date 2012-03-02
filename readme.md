@@ -119,6 +119,8 @@ Every SELECT query begins with `$fpdo->from($table)` followed by as many clauses
 `offset($offset)`	               | sets **OFFSET** clause
 `execute()`                        | executes query and return [PDOStatement](http://www.php.net/manual/en/class.pdostatement.php)
 `fetch($column = '')`              | fetch first row or column only from first row
+`fetchPairs($key, $value)`         | fetch pairs
+`fetchAll()`                       | fetch all rows
 
 
 You can add clauses `select(), where(), groupBy(), having(), orderBy()`

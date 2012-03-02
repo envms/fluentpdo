@@ -20,7 +20,7 @@ class FluentPDO {
 	
 	private $pdo, $structure;
 	
-	function __construct($pdo, $structure = null) {
+	function __construct(PDO $pdo, FluentStructure $structure = null) {
 		$this->pdo = $pdo;
 		if (!$structure) {
 			$structure = new FluentStructure;
@@ -83,7 +83,7 @@ class FluentQuery {
 	private $clauses = array(), $statements = array(), $parameters = array();
 	private $joins = array();
 
-	function __construct($pdo, $structure, $from) {
+	function __construct(PDO $pdo, FluentStructure $structure, $from) {
 		$this->pdo = $pdo;
 		$this->structure = $structure;
 		$this->createSelectClauses();
@@ -294,15 +294,29 @@ class FluentQuery {
 	}
 	
 	/** Fetch first row or column
-	* @param string column name or empty string for the whole row
-	* @return mixed string, array or false if there is no row
-	*/
+	 * @param string column name or empty string for the whole row
+	 * @return mixed string, array or false if there is no row
+	 */
 	function fetch($column = '') {
 		$return = $this->execute()->fetch();
 		if ($return && $column != '') {
 			return $return[$column];
 		}
 		return $return;
+	}
+	
+	/** Fetch pairs
+	 * @return array of fetched rows as pairs
+	 */
+	function fetchPairs($key, $value) {
+		return $this->select(null)->select("$key, $value")->execute()->fetchAll(PDO::FETCH_KEY_PAIR);
+	}
+	
+	/** Fetch all row
+	 * @return array of fetched rows
+	 */
+	function fetchAll() {
+		return $this->execute()->fetchAll();
 	}
 	
 	/** Get added parameters
