@@ -9,7 +9,7 @@ With FluentPDO you can build simple and mainly difficult queries quickly and eff
 - Fluent interface for creating queries step by step
 - Smart join builder
 - Simple API based on PDO and SQL syntax
-- small and fast - only one file with less then 500 lines
+- small and fast - only one file with less then 600 lines
 - type hinting with code completion for smart IDEs
 - requires PHP 5.1+ with any database supported by PDO
 
@@ -122,6 +122,11 @@ Every SELECT query begins with `$fpdo->from($table)` followed by as many clauses
 `fetchPairs($key, $value)`         | fetch pairs
 `fetchAll()`                       | fetch all rows
 
+You can debug queries, parameters, executed time and row count. For debugging set property debug:
+
+	$fpdo->debug = true        // log queries to STDERR (for console debugging)
+	$fpdo->debug = $callback   // or set $callback($FluentQuery)  
+	                           // @see tests/26-debug.phpt for expample usage
 
 You can add clauses `select(), where(), groupBy(), having(), orderBy()`
 as many times as you want. Everything will be appended into query. Clauses `from(), limit(), offset()` rewrite previous setting.

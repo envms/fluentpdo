@@ -20,6 +20,9 @@ class FluentPDO {
 	
 	private $pdo, $structure;
 	
+	/** @var boolean|callback */
+	public $debug;
+	
 	function __construct(PDO $pdo, FluentStructure $structure = null) {
 		$this->pdo = $pdo;
 		if (!$structure) {
@@ -34,13 +37,27 @@ class FluentPDO {
 	 * @return FluentQuery
 	 */
     public function from($table, $id = null) {
-		$query = new FluentQuery($this->pdo, $this->structure, $table);
+		$query = new FluentQuery($this, $table);
 		if ($id) {
 			$primary = $this->structure->getPrimaryKey($table);
 			$query = $query->where("$table.$primary = ?", $id);
 		}
 		return $query;
     }
+	
+	/**
+	 * @return PDO
+	 */
+	public function getPdo() {
+		return $this->pdo;
+	}
+
+	/**
+	 * @return FluentStructure
+	 */
+	public function getStructure() {
+		return $this->structure;
+	}
 }
 
 class FluentStructure {
@@ -76,19 +93,25 @@ class FluentStructure {
  */
 class FluentQuery {
 	
-	/** @var PDO */
-	private $pdo;
-	/** @var FluentStructure */
-	private $structure;
+	/** @var FluentPDO */
+	private $fpdo;
 	private $clauses = array(), $statements = array(), $parameters = array();
 	private $joins = array();
+	/** @var PDOStatement */		
+	private $result;
 
-	function __construct(PDO $pdo, FluentStructure $structure, $from) {
-		$this->pdo = $pdo;
-		$this->structure = $structure;
+	/** @var float */
+	private $time;
+
+	function __construct(FluentPDO $fpdo, $from) {
+		$this->fpdo = $fpdo;
 		$this->createSelectClauses();
 		$this->statements['FROM'] = $from;
 		$this->statements['SELECT'][] = "$from.*";
+	}
+	
+	function getPDO() {
+		return $this->fpdo->getPdo();
 	}
 
 	private function createSelectClauses() {
@@ -239,12 +262,12 @@ class FluentQuery {
 		}
 		if ($referenceDirection == ':') {
 			# back reference
-			$primaryKey = $this->structure->getPrimaryKey($mainTable);
-			$foreignKey = $this->structure->getForeignKey($mainTable);
+			$primaryKey = $this->fpdo->getStructure()->getPrimaryKey($mainTable);
+			$foreignKey = $this->fpdo->getStructure()->getForeignKey($mainTable);
 			return " $clause $joinTable$asJoinAlias ON $joinAlias.$foreignKey = $mainTable.$primaryKey";
 		} else {
-			$primaryKey = $this->structure->getPrimaryKey($joinTable);
-			$foreignKey = $this->structure->getForeignKey($joinTable);
+			$primaryKey = $this->fpdo->getStructure()->getPrimaryKey($joinTable);
+			$foreignKey = $this->fpdo->getStructure()->getForeignKey($joinTable);
 			return " $clause $joinTable$asJoinAlias ON $joinAlias.$primaryKey = $mainTable.$foreignKey";
 		}
 	}
@@ -288,9 +311,60 @@ class FluentQuery {
 	function execute() {
 		$query = $this->buildQuery();
 		$parameters = $this->buildParameters();
-        $result = $this->pdo->prepare($query);
+		
+        $result = $this->fpdo->getPdo()->prepare($query);
         $result->setFetchMode(PDO::FETCH_ASSOC);
-        return ($result && $result->execute($parameters) ? $result : false);
+		
+		$time = microtime(true);
+		if ($result && $result->execute($parameters)) {
+			$this->time = microtime(true) - $time;
+		} else {
+			$result = false;
+		}
+		
+		$this->result = $result;
+		$this->debugger();
+		
+		return $result;
+	}
+	
+	private function debugger() {
+		if ($this->fpdo->debug) {
+			if (!is_callable($this->fpdo->debug)) {
+				$query = $this->getQuery();
+				$parameters = $this->getParameters();
+				if ($parameters) {
+					$debug = "# parameters: " . implode(", ", array_map(array($this, 'quote'), $parameters));
+				}
+				$debug .= "\n$query";
+				$pattern = '(^' . preg_quote(dirname(__FILE__)) . '(\\.php$|[/\\\\]))'; // can be static
+				foreach (debug_backtrace() as $backtrace) {
+					if (isset($backtrace["file"]) && !preg_match($pattern, $backtrace["file"])) { 
+						// stop on first file outside FluentPDO source codes
+						break;
+					}
+				}
+				$time = sprintf('%0.3f', $this->time * 1000).' ms';
+				$rows = $this->result->rowCount();
+				fwrite(STDERR, "# $backtrace[file]:$backtrace[line] ($time; rows = $rows)\n$debug\n");
+			} else {
+				call_user_func($this->fpdo->debug, $this);
+			}
+		}
+	}
+	
+	/**
+	 * @return PDOStatement
+	 */
+	public function getResult() {
+		return $this->result;
+	}
+	
+	/**
+	 * @return float
+	 */
+	public function getTime() {
+		return $this->time;
 	}
 	
 	/** Fetch first row or column
@@ -419,7 +493,7 @@ class FluentQuery {
 		if (is_int($value)) { # @todo maybe add FluentLiteral
 			return (string) $value;
 		}
-		return $this->pdo->quote($value);
+		return $this->fpdo->getPdo()->quote($value);
 	}
 	
 	private function formatValue($val) {
