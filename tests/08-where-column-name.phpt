@@ -11,8 +11,7 @@ $query = $fpdo->from('user')
 
 echo $query->getQuery() . "\n";
 var_dump($query->getParameters());
-$result = $query->execute(); 
-foreach ($result as $row) {
+foreach ($query as $row) {
 	echo "$row[name]\n";
 }
 ?>

@@ -10,8 +10,7 @@ $query = $fpdo->from('article')
 		->leftJoin('user ON user.id = article.user_id');
 
 echo $query->getQuery() . "\n";
-$result = $query->execute(); 
-foreach ($result as $row) {
+foreach ($query as $row) {
 	echo "$row[name] - $row[title]\n";
 }
 ?>

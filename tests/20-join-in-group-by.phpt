@@ -8,7 +8,7 @@ include_once dirname(__FILE__) . "/connect.inc.php";
 $query = $fpdo->from('article')->groupBy('user.type')
 		->select(null)->select('user.type, count(article.id) as article_count');
 echo $query->getQuery() . "\n";
-$result = $query->execute()->fetchAll();
+$result = $query->fetchAll();
 print_r($result);
 ?>
 --EXPECTF--

@@ -34,11 +34,9 @@ FluentPDO has simple API based on well-known SQL syntax:
 	if ($user_id) {
 		$query = $query->where('user_id', $user_id);
 	}
-	foreach ($query->execute() as $row) {
+	foreach ($query as $row) {
 		echo "$row[title]\n";
 	}
-
-*(function execute() return [PDOStatement](http://www.php.net/manual/en/class.pdostatement.php))*
 
 ## Smart join builder
 
@@ -117,7 +115,6 @@ Every SELECT query begins with `$fpdo->from($table)` followed by as many clauses
 `orderBy($columns[, ...])`         | appends **ORDER BY** clause
 `limit($limit)`	                   | sets **LIMIT** clause
 `offset($offset)`	               | sets **OFFSET** clause
-`execute()`                        | executes query and return [PDOStatement](http://www.php.net/manual/en/class.pdostatement.php)
 `fetch($column = '')`              | fetch first row or column only from first row
 `fetchPairs($key, $value)`         | fetch pairs
 `fetchAll()`                       | fetch all rows

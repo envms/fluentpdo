@@ -91,7 +91,7 @@ class FluentStructure {
  * @method FluentQuery  limit(int $limit) add LIMIT to query
  * @method FluentQuery  offset(int $offset) add OFFSET to query
  */
-class FluentQuery {
+class FluentQuery implements IteratorAggregate {
 	
 	/** @var FluentPDO */
 	private $fpdo;
@@ -303,6 +303,13 @@ class FluentQuery {
 		}
 		array_shift($args); 
 		return $this->addStatement('WHERE', $condition, $args);
+	}
+
+	/** Implements method from IteratorAggregate
+	 * @return PDOStatement
+	 */
+	public function getIterator() {
+		return $this->execute();
 	}
 	
 	/** Execute query with earlier added parameters

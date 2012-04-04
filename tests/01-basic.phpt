@@ -9,8 +9,7 @@ $query = $fpdo->from('user')->where('id > ?', 0)->orderBy('name');
 $query = $query->where('name = ?', 'Marek');
 echo $query->getQuery() . "\n";
 print_r($query->getParameters());
-$result = $query->execute();
-print_r($result->fetch());
+print_r($query->fetch());
 ?>
 --EXPECTF--
 SELECT user.* 

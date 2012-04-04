@@ -7,7 +7,7 @@ include_once dirname(__FILE__) . "/connect.inc.php";
 
 $query = $fpdo->from('article')->innerJoin('comment:user AS comment_user');
 echo $query->getQuery() . "\n";
-print_r($query->execute()->fetch());
+print_r($query->fetch());
 ?>
 --EXPECTF--
 SELECT article.* 
