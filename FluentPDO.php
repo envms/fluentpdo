@@ -43,7 +43,7 @@ class FluentPDO {
 			$query = $query->where("$table.$primary = ?", $id);
 		}
 		return $query;
-    }
+	}
 	
 	/**
 	 * @return PDO
@@ -319,8 +319,8 @@ class FluentQuery implements IteratorAggregate {
 		$query = $this->buildQuery();
 		$parameters = $this->buildParameters();
 		
-        $result = $this->fpdo->getPdo()->prepare($query);
-        $result->setFetchMode(PDO::FETCH_ASSOC);
+		$result = $this->fpdo->getPdo()->prepare($query);
+		$result->setFetchMode(PDO::FETCH_ASSOC);
 		
 		$time = microtime(true);
 		if ($result && $result->execute($parameters)) {
@@ -340,6 +340,7 @@ class FluentQuery implements IteratorAggregate {
 			if (!is_callable($this->fpdo->debug)) {
 				$query = $this->getQuery();
 				$parameters = $this->getParameters();
+				$debug = '';
 				if ($parameters) {
 					$debug = "# parameters: " . implode(", ", array_map(array($this, 'quote'), $parameters));
 				}
