@@ -4,7 +4,7 @@ FluentPDO - smart SQL builder for PHP.
 
 FluentPDO is small PHP library for rapid query building. Killer feature is "Smart join builder" which generates joins automatically. FluentPDO is a perfect choice for small and large projects.
 
-Documentation was moved to new [FluentPDO homepage](http://fleuntpdo.com)
+Documentation was moved to new [FluentPDO homepage](http://fluentpdo.com)
 
 ## Licence
 
