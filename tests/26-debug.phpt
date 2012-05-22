@@ -19,7 +19,7 @@ $fpdo->debug = function($FluentQuery) {
 };
 
 $fpdo->from('user')->where('id < ? AND name <> ?', 7, 'Peter')->execute();
-
+$fpdo->debug = null;
 ?>
 --EXPECTF--
 query: SELECT user.* FROM user WHERE id < ? AND name <> ?

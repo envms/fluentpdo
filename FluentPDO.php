@@ -395,10 +395,23 @@ class FluentQuery implements IteratorAggregate {
 	}
 	
 	/** Fetch all row
+	 * @param string $index  specify index column
+	 * @param string $selectOnly  select columns which could be fetched
 	 * @return array of fetched rows
 	 */
-	function fetchAll() {
-		return $this->execute()->fetchAll();
+	function fetchAll($index = '', $selectOnly = '') {
+		if ($selectOnly) {
+			$this->select(null)->select($index . ', ' . $selectOnly);
+		}
+		if ($index) {
+			$data = array();
+			foreach ($this as $row) {
+				$data[$row[$index]] = $row;
+			}
+			return $data;
+		} else {
+			return $this->execute()->fetchAll();
+		}
 	}
 	
 	/** Get added parameters
