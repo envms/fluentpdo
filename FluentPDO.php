@@ -347,9 +347,9 @@ class FluentQuery implements IteratorAggregate {
 				$parameters = $this->getParameters();
 				$debug = '';
 				if ($parameters) {
-					$debug = "# parameters: " . implode(", ", array_map(array($this, 'quote'), $parameters));
+					$debug = "# parameters: " . implode(", ", array_map(array($this, 'quote'), $parameters)) . "\n";
 				}
-				$debug .= "\n$query";
+				$debug .= $query;
 				$pattern = '(^' . preg_quote(dirname(__FILE__)) . '(\\.php$|[/\\\\]))'; // can be static
 				foreach (debug_backtrace() as $backtrace) {
 					if (isset($backtrace["file"]) && !preg_match($pattern, $backtrace["file"])) { 
@@ -359,7 +359,7 @@ class FluentQuery implements IteratorAggregate {
 				}
 				$time = sprintf('%0.3f', $this->time * 1000).' ms';
 				$rows = $this->result->rowCount();
-				fwrite(STDERR, "# $backtrace[file]:$backtrace[line] ($time; rows = $rows)\n$debug\n");
+				fwrite(STDERR, "# $backtrace[file]:$backtrace[line] ($time; rows = $rows)\n$debug\n\n");
 			} else {
 				call_user_func($this->fpdo->debug, $this);
 			}
