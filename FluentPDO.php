@@ -96,6 +96,7 @@ class FluentQuery implements IteratorAggregate {
 	/** @var FluentPDO */
 	private $fpdo;
 	private $clauses = array(), $statements = array(), $parameters = array();
+	/** @var array of used tables (also include table from clause FROM) */		
 	private $joins = array();
 	/** @var PDOStatement */		
 	private $result;
@@ -108,6 +109,7 @@ class FluentQuery implements IteratorAggregate {
 		$this->createSelectClauses();
 		$this->statements['FROM'] = $from;
 		$this->statements['SELECT'][] = "$from.*";
+		$this->joins[] = $from;
 	}
 	
 	function getPDO() {
@@ -193,6 +195,9 @@ class FluentQuery implements IteratorAggregate {
 		if ($statement === null) {
 			$this->joins = array();
 			return $this->resetClause('JOIN');
+		}
+		if (array_search(substr($statement, 0, -1), $this->joins) !== FALSE) {
+			return;
 		}
 		
 		# match "tables AS alias"
@@ -465,6 +470,14 @@ class FluentQuery implements IteratorAggregate {
 				$this->addJoinStatements('LEFT JOIN', $join);
 			}
 		}
+		
+		# don't rewrite table from other databases
+		foreach ($this->joins as $join) {
+			if (strpos($join, '.') !== FALSE && strpos($statement, $join) === 0) {
+				return $statement;
+			}
+		}
+		
 		# remove extra referenced tables (rewrite tab1.tab2:col => tab2.col)
 		$statement = preg_replace('~(?:\\b[a-z_][a-z0-9_.:]*[.:])?([a-z_][a-z0-9_]*)[.:]([a-z_*])~i', '\\1.\\2', $statement);
 		return $statement;
