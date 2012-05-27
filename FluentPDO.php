@@ -205,7 +205,7 @@ class FluentQuery implements IteratorAggregate {
 		$joinAlias = '';
 		if ($matches) {
 			$joinTable = $matches[1];
-			if (isset($matches[4]) && strtoupper($matches[4]) != 'ON') {
+			if (isset($matches[4]) && !in_array(strtoupper($matches[4]), array('ON', 'USING'))) {
 				$joinAlias = $matches[4];
 			}
 		}
