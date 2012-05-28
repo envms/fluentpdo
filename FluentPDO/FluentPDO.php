@@ -11,9 +11,10 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License, version 2 (one or other)
  */
 
-include_once 'FluentQuery.php';
 include_once 'FluentStructure.php';
 include_once 'FluentUtils.php';
+include_once 'FluentQuery.php';
+include_once 'SelectQuery.php';
 
 class FluentPDO {
 
@@ -36,7 +37,7 @@ class FluentPDO {
 	 * @return FluentQuery
 	 */
     public function from($table, $id = null) {
-		$query = new FluentQuery($this, $table);
+		$query = new SelectQuery($this, $table);
 		if ($id) {
 			$primary = $this->structure->getPrimaryKey($table);
 			$query = $query->where("$table.$primary = ?", $id);

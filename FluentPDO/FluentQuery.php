@@ -1,59 +1,28 @@
 <?php
 
-/** 
- * SQL Fluent query builder
- * 
- * @method FluentQuery  select(string $column) add one or more columns in SELECT to query
- * @method FluentQuery  leftJoin(string $statement) add LEFT JOIN to query 
- *						($statement can be 'table' name only or 'table:' means back reference)
- * @method FluentQuery  innerJoin(string $statement) add INNER JOIN to query 
- *						($statement can be 'table' name only or 'table:' means back reference)
- * @method FluentQuery  groupBy(string $column) add GROUP BY to query
- * @method FluentQuery  having(string $column) add HAVING query
- * @method FluentQuery  orderBy(string $column) add ORDER BY to query
- * @method FluentQuery  limit(int $limit) add LIMIT to query
- * @method FluentQuery  offset(int $offset) add OFFSET to query
+/** SQL Fluent query builder
  */
-class FluentQuery implements IteratorAggregate {
-	
+abstract class FluentQuery implements IteratorAggregate {
+
 	/** @var FluentPDO */
 	private $fpdo;
-	private $clauses = array(), $statements = array(), $parameters = array();
-	/** @var array of used tables (also include table from clause FROM) */		
-	private $joins = array();
-	/** @var PDOStatement */		
-	private $result;
+	/** @var array of definition clauses */
+	private $clauses = array();
+	protected $statements = array(), $parameters = array();
+	/** @var array of used tables (also include table from clause FROM) */
+	protected $joins = array();
+	/** @var PDOStatement */
+	protected $result;
 
 	/** @var float */
-	private $time;
+	protected $time;
 
-	function __construct(FluentPDO $fpdo, $from) {
+	protected function __construct(FluentPDO $fpdo, $clauses) {
 		$this->fpdo = $fpdo;
-		$this->createSelectClauses();
-		$this->statements['FROM'] = $from;
-		$this->statements['SELECT'][] = "$from.*";
-		$this->joins[] = $from;
-	}
-	
-	function getPDO() {
-		return $this->fpdo->getPdo();
-	}
-
-	private function createSelectClauses() {
-		$this->clauses = array(
-			'SELECT' => ', ',
-			'FROM' => null,
-			'JOIN' => ' ',
-			'WHERE' => ' AND ',
-			'GROUP BY' => ',',
-			'HAVING' => ' AND ',
-			'ORDER BY' => ', ',
-			'LIMIT' => null,
-			'OFFSET' => null,
-		);
+		$this->clauses = $clauses;
 		$this->initClauses();
 	}
-	
+
 	private function initClauses() {
 		foreach ($this->clauses as $clause => $value) {
 			if ($value) {
@@ -65,13 +34,13 @@ class FluentQuery implements IteratorAggregate {
 			}
 		}
 	}
-	
+
 	/** Add SQL clause with parameters
 	 * @param type $clause
 	 * @param type $parameters  first is $statement followed by $parameters
 	 * @return FluentQuery
 	 */
-	function __call($clause, $parameters = array()) {
+	public function __call($clause, $parameters = array()) {
 		$clause = FluentUtils::toUpperWords($clause);
 		if ($clause == 'GROUP') $clause = 'GROUP BY';
 		if ($clause == 'ORDER') $clause = 'ORDER BY';
@@ -81,15 +50,15 @@ class FluentQuery implements IteratorAggregate {
 		}
 		return $this->addStatement($clause, $statement, $parameters);
 	}
-	
+
 	/** add statement for all kind of clauses
-	 * @return FluentQuery 
+	 * @return FluentQuery
 	 */
 	private function addStatement($clause, $statement, $parameters = array()) {
 		if ($statement === null) {
 			return $this->resetClause($clause);
 		}
-		# $statement !== null 
+		# $statement !== null
 		if ($this->clauses[$clause]) {
 			$this->statements[$clause][] = $statement;
 			$this->parameters[$clause] = array_merge($this->parameters[$clause], $parameters);
@@ -99,9 +68,9 @@ class FluentQuery implements IteratorAggregate {
 		}
 		return $this;
 	}
-	
-	/** Remove all prev defined statements 
-	 * @return FluentQuery 
+
+	/** Remove all prev defined statements
+	 * @return FluentQuery
 	 */
 	private function resetClause($clause) {
 		$this->statements[$clause] = null;
@@ -110,9 +79,9 @@ class FluentQuery implements IteratorAggregate {
 		}
 		return $this;
 	}
-	
+
 	/** Statement can contain more tables (e.g. "table1.table2:table3:")
-	 * @return FluentQuery 
+	 * @return FluentQuery
 	 */
 	private function addJoinStatements($clause, $statement, $parameters = array()) {
 		if ($statement === null) {
@@ -122,7 +91,7 @@ class FluentQuery implements IteratorAggregate {
 		if (array_search(substr($statement, 0, -1), $this->joins) !== FALSE) {
 			return;
 		}
-		
+
 		# match "tables AS alias"
 		preg_match('~([a-z_][a-z0-9_\.:]*)(\s+AS)?(\s+([a-z_][a-z0-9_]*))?~i', $statement, $matches);
 		$joinAlias = '';
@@ -132,7 +101,7 @@ class FluentQuery implements IteratorAggregate {
 				$joinAlias = $matches[4];
 			}
 		}
-		
+
 		if (strpos(strtoupper($statement), ' ON ') || strpos(strtoupper($statement), ' USING')) {
 			if (!$joinAlias) $joinAlias = $joinTable;
 			if (in_array($joinAlias, $this->joins)) {
@@ -142,24 +111,24 @@ class FluentQuery implements IteratorAggregate {
 				$statement = " $clause $statement";
 				return $this->addStatement('JOIN', $statement, $parameters);
 			}
-		} 
-		
+		}
+
 		# $joinTable is list of tables for join e.g.: table1.table2:table3....
 		if (!in_array(substr($joinTable, -1), array('.', ':'))) {
 			$joinTable .= '.';
 		}
-		
+
 		preg_match_all('~([a-z_][a-z0-9_]*[\.:]?)~i', $joinTable, $matches);
 		$mainTable = $this->statements['FROM'];
 		$lastItem = array_pop($matches[1]);
 		array_push($matches[1], $lastItem);
 		foreach ($matches[1] as $joinItem) {
 			if ($mainTable == substr($joinItem, 0, -1)) continue;
-			
+
 			# use $joinAlias only for $lastItem
 			$alias = '';
 			if ($joinItem == $lastItem) $alias = $joinAlias;
-			
+
 			$newJoin = $this->createJoinStatement($clause, $mainTable, $joinItem, $alias);
 			if ($newJoin) $this->addStatement('JOIN', $newJoin, $parameters);
 			$mainTable = $joinItem;
@@ -168,7 +137,7 @@ class FluentQuery implements IteratorAggregate {
 	}
 
 	/** Create join string
-	 * @return string 
+	 * @return string
 	 */
 	private function createJoinStatement($clause, $mainTable, $joinTable, $joinAlias = '') {
 		if (in_array(substr($mainTable, -1), array(':', '.'))) {
@@ -199,13 +168,13 @@ class FluentQuery implements IteratorAggregate {
 			return " $clause $joinTable$asJoinAlias ON $joinAlias.$primaryKey = $mainTable.$foreignKey";
 		}
 	}
-	
+
 	/** Add where condition, more calls appends with AND
 	* @param string $condition  possibly containing ? or :name (PDO syntax)
 	* @param mixed $parameters  array or a scalar value
-	* @return FluentQuery 
+	* @return FluentQuery
 	*/
-	function where($condition, $parameters = array()) {
+	public function where($condition, $parameters = array()) {
 		if (is_array($condition)) { // where(array("column1" => 1, "column2 > ?" => 2))
 			foreach ($condition as $key => $val) {
 				$this->where($key, $val);
@@ -220,7 +189,7 @@ class FluentQuery implements IteratorAggregate {
 			return $this->addStatement('WHERE', $condition);
 		}
 		if (count($args) == 2 && preg_match('~^[a-z_:][a-z0-9_.:]*$~i', $condition)) {
-			# condition is column only 
+			# condition is column only
 			if (is_null($parameters)) {
 				return $this->addStatement('WHERE', "$condition is NULL");
 			} elseif (is_array($args[1])) {
@@ -229,7 +198,7 @@ class FluentQuery implements IteratorAggregate {
 			}
 			$condition = "$condition = ?";
 		}
-		array_shift($args); 
+		array_shift($args);
 		return $this->addStatement('WHERE', $condition, $args);
 	}
 
@@ -239,30 +208,30 @@ class FluentQuery implements IteratorAggregate {
 	public function getIterator() {
 		return $this->execute();
 	}
-	
+
 	/** Execute query with earlier added parameters
 	 * @return PDOStatement
 	 */
-	function execute() {
+	public function execute() {
 		$query = $this->buildQuery();
 		$parameters = $this->buildParameters();
-		
+
 		$result = $this->fpdo->getPdo()->prepare($query);
 		$result->setFetchMode(PDO::FETCH_ASSOC);
-		
+
 		$time = microtime(true);
 		if ($result && $result->execute($parameters)) {
 			$this->time = microtime(true) - $time;
 		} else {
 			$result = false;
 		}
-		
+
 		$this->result = $result;
 		$this->debugger();
-		
+
 		return $result;
 	}
-	
+
 	private function debugger() {
 		if ($this->fpdo->debug) {
 			if (!is_callable($this->fpdo->debug)) {
@@ -275,7 +244,7 @@ class FluentQuery implements IteratorAggregate {
 				$debug .= $query;
 				$pattern = '(^' . preg_quote(dirname(__FILE__)) . '(\\.php$|[/\\\\]))'; // can be static
 				foreach (debug_backtrace() as $backtrace) {
-					if (isset($backtrace["file"]) && !preg_match($pattern, $backtrace["file"])) { 
+					if (isset($backtrace["file"]) && !preg_match($pattern, $backtrace["file"])) {
 						// stop on first file outside FluentPDO source codes
 						break;
 					}
@@ -288,82 +257,47 @@ class FluentQuery implements IteratorAggregate {
 			}
 		}
 	}
-	
+
+	public function getPDO() {
+		return $this->fpdo->getPdo();
+	}
+
 	/**
 	 * @return PDOStatement
 	 */
 	public function getResult() {
 		return $this->result;
 	}
-	
+
 	/**
 	 * @return float
 	 */
 	public function getTime() {
 		return $this->time;
 	}
-	
-	/** Fetch first row or column
-	 * @param string column name or empty string for the whole row
-	 * @return mixed string, array or false if there is no row
-	 */
-	function fetch($column = '') {
-		$return = $this->execute()->fetch();
-		if ($return && $column != '') {
-			return $return[$column];
-		}
-		return $return;
-	}
-	
-	/** Fetch pairs
-	 * @return array of fetched rows as pairs
-	 */
-	function fetchPairs($key, $value) {
-		return $this->select(null)->select("$key, $value")->execute()->fetchAll(PDO::FETCH_KEY_PAIR);
-	}
-	
-	/** Fetch all row
-	 * @param string $index  specify index column
-	 * @param string $selectOnly  select columns which could be fetched
-	 * @return array of fetched rows
-	 */
-	function fetchAll($index = '', $selectOnly = '') {
-		if ($selectOnly) {
-			$this->select(null)->select($index . ', ' . $selectOnly);
-		}
-		if ($index) {
-			$data = array();
-			foreach ($this as $row) {
-				$data[$row[$index]] = $row;
-			}
-			return $data;
-		} else {
-			return $this->execute()->fetchAll();
-		}
-	}
-	
+
 	/** Get added parameters
 	 * @return array
 	 */
-	function getParameters() {
+	public function getParameters() {
 		return $this->buildParameters();
 	}
-	
+
 	/** Get built query
 	 * @param boolean $formated  return formated query
 	 * @return string
 	 */
-	function getQuery($formated = true) {
+	public function getQuery($formated = true) {
 		$query = $this->buildQuery();
 		if ($formated) $query = FluentUtils::formatQuery($query);
 		return $query;
 	}
-	
+
 	/**
 	 * @return string
 	 */
 	private function buildQuery() {
-		# first create extra join from statements with columns with referenced tables 
+		# first create extra join from statements with columns with referenced tables
 		$statementsWithReferences = array('WHERE', 'SELECT', 'GROUP BY', 'ORDER BY');
 		foreach ($statementsWithReferences as $clause) {
 			$this->statements[$clause] = array_map(array($this, 'createUndefinedJoins'), $this->statements[$clause]);
@@ -381,7 +315,7 @@ class FluentQuery implements IteratorAggregate {
 		}
 		return trim($query);
 	}
-	
+
 	/** Create undefined joins from statement with column with referenced tables
 	 * @param string $statement
 	 * @return string  rewrited $statement (e.g. tab1.tab2:col => tab2.col)
@@ -393,14 +327,14 @@ class FluentQuery implements IteratorAggregate {
 				$this->addJoinStatements('LEFT JOIN', $join);
 			}
 		}
-		
+
 		# don't rewrite table from other databases
 		foreach ($this->joins as $join) {
 			if (strpos($join, '.') !== FALSE && strpos($statement, $join) === 0) {
 				return $statement;
 			}
 		}
-		
+
 		# remove extra referenced tables (rewrite tab1.tab2:col => tab2.col)
 		$statement = preg_replace('~(?:\\b[a-z_][a-z0-9_.:]*[.:])?([a-z_][a-z0-9_]*)[.:]([a-z_*])~i', '\\1.\\2', $statement);
 		return $statement;
@@ -413,7 +347,7 @@ class FluentQuery implements IteratorAggregate {
 			return (boolean) $this->statements[$clause];
 		}
 	}
-	
+
 	private function buildParameters() {
 		$parameters = array();
 		foreach ($this->parameters as $clauses) {
@@ -432,7 +366,7 @@ class FluentQuery implements IteratorAggregate {
 		}
 		return $parameters;
 	}
-	
+
 	private function quote($value) {
 		if (!isset($value)) {
 			return "NULL";
@@ -452,13 +386,13 @@ class FluentQuery implements IteratorAggregate {
 		}
 		return $this->fpdo->getPdo()->quote($value);
 	}
-	
+
 	private function formatValue($val) {
 		if ($val instanceof DateTime) {
 			return $val->format("Y-m-d H:i:s"); //! may be driver specific
 		}
 		return $val;
 	}
-	
+
 }
 
