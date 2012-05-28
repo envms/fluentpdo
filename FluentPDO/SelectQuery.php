@@ -1,7 +1,7 @@
 <?php
 
 /**
- * SQL Select query builder
+ * SELECT query builder
  *
  * @method SelectQuery  select(string $column) add one or more columns in SELECT to query
  * @method SelectQuery  leftJoin(string $statement) add LEFT JOIN to query
@@ -14,7 +14,7 @@
  * @method SelectQuery  limit(int $limit) add LIMIT to query
  * @method SelectQuery  offset(int $offset) add OFFSET to query
  */
-class SelectQuery extends FluentQuery {
+class SelectQuery extends CommonQuery {
 
 	function __construct(FluentPDO $fpdo, $from) {
 		$clauses = array(

@@ -1,0 +1,237 @@
+<?php
+
+/** Base query builder
+ */
+abstract class BaseQuery implements IteratorAggregate {
+
+	/** @var FluentPDO */
+	private $fpdo;
+	/** @var array of definition clauses */
+	private $clauses = array();
+	/** @var PDOStatement */
+	private $result;
+	/** @var float */
+	private $time;
+
+	protected $statements = array(), $parameters = array();
+
+	protected function __construct(FluentPDO $fpdo, $clauses) {
+		$this->fpdo = $fpdo;
+		$this->clauses = $clauses;
+		$this->initClauses();
+	}
+
+	private function initClauses() {
+		foreach ($this->clauses as $clause => $value) {
+			if ($value) {
+				$this->statements[$clause] = array();
+				$this->parameters[$clause] = array();
+			} else {
+				$this->statements[$clause] = null;
+				$this->parameters[$clause] = null;
+			}
+		}
+	}
+
+	/** add statement for all kind of clauses
+	 * @return FluentQuery
+	 */
+	protected function addStatement($clause, $statement, $parameters = array()) {
+		if ($statement === null) {
+			return $this->resetClause($clause);
+		}
+		# $statement !== null
+		if ($this->clauses[$clause]) {
+			$this->statements[$clause][] = $statement;
+			$this->parameters[$clause] = array_merge($this->parameters[$clause], $parameters);
+		} else {
+			$this->statements[$clause] = $statement;
+			$this->parameters[$clause] = $parameters;
+		}
+		return $this;
+	}
+
+	/** Remove all prev defined statements
+	 * @return FluentQuery
+	 */
+	protected function resetClause($clause) {
+		$this->statements[$clause] = null;
+		if ($this->clauses[$clause]) {
+			$this->statements[$clause] = array();
+		}
+		return $this;
+	}
+
+	/** Implements method from IteratorAggregate
+	 * @return PDOStatement
+	 */
+	public function getIterator() {
+		return $this->execute();
+	}
+
+	/** Execute query with earlier added parameters
+	 * @return PDOStatement
+	 */
+	public function execute() {
+		$query = $this->buildQuery();
+		$parameters = $this->buildParameters();
+
+		$result = $this->fpdo->getPdo()->prepare($query);
+		$result->setFetchMode(PDO::FETCH_ASSOC);
+
+		$time = microtime(true);
+		if ($result && $result->execute($parameters)) {
+			$this->time = microtime(true) - $time;
+		} else {
+			$result = false;
+		}
+
+		$this->result = $result;
+		$this->debugger();
+
+		return $result;
+	}
+
+	private function debugger() {
+		if ($this->fpdo->debug) {
+			if (!is_callable($this->fpdo->debug)) {
+				$query = $this->getQuery();
+				$parameters = $this->getParameters();
+				$debug = '';
+				if ($parameters) {
+					$debug = "# parameters: " . implode(", ", array_map(array($this, 'quote'), $parameters)) . "\n";
+				}
+				$debug .= $query;
+				$pattern = '(^' . preg_quote(dirname(__FILE__)) . '(\\.php$|[/\\\\]))'; // can be static
+				foreach (debug_backtrace() as $backtrace) {
+					if (isset($backtrace["file"]) && !preg_match($pattern, $backtrace["file"])) {
+						// stop on first file outside FluentPDO source codes
+						break;
+					}
+				}
+				$time = sprintf('%0.3f', $this->time * 1000).' ms';
+				$rows = $this->result->rowCount();
+				fwrite(STDERR, "# $backtrace[file]:$backtrace[line] ($time; rows = $rows)\n$debug\n\n");
+			} else {
+				call_user_func($this->fpdo->debug, $this);
+			}
+		}
+	}
+
+	public function getPDO() {
+		return $this->fpdo->getPdo();
+	}
+
+	/**
+	 * @return FluentStructure
+	 */
+	protected function getStructure() {
+		return $this->fpdo->getStructure();
+	}
+
+	/**
+	 * @return PDOStatement
+	 */
+	public function getResult() {
+		return $this->result;
+	}
+
+	/**
+	 * @return float
+	 */
+	public function getTime() {
+		return $this->time;
+	}
+
+	/** Get added parameters
+	 * @return array
+	 */
+	public function getParameters() {
+		return $this->buildParameters();
+	}
+
+	/** Get built query
+	 * @param boolean $formated  return formated query
+	 * @return string
+	 */
+	public function getQuery($formated = true) {
+		$query = $this->buildQuery();
+		if ($formated) $query = FluentUtils::formatQuery($query);
+		return $query;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function buildQuery() {
+		$query = '';
+		foreach ($this->clauses as $clause => $separator) {
+			if ($this->clauseNotEmpty($clause)) {
+				// not clean but simple
+				if ($clause !== 'JOIN') $query .= " $clause ";
+				if (is_array($this->statements[$clause])) {
+					$query .= implode($separator, $this->statements[$clause]);
+				} else {
+					$query .= $this->statements[$clause];
+				}
+			}
+		}
+		return trim($query);
+	}
+
+	private function clauseNotEmpty($clause) {
+		if ($this->clauses[$clause]) {
+			return (boolean) count($this->statements[$clause]);
+		} else {
+			return (boolean) $this->statements[$clause];
+		}
+	}
+
+	private function buildParameters() {
+		$parameters = array();
+		foreach ($this->parameters as $clauses) {
+			if (is_array($clauses)) {
+				foreach ($clauses as $value) {
+					if (is_array($value) && is_string(key($value)) && substr(key($value),0,1) == ':') {
+						// this is named params e.g. (':name' => 'Mark')
+						$parameters = array_merge($parameters, $value);
+					} else {
+						$parameters[] = $value;
+					}
+				}
+			} else {
+				if ($clauses) $parameters[] = $clauses;
+			}
+		}
+		return $parameters;
+	}
+
+	protected function quote($value) {
+		if (!isset($value)) {
+			return "NULL";
+		}
+		if (is_array($value)) { // (a, b) IN ((1, 2), (3, 4))
+			return "(" . implode(", ", array_map(array($this, 'quote'), $value)) . ")";
+		}
+		$value = $this->formatValue($value);
+		if (is_float($value)) {
+			return sprintf("%F", $value); // otherwise depends on setlocale()
+		}
+		if ($value === false) {
+			return "0";
+		}
+		if (is_int($value)) { # @todo maybe add FluentLiteral
+			return (string) $value;
+		}
+		return $this->fpdo->getPdo()->quote($value);
+	}
+
+	private function formatValue($val) {
+		if ($val instanceof DateTime) {
+			return $val->format("Y-m-d H:i:s"); //! may be driver specific
+		}
+		return $val;
+	}
+
+}
+
