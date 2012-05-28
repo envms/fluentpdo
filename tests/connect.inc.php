@@ -1,6 +1,6 @@
 <?php
 error_reporting(E_ALL | E_STRICT);
-include dirname(__FILE__) . "/../FluentPDO.php";
+include dirname(__FILE__) . "/../FluentPDO/FluentPDO.php";
 
 $pdo = new PDO("mysql:dbname=fblog", "root");
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
