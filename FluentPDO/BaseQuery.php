@@ -167,12 +167,14 @@ abstract class BaseQuery implements IteratorAggregate {
 		$query = '';
 		foreach ($this->clauses as $clause => $separator) {
 			if ($this->clauseNotEmpty($clause)) {
-				// not clean but simple
-				if ($clause !== 'JOIN') $query .= " $clause ";
-				if (is_array($this->statements[$clause])) {
-					$query .= implode($separator, $this->statements[$clause]);
+				if (is_string($separator)) {
+					$query .= " $clause " . implode($separator, $this->statements[$clause]);
+				} elseif ($separator === null) {
+					$query .= " $clause " . $this->statements[$clause];
+				} elseif (is_callable($separator)) {
+					$query .= call_user_func($separator);
 				} else {
-					$query .= $this->statements[$clause];
+					throw new Exception("Clause '$clause' is incorrectly set to '$separator'.");
 				}
 			}
 		}

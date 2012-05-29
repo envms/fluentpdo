@@ -16,6 +16,7 @@ include_once 'FluentUtils.php';
 include_once 'BaseQuery.php';
 include_once 'CommonQuery.php';
 include_once 'SelectQuery.php';
+include_once 'InsertQuery.php';
 
 class FluentPDO {
 
@@ -43,6 +44,11 @@ class FluentPDO {
 			$primary = $this->structure->getPrimaryKey($table);
 			$query = $query->where("$table.$primary = ?", $id);
 		}
+		return $query;
+	}
+
+	public function insertInto($table, $values = array()) {
+		$query = new InsertQuery($this, $table, $values);
 		return $query;
 	}
 

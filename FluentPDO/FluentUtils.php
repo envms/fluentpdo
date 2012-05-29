@@ -12,7 +12,7 @@ class FluentUtils {
 
 	public static function formatQuery($query) {
 		$query = preg_replace(
-			'/WHERE|FROM|GROUP BY|HAVING|ORDER BY|LIMIT|OFFSET|UNION|DUPLICATE KEY/',
+			'/WHERE|FROM|GROUP BY|HAVING|ORDER BY|LIMIT|OFFSET|UNION|ON DUPLICATE KEY UPDATE|VALUES/',
 			"\n$0", $query
 		);
 		$query = preg_replace(
