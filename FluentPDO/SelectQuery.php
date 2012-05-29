@@ -20,7 +20,7 @@ class SelectQuery extends CommonQuery {
 		$clauses = array(
 			'SELECT' => ', ',
 			'FROM' => null,
-			'JOIN' => ' ',
+			'JOIN' => array($this, 'getClauseJoin'),
 			'WHERE' => ' AND ',
 			'GROUP BY' => ',',
 			'HAVING' => ' AND ',

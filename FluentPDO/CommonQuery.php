@@ -56,6 +56,10 @@ abstract class CommonQuery extends BaseQuery {
 		return $this->addStatement($clause, $statement, $parameters);
 	}
 
+	protected function getClauseJoin() {
+		return implode(' ' , $this->statements['JOIN']);
+	}
+	
 	/** Statement can contain more tables (e.g. "table1.table2:table3:")
 	 * @return FluentQuery
 	 */
