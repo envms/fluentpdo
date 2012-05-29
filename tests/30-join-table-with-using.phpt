@@ -30,12 +30,12 @@ unset($fpdo2);
 
 ?>
 --EXPECTF--
-SELECT article.*, user.* 
-FROM article 
+SELECT article.*, user.*
+FROM article
     INNER JOIN user USING (user_id)
-SELECT article.*, u.* 
-FROM article 
+SELECT article.*, u.*
+FROM article
     INNER JOIN user u USING (user_id)
-SELECT article.*, u.* 
-FROM article 
+SELECT article.*, u.*
+FROM article
     INNER JOIN user AS u USING (user_id)

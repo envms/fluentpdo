@@ -19,6 +19,8 @@ class FluentUtils {
 			'/INNER|LEFT|RIGHT|CASE|WHEN|END|ELSE|AND/',
 			"\n    $0", $query
 		);
+		# remove trailing spaces
+		$query = preg_replace("/\s+\n/", "\n", $query);
 		return $query;
 	}
 }

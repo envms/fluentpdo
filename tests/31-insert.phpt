@@ -20,6 +20,6 @@ $fpdo->getPdo()->query('ALTER TABLE article AUTO_INCREMENT=4')->execute();
 
 ?>
 --EXPECTF--
-INSERT INTO article (user_id, title, content) 
+INSERT INTO article (user_id, title, content)
 VALUES (1, 'new title', 'new content')
 last_inserted_id = 4

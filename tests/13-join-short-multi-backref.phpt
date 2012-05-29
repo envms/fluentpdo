@@ -10,9 +10,9 @@ echo $query->getQuery() . "\n";
 print_r($query->fetch());
 ?>
 --EXPECTF--
-SELECT article.* 
-FROM article 
-    INNER JOIN comment ON comment.article_id = article.id  
+SELECT article.*
+FROM article
+    INNER JOIN comment ON comment.article_id = article.id
     INNER JOIN user AS comment_user ON comment_user.id = comment.user_id
 Array
 (

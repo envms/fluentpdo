@@ -10,6 +10,6 @@ $query = $fpdo->from('user')->where('type', null);
 echo $query->getQuery() . "\n";
 ?>
 --EXPECTF--
-SELECT user.* 
-FROM user 
+SELECT user.*
+FROM user
 WHERE type is NULL

@@ -14,9 +14,9 @@ echo $query->getQuery() . "\n";
 print_r($query->getParameters());
 ?>
 --EXPECTF--
-SELECT user.* 
-FROM user 
-WHERE id = ? 
+SELECT user.*
+FROM user
+WHERE id = ?
     AND type = ?
 Array
 (

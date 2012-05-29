@@ -10,10 +10,10 @@ echo $query->getQuery() . "\n";
 
 ?>
 --EXPECTF--
-SELECT article.* 
-FROM article 
-    LEFT JOIN comment ON comment.article_id = article.id  
-    LEFT JOIN user ON user.id = article.user_id  
-    LEFT JOIN country ON country.id = user.country_id 
-WHERE comment.content <> "" 
+SELECT article.*
+FROM article
+    LEFT JOIN comment ON comment.article_id = article.id
+    LEFT JOIN user ON user.id = article.user_id
+    LEFT JOIN country ON country.id = user.country_id
+WHERE comment.content <> ""
     AND country.id = ?

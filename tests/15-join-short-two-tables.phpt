@@ -14,10 +14,10 @@ print_r($result);
 
 ?>
 --EXPECTF--
-SELECT comment.*, comment_author.name AS comment_name, article_author.name AS author_name 
-FROM comment 
-    LEFT JOIN user AS comment_author ON comment_author.id = comment.user_id  
-    LEFT JOIN article ON article.id = comment.article_id  
+SELECT comment.*, comment_author.name AS comment_name, article_author.name AS author_name
+FROM comment
+    LEFT JOIN user AS comment_author ON comment_author.id = comment.user_id
+    LEFT JOIN article ON article.id = comment.article_id
     LEFT JOIN user AS article_author ON article_author.id = article.user_id
 Array
 (

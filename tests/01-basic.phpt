@@ -12,10 +12,10 @@ print_r($query->getParameters());
 print_r($query->fetch());
 ?>
 --EXPECTF--
-SELECT user.* 
-FROM user 
-WHERE id > ? 
-    AND name = ? 
+SELECT user.*
+FROM user
+WHERE id > ?
+    AND name = ?
 ORDER BY name
 Array
 (

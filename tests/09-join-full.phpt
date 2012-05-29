@@ -15,8 +15,8 @@ foreach ($query as $row) {
 }
 ?>
 --EXPECTF--
-SELECT article.*, user.name 
-FROM article 
+SELECT article.*, user.name
+FROM article
     LEFT JOIN user ON user.id = article.user_id
 Marek - article 1
 Robert - article 2

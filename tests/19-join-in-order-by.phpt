@@ -10,7 +10,7 @@ echo $query->getQuery() . "\n";
 
 ?>
 --EXPECTF--
-SELECT article.* 
-FROM article 
-    LEFT JOIN user ON user.id = article.user_id 
+SELECT article.*
+FROM article
+    LEFT JOIN user ON user.id = article.user_id
 ORDER BY user.name, article.title

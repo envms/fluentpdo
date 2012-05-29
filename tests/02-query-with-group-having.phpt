@@ -17,9 +17,9 @@ $query = $fpdo
 echo $query->getQuery() . "\n";
 ?>
 --EXPECTF--
-SELECT type, count(id) AS type_count 
-FROM user 
-WHERE id > ? 
-GROUP BY type 
-HAVING type_count > ? 
+SELECT type, count(id) AS type_count
+FROM user
+WHERE id > ?
+GROUP BY type
+HAVING type_count > ?
 ORDER BY name

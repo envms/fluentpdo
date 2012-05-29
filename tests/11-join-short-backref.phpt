@@ -13,12 +13,12 @@ $query = $fpdo->from('user')->innerJoin('article: AS with_articles');
 echo $query->getQuery() . "\n";
 ?>
 --EXPECTF--
-SELECT user.* 
-FROM user 
+SELECT user.*
+FROM user
     INNER JOIN article ON article.user_id = user.id
-SELECT user.* 
-FROM user 
+SELECT user.*
+FROM user
     INNER JOIN article AS with_articles ON with_articles.user_id = user.id
-SELECT user.* 
-FROM user 
+SELECT user.*
+FROM user
     INNER JOIN article AS with_articles ON with_articles.user_id = user.id

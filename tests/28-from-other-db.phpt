@@ -10,6 +10,6 @@ echo "$query\n";
 
 ?>
 --EXPECTF--
-SELECT db2.user.* 
-FROM db2.user 
+SELECT db2.user.*
+FROM db2.user
 ORDER BY db2.user.name

@@ -16,10 +16,10 @@ foreach ($query as $row) {
 }
 ?>
 --EXPECTF--
-SELECT user.* 
-FROM user 
-WHERE type = :type 
-    AND id > :id 
+SELECT user.*
+FROM user
+WHERE type = :type
+    AND id > :id
     AND name <> :name
 array(3) {
   [":type"]=>

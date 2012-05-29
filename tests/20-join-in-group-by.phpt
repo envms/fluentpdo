@@ -12,9 +12,9 @@ $result = $query->fetchAll();
 print_r($result);
 ?>
 --EXPECTF--
-SELECT user.type, count(article.id) as article_count 
-FROM article 
-    LEFT JOIN user ON user.id = article.user_id 
+SELECT user.type, count(article.id) as article_count
+FROM article
+    LEFT JOIN user ON user.id = article.user_id
 GROUP BY user.type
 Array
 (
