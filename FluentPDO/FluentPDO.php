@@ -13,6 +13,7 @@
 
 include_once 'FluentStructure.php';
 include_once 'FluentUtils.php';
+include_once 'FluentLiteral.php';
 include_once 'BaseQuery.php';
 include_once 'CommonQuery.php';
 include_once 'SelectQuery.php';

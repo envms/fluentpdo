@@ -225,7 +225,7 @@ abstract class BaseQuery implements IteratorAggregate {
 		if ($value === false) {
 			return "0";
 		}
-		if (is_int($value)) { # @todo maybe add FluentLiteral
+		if (is_int($value) || $value instanceof FluentLiteral) { // number or SQL code - for example "NOW()"
 			return (string) $value;
 		}
 		return $this->fpdo->getPdo()->quote($value);
