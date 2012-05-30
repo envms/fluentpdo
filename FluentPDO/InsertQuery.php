@@ -6,10 +6,11 @@ class InsertQuery extends BaseQuery {
 
 	private $columns = array();
 	private $firstValue = array();
+	private $ignore = false;
 
 	public function __construct(FluentPDO $fpdo, $table, $values) {
 		$clauses = array(
-			'INSERT INTO' => null,
+			'INSERT INTO' => array($this, 'getClauseInsertInto'),
 			'VALUES' => array($this, 'getClauseValues'),
 			'ON DUPLICATE KEY UPDATE' => array($this, 'getClauseOnDuplicateKeyUpdate'),
 		);
@@ -19,12 +20,59 @@ class InsertQuery extends BaseQuery {
 		$this->values($values);
 	}
 
+	/** Execute insert query
+	 * @return integer last interted id or false
+	 */
 	public function execute() {
 		$result = parent::execute();
 		if ($result) {
 			return $this->getPDO()->lastInsertId();
 		}
 		return false;
+	}
+	
+	/** Add ON DUPLICATE KEY UPDATE 
+	 * @param array $values
+	 * @return \InsertQuery
+	 */
+	public function onDuplicateKeyUpdate($values) {
+		$this->statements['ON DUPLICATE KEY UPDATE'] = array_merge(
+				$this->statements['ON DUPLICATE KEY UPDATE'], $values
+			);
+		return $this;
+	}
+
+	/** Add VALUES
+	 * @param array $values
+	 * @return \InsertQuery
+	 */
+	public function values($values) {
+		if (!is_array($values)) {
+			throw new Exception('Param VALUES for INSERT query must be array');
+		}
+		$first = current($values);
+		if (is_string(key($values))) {
+			# is one row array
+			$this->addOneValue($values);
+		} elseif (is_array($first) && is_string(key($first))) {
+			# this is multi values
+			foreach ($values as $oneValue) {
+				$this->addOneValue($oneValue);
+			}
+		}
+		return $this;
+	}
+	
+	/** INSERT IGNORE - insert operation fails silently
+	 * @return \InsertQuery
+	 */
+	public function ignore() {
+		$this->ignore = true;
+		return $this;
+	}
+	
+	protected function getClauseInsertInto() {
+		return 'INSERT' . ($this->ignore ? " IGNORE" : ''). ' INTO ' . $this->statements['INSERT INTO'];
 	}
 
 	protected function getClauseValues() {
@@ -46,29 +94,6 @@ class InsertQuery extends BaseQuery {
 		return ' ON DUPLICATE KEY UPDATE ' . implode(', ', $result);
 	}
 
-	public function onDuplicateKeyUpdate($values) {
-		$this->statements['ON DUPLICATE KEY UPDATE'] = array_merge(
-				$this->statements['ON DUPLICATE KEY UPDATE'], $values
-			);
-		return $this;
-	}
-
-	public function values($values) {
-		if (!is_array($values)) {
-			throw new Exception('Param VALUES for INSERT query must be array');
-		}
-		$first = current($values);
-		if (is_string(key($values))) {
-			# is one row array
-			$this->addOneValue($values);
-		} elseif (is_array($first) && is_string(key($first))) {
-			# this is multi values
-			foreach ($values as $oneValue) {
-				$this->addOneValue($oneValue);
-			}
-		}
-		return $this;
-	}
 
 	private function addOneValue($oneValue) {
 		# check if all $keys are strings
