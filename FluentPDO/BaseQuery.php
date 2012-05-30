@@ -118,39 +118,42 @@ abstract class BaseQuery implements IteratorAggregate {
 		}
 	}
 
-	public function getPDO() {
+	/**
+	 *  @return \PDO
+	 */
+	protected function getPDO() {
 		return $this->fpdo->getPdo();
 	}
 
 	/**
-	 * @return FluentStructure
+	 * @return \FluentStructure
 	 */
 	protected function getStructure() {
 		return $this->fpdo->getStructure();
 	}
 
-	/**
-	 * @return PDOStatement
+	/** Get PDOStatement result
+	 * @return \PDOStatement
 	 */
 	public function getResult() {
 		return $this->result;
 	}
 
-	/**
+	/** Get time of execution 
 	 * @return float
 	 */
 	public function getTime() {
 		return $this->time;
 	}
 
-	/** Get added parameters
+	/** Get query parameters
 	 * @return array
 	 */
 	public function getParameters() {
 		return $this->buildParameters();
 	}
 
-	/** Get built query
+	/** Get query string
 	 * @param boolean $formated  return formated query
 	 * @return string
 	 */
@@ -160,7 +163,7 @@ abstract class BaseQuery implements IteratorAggregate {
 		return $query;
 	}
 
-	/**
+	/** Generate query 
 	 * @return string
 	 */
 	protected function buildQuery() {

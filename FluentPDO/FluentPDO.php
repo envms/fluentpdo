@@ -36,7 +36,7 @@ class FluentPDO {
 	/** Create SELECT query from $table
 	 * @param string $table  db table name
 	 * @param integer $id  return one row by primary key
-	 * @return FluentQuery
+	 * @return \SelectQuery
 	 */
 	public function from($table, $id = null) {
 		$query = new SelectQuery($this, $table);
@@ -49,20 +49,24 @@ class FluentPDO {
 		return $query;
 	}
 
+	/** Create INSERT INTO query
+	 * 
+	 * @param strign $table
+	 * @param array $values  you can add one or multi rows array @see docs
+	 * @return \InsertQuery 
+	 */
 	public function insertInto($table, $values = array()) {
 		$query = new InsertQuery($this, $table, $values);
 		return $query;
 	}
 
-	/**
-	 * @return PDO
+	/** @return \PDO
 	 */
 	public function getPdo() {
 		return $this->pdo;
 	}
 
-	/**
-	 * @return FluentStructure
+	/** @return \FluentStructure
 	 */
 	public function getStructure() {
 		return $this->structure;

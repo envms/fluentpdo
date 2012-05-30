@@ -1,5 +1,5 @@
 --TEST--
-insert
+insert ignore
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";

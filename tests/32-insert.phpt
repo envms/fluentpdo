@@ -1,5 +1,5 @@
 --TEST--
-insert
+insert into
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
@@ -15,8 +15,8 @@ $query = $fpdo->insertInto('article',
 echo $query->getQuery() . "\n";
 echo 'last_inserted_id = ' . $query->execute() . "\n";
 
-$fpdo->getPdo()->query('DELETE FROM article WHERE id > 3')->execute();
-$fpdo->getPdo()->query('ALTER TABLE article AUTO_INCREMENT=4')->execute();
+$pdo->query('DELETE FROM article WHERE id > 3')->execute();
+$pdo->query('ALTER TABLE article AUTO_INCREMENT=4')->execute();
 
 ?>
 --EXPECTF--

@@ -17,7 +17,7 @@
 class SelectQuery extends CommonQuery {
 	
 	private $fromTable, $fromAlias;
-
+	
 	function __construct(FluentPDO $fpdo, $from) {
 		$clauses = array(
 			'SELECT' => ', ',
@@ -42,16 +42,22 @@ class SelectQuery extends CommonQuery {
 		$this->joins[] = $this->fromAlias;
 	}
 	
+	/** Return table name from FROM clause
+	 * @internal
+	 */
 	public function getFromTable() {
 		return $this->fromTable;
 	}
 
+	/** Return table alias from FROM clause
+	 * @internal
+	 */
 	public function getFromAlias() {
 		return $this->fromAlias;
 	}
 
 	/** Fetch first row or column
-	 * @param string column name or empty string for the whole row
+	 * @param string $column column name or empty string for the whole row
 	 * @return mixed string, array or false if there is no row
 	 */
 	public function fetch($column = '') {
