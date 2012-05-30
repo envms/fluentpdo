@@ -43,7 +43,7 @@ class InsertQuery extends BaseQuery {
 		foreach ($this->statements['ON DUPLICATE KEY UPDATE'] as $key => $value) {
 			$result[] = "$key = " . $this->quote($value);
 		}
-		return implode(', ', $result);
+		return ' ON DUPLICATE KEY UPDATE ' . implode(', ', $result);
 	}
 
 	public function onDuplicateKeyUpdate($values) {
