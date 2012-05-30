@@ -39,8 +39,10 @@ class FluentPDO {
     public function from($table, $id = null) {
 		$query = new FluentQuery($this, $table);
 		if ($id) {
-			$primary = $this->structure->getPrimaryKey($table);
-			$query = $query->where("$table.$primary = ?", $id);
+			$tableTable = $query->getFromTable();
+			$tableAlias = $query->getFromAlias();
+			$primary = $this->structure->getPrimaryKey($tableTable);
+			$query = $query->where("$tableAlias.$primary = ?", $id);
 		}
 		return $query;
 	}
@@ -103,19 +105,33 @@ class FluentQuery implements IteratorAggregate {
 
 	/** @var float */
 	private $time;
+	
+	private $fromTable, $fromAlias;
 
 	function __construct(FluentPDO $fpdo, $from) {
 		$this->fpdo = $fpdo;
 		$this->createSelectClauses();
+		$fromParts = explode(' ', $from);
+		$this->fromTable = reset($fromParts);
+		$this->fromAlias = end($fromParts);
 		$this->statements['FROM'] = $from;
-		$this->statements['SELECT'][] = "$from.*";
-		$this->joins[] = $from;
+		$this->statements['SELECT'][] = $this->fromAlias . '.*';
+		$this->joins[] = $this->fromAlias;
 	}
 	
 	function getPDO() {
 		return $this->fpdo->getPdo();
 	}
+	
+	public function getFromTable() {
+		return $this->fromTable;
+	}
 
+	public function getFromAlias() {
+		return $this->fromAlias;
+	}
+
+	
 	private function createSelectClauses() {
 		$this->clauses = array(
 			'SELECT' => ', ',
