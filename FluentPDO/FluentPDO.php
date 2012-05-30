@@ -38,11 +38,13 @@ class FluentPDO {
 	 * @param integer $id  return one row by primary key
 	 * @return FluentQuery
 	 */
-    public function from($table, $id = null) {
+	public function from($table, $id = null) {
 		$query = new SelectQuery($this, $table);
 		if ($id) {
-			$primary = $this->structure->getPrimaryKey($table);
-			$query = $query->where("$table.$primary = ?", $id);
+			$tableTable = $query->getFromTable();
+			$tableAlias = $query->getFromAlias();
+			$primary = $this->structure->getPrimaryKey($tableTable);
+			$query = $query->where("$tableAlias.$primary = ?", $id);
 		}
 		return $query;
 	}

@@ -15,6 +15,8 @@
  * @method SelectQuery  offset(int $offset) add OFFSET to query
  */
 class SelectQuery extends CommonQuery {
+	
+	private $fromTable, $fromAlias;
 
 	function __construct(FluentPDO $fpdo, $from) {
 		$clauses = array(
@@ -31,9 +33,21 @@ class SelectQuery extends CommonQuery {
 		parent::__construct($fpdo, $clauses);
 
 		# initialize statements
+		$fromParts = explode(' ', $from);
+		$this->fromTable = reset($fromParts);
+		$this->fromAlias = end($fromParts);
+
 		$this->statements['FROM'] = $from;
-		$this->statements['SELECT'][] = "$from.*";
-		$this->joins[] = $from;
+		$this->statements['SELECT'][] = $this->fromAlias . '.*';
+		$this->joins[] = $this->fromAlias;
+	}
+	
+	public function getFromTable() {
+		return $this->fromTable;
+	}
+
+	public function getFromAlias() {
+		return $this->fromAlias;
 	}
 
 	/** Fetch first row or column
