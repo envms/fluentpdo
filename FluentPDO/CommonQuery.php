@@ -50,7 +50,7 @@ abstract class CommonQuery extends BaseQuery {
 		if ($clause == 'GROUP') $clause = 'GROUP BY';
 		if ($clause == 'ORDER') $clause = 'ORDER BY';
 		$statement = array_shift($parameters);
-		if (strpos($clause, 'JOIN')) {
+		if (strpos($clause, 'JOIN') !== FALSE) {
 			return $this->addJoinStatements($clause, $statement, $parameters);
 		}
 		return $this->addStatement($clause, $statement, $parameters);
