@@ -5,9 +5,9 @@
  *
  * @method SelectQuery  select(string $column) add one or more columns in SELECT to query
  * @method SelectQuery  leftJoin(string $statement) add LEFT JOIN to query
- *						($statement can be 'table' name only or 'table:' means back reference)
+ *                        ($statement can be 'table' name only or 'table:' means back reference)
  * @method SelectQuery  innerJoin(string $statement) add INNER JOIN to query
- *						($statement can be 'table' name only or 'table:' means back reference)
+ *                        ($statement can be 'table' name only or 'table:' means back reference)
  * @method SelectQuery  groupBy(string $column) add GROUP BY to query
  * @method SelectQuery  having(string $column) add HAVING query
  * @method SelectQuery  orderBy(string $column) add ORDER BY to query
@@ -15,9 +15,9 @@
  * @method SelectQuery  offset(int $offset) add OFFSET to query
  */
 class SelectQuery extends CommonQuery {
-	
+
 	private $fromTable, $fromAlias;
-	
+
 	function __construct(FluentPDO $fpdo, $from) {
 		$clauses = array(
 			'SELECT' => ', ',
@@ -28,8 +28,8 @@ class SelectQuery extends CommonQuery {
 			'HAVING' => ' AND ',
 			'ORDER BY' => ', ',
 			'LIMIT' => null,
-            'OFFSET' => null,
-            "\n--" => "\n--",
+			'OFFSET' => null,
+			"\n--" => "\n--",
 		);
 		parent::__construct($fpdo, $clauses);
 
@@ -42,7 +42,7 @@ class SelectQuery extends CommonQuery {
 		$this->statements['SELECT'][] = $this->fromAlias . '.*';
 		$this->joins[] = $this->fromAlias;
 	}
-	
+
 	/** Return table name from FROM clause
 	 * @internal
 	 */
