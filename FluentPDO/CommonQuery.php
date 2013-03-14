@@ -49,6 +49,7 @@ abstract class CommonQuery extends BaseQuery {
 		$clause = FluentUtils::toUpperWords($clause);
 		if ($clause == 'GROUP') $clause = 'GROUP BY';
 		if ($clause == 'ORDER') $clause = 'ORDER BY';
+		if ($clause == 'FOOT NOTE') $clause = "\n--";
 		$statement = array_shift($parameters);
 		if (strpos($clause, 'JOIN') !== FALSE) {
 			return $this->addJoinStatements($clause, $statement, $parameters);

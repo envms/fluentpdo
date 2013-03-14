@@ -28,7 +28,8 @@ class SelectQuery extends CommonQuery {
 			'HAVING' => ' AND ',
 			'ORDER BY' => ', ',
 			'LIMIT' => null,
-			'OFFSET' => null,
+            'OFFSET' => null,
+            "\n--" => "\n--",
 		);
 		parent::__construct($fpdo, $clauses);
 
