@@ -7,6 +7,35 @@ abstract class CommonQuery extends BaseQuery {
 	/** @var array of used tables (also include table from clause FROM) */
 	protected $joins = array();
 
+	/** @var disable adding undefined joins to query? */
+	protected $isSmartJoinEnabled = true;
+
+	/**
+	 * Enable smart join feature.
+	 */
+	public function enableSmartJoin()
+	{
+		$this->isSmartJoinEnabled = true;
+		return $this;
+	}
+
+	/**
+	 * Disable smart join feature.
+	 */
+	public function disableSmartJoin()
+	{
+		$this->isSmartJoinEnabled = false;
+		return $this;
+	}
+
+	/**
+	 * Is smart join feature enabled?.
+	 */
+	public function isSmartJoinEnabled()
+	{
+		return $this->isSmartJoinEnabled;
+	}
+
 	/** Add where condition, more calls appends with AND
 	* @param string $condition  possibly containing ? or :name (PDO syntax)
 	* @param mixed $parameters  array or a scalar value
@@ -167,7 +196,11 @@ abstract class CommonQuery extends BaseQuery {
 	 * @param string $statement
 	 * @return string  rewrited $statement (e.g. tab1.tab2:col => tab2.col)
 	 */
-	private function createUndefinedJoins($statement) {
+    private function createUndefinedJoins($statement) {
+		if (!$this->isSmartJoinEnabled) {
+			return $statement;
+		}
+
 		preg_match_all('~\\b([a-z_][a-z0-9_.:]*[.:])[a-z_]*~i', $statement, $matches);
 		foreach ($matches[1] as $join) {
 			if (!in_array(substr($join, 0, -1), $this->joins)) {
