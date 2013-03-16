@@ -1,4 +1,8 @@
 <?php
+// parse command line aruments
+$opts = getopt('v');
+$verbose = array_key_exists('v', $opts);
+
 $start = microtime(true);
 
 $tests = glob(dirname(__FILE__) . "/*.phpt", GLOB_NOSORT);
@@ -12,6 +16,9 @@ foreach ($tests as $filename) {
 		echo "skipped $filename ($match[1]): $match[2]";
 	} elseif ($match[3] !== $match[4]) {
 		echo "failed $filename ($match[1])\n";
+		if ($verbose) {
+			echo "--expected result--\n", $match[4], "--actual result--\n", $match[3], "--end--\n";
+		}
 	}
 }
 
