@@ -16,7 +16,22 @@ FluentPDO is small PHP library for rapid query building. Killer feature is "Smar
 
 ## Install
 
-Just copy `/FluentPDO` directory into your `libs/` directory then:
+### Composer
+
+Preferred way how to install FluentPDO is via [composer](http://getcomposer.org/).
+
+Add in your `composer.json`:
+
+	"require": {
+		...
+		"lichtner/fluentpdo": "dev-master"	
+	}
+
+then update your dependencies with `composer update`.
+
+### Copy
+
+If you are not familiar with composer just copy `/FluentPDO` directory into your `libs/` directory then:
 
 	include "libs/FluentPDO/FluentPDO.php";
 	$pdo = new PDO("mysql:dbname=fblog", "root");
