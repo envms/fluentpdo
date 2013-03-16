@@ -16,13 +16,13 @@ echo "$query\n";
 
 ?>
 --EXPECTF--
-SELECT author.* 
+SELECT author.*
 FROM user author
-SELECT author.* 
+SELECT author.*
 FROM user AS author
-SELECT author.* 
-FROM user AS author 
+SELECT author.*
+FROM user AS author
 WHERE author.id = ?
-SELECT author.*, country.name 
-FROM user AS author 
+SELECT author.*, country.name
+FROM user AS author
     LEFT JOIN country ON country.id = user AS author.country_id
