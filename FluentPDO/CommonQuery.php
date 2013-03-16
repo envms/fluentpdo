@@ -10,37 +10,25 @@ abstract class CommonQuery extends BaseQuery {
 	/** @var disable adding undefined joins to query? */
 	protected $isSmartJoinEnabled = true;
 
-	/**
-	 * Enable smart join feature.
-	 */
-	public function enableSmartJoin()
-	{
+	public function enableSmartJoin() {
 		$this->isSmartJoinEnabled = true;
 		return $this;
 	}
 
-	/**
-	 * Disable smart join feature.
-	 */
-	public function disableSmartJoin()
-	{
+	public function disableSmartJoin() {
 		$this->isSmartJoinEnabled = false;
 		return $this;
 	}
 
-	/**
-	 * Is smart join feature enabled?.
-	 */
-	public function isSmartJoinEnabled()
-	{
+	public function isSmartJoinEnabled() {
 		return $this->isSmartJoinEnabled;
 	}
 
 	/** Add where condition, more calls appends with AND
-	* @param string $condition  possibly containing ? or :name (PDO syntax)
-	* @param mixed $parameters  array or a scalar value
-	* @return FluentQuery
-	*/
+	 * @param string $condition  possibly containing ? or :name (PDO syntax)
+	 * @param mixed $parameters  array or a scalar value
+	 * @return FluentQuery
+	 */
 	public function where($condition, $parameters = array()) {
 		if (is_array($condition)) { // where(array("column1" => 1, "column2 > ?" => 2))
 			foreach ($condition as $key => $val) {
@@ -87,9 +75,9 @@ abstract class CommonQuery extends BaseQuery {
 	}
 
 	protected function getClauseJoin() {
-		return implode(' ' , $this->statements['JOIN']);
+		return implode(' ', $this->statements['JOIN']);
 	}
-	
+
 	/** Statement can contain more tables (e.g. "table1.table2:table3:")
 	 * @return FluentQuery
 	 */
@@ -196,7 +184,7 @@ abstract class CommonQuery extends BaseQuery {
 	 * @param string $statement
 	 * @return string  rewrited $statement (e.g. tab1.tab2:col => tab2.col)
 	 */
-    private function createUndefinedJoins($statement) {
+	private function createUndefinedJoins($statement) {
 		if (!$this->isSmartJoinEnabled) {
 			return $statement;
 		}
