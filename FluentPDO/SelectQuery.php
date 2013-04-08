@@ -57,6 +57,14 @@ class SelectQuery extends CommonQuery {
 		return $this->fromAlias;
 	}
 
+	/** Returns a single column
+	 * @param int $columnNumber
+	 * @return string
+	 */
+	public function fetchColumn($columnNumber = 0) {
+		return $this->execute()->fetchColumn($columnNumber);
+	}
+
 	/** Fetch first row or column
 	 * @param string $column column name or empty string for the whole row
 	 * @return mixed string, array or false if there is no row
