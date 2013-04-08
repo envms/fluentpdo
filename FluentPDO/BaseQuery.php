@@ -38,7 +38,7 @@ abstract class BaseQuery implements IteratorAggregate {
 	 * @param $clause
 	 * @param $statement
 	 * @param array $parameters
-	 * @return $this|FluentQuery
+	 * @return $this|SelectQuery
 	 */
 	protected function addStatement($clause, $statement, $parameters = array()) {
 		if ($statement === null) {
@@ -145,7 +145,7 @@ abstract class BaseQuery implements IteratorAggregate {
 		return $this->result;
 	}
 
-	/** Get time of execution 
+	/** Get time of execution
 	 * @return float
 	 */
 	public function getTime() {
