@@ -83,6 +83,9 @@ abstract class BaseQuery implements IteratorAggregate {
 		$parameters = $this->buildParameters();
 
 		$result = $this->fpdo->getPdo()->prepare($query);
+		if($this->fpdo->getPdo()->getAttribute(PDO::ATTR_DEFAULT_FETCH_MODE) == PDO::FETCH_BOTH) {
+			$result->setFetchMode(PDO::FETCH_ASSOC);
+		}
 
 		$time = microtime(true);
 		if ($result && $result->execute($parameters)) {
