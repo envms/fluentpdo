@@ -7,7 +7,7 @@ abstract class CommonQuery extends BaseQuery {
 	/** @var array of used tables (also include table from clause FROM) */
 	protected $joins = array();
 
-	/** @var disable adding undefined joins to query? */
+	/** @var boolean disable adding undefined joins to query? */
 	protected $isSmartJoinEnabled = true;
 
 	public function enableSmartJoin() {
@@ -57,10 +57,10 @@ abstract class CommonQuery extends BaseQuery {
 		return $this->addStatement('WHERE', $condition, $args);
 	}
 
-	/** Add SQL clause with parameters
-	 * @param type $clause
-	 * @param type $parameters  first is $statement followed by $parameters
-	 * @return FluentQuery
+	/**
+	 * @param $clause
+	 * @param array $parameters - first is $statement followed by $parameters
+	 * @return $this|FluentQuery
 	 */
 	public function __call($clause, $parameters = array()) {
 		$clause = FluentUtils::toUpperWords($clause);
@@ -78,8 +78,12 @@ abstract class CommonQuery extends BaseQuery {
 		return implode(' ', $this->statements['JOIN']);
 	}
 
-	/** Statement can contain more tables (e.g. "table1.table2:table3:")
-	 * @return FluentQuery
+	/**
+	 * Statement can contain more tables (e.g. "table1.table2:table3:")
+	 * @param $clause
+	 * @param $statement
+	 * @param array $parameters
+	 * @return $this|FluentQuery
 	 */
 	private function addJoinStatements($clause, $statement, $parameters = array()) {
 		if ($statement === null) {
@@ -87,12 +91,13 @@ abstract class CommonQuery extends BaseQuery {
 			return $this->resetClause('JOIN');
 		}
 		if (array_search(substr($statement, 0, -1), $this->joins) !== FALSE) {
-			return;
+			return $this;
 		}
 
 		# match "tables AS alias"
 		preg_match('~([a-z_][a-z0-9_\.:]*)(\s+AS)?(\s+([a-z_][a-z0-9_]*))?~i', $statement, $matches);
 		$joinAlias = '';
+		$joinTable = '';
 		if ($matches) {
 			$joinTable = $matches[1];
 			if (isset($matches[4]) && !in_array(strtoupper($matches[4]), array('ON', 'USING'))) {
@@ -134,7 +139,12 @@ abstract class CommonQuery extends BaseQuery {
 		return $this;
 	}
 
-	/** Create join string
+	/**
+	 * Create join string
+	 * @param $clause
+	 * @param $mainTable
+	 * @param $joinTable
+	 * @param string $joinAlias
 	 * @return string
 	 */
 	private function createJoinStatement($clause, $mainTable, $joinTable, $joinAlias = '') {

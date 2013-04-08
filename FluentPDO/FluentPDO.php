@@ -52,7 +52,7 @@ class FluentPDO {
 
 	/** Create INSERT INTO query
 	 * 
-	 * @param strign $table
+	 * @param string $table
 	 * @param array $values  you can add one or multi rows array @see docs
 	 * @return \InsertQuery 
 	 */

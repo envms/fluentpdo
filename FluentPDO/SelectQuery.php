@@ -73,7 +73,10 @@ class SelectQuery extends CommonQuery {
 		return $return;
 	}
 
-	/** Fetch pairs
+	/**
+	 * Fetch pairs
+	 * @param $key
+	 * @param $value
 	 * @return array of fetched rows as pairs
 	 */
 	public function fetchPairs($key, $value) {

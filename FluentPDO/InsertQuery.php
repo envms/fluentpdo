@@ -42,9 +42,11 @@ class InsertQuery extends BaseQuery {
 		return $this;
 	}
 
-	/** Add VALUES
-	 * @param array $values
+	/**
+	 * Add VALUES
+	 * @param $values
 	 * @return \InsertQuery
+	 * @throws Exception
 	 */
 	public function values($values) {
 		if (!is_array($values)) {

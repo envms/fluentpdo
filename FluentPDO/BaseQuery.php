@@ -33,8 +33,12 @@ abstract class BaseQuery implements IteratorAggregate {
 		}
 	}
 
-	/** add statement for all kind of clauses
-	 * @return FluentQuery
+	/**
+	 * Add statement for all kind of clauses
+	 * @param $clause
+	 * @param $statement
+	 * @param array $parameters
+	 * @return $this|FluentQuery
 	 */
 	protected function addStatement($clause, $statement, $parameters = array()) {
 		if ($statement === null) {
@@ -51,8 +55,10 @@ abstract class BaseQuery implements IteratorAggregate {
 		return $this;
 	}
 
-	/** Remove all prev defined statements
-	 * @return FluentQuery
+	/**
+	 * Remove all prev defined statements
+	 * @param $clause
+	 * @return $this
 	 */
 	protected function resetClause($clause) {
 		$this->statements[$clause] = null;
@@ -94,6 +100,7 @@ abstract class BaseQuery implements IteratorAggregate {
 	private function debugger() {
 		if ($this->fpdo->debug) {
 			if (!is_callable($this->fpdo->debug)) {
+				$backtrace = '';
 				$query = $this->getQuery();
 				$parameters = $this->getParameters();
 				$debug = '';
@@ -162,8 +169,10 @@ abstract class BaseQuery implements IteratorAggregate {
 		return $query;
 	}
 
-	/** Generate query 
+	/**
+	 * Generate query
 	 * @return string
+	 * @throws Exception
 	 */
 	protected function buildQuery() {
 		$query = '';
