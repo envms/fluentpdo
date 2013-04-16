@@ -91,7 +91,7 @@ abstract class CommonQuery extends BaseQuery {
 		}
 
 		# match "tables AS alias"
-		preg_match('~([a-z_][a-z0-9_\.:]*)(\s+AS)?(\s+([a-z_][a-z0-9_]*))?~i', $statement, $matches);
+		preg_match('~`?([a-z_][a-z0-9_\.:]*)`?(\s+AS)?(\s+`?([a-z_][a-z0-9_]*)`?)?~i', $statement, $matches);
 		$joinAlias = '';
 		if ($matches) {
 			$joinTable = $matches[1];
