@@ -18,6 +18,7 @@ include_once 'BaseQuery.php';
 include_once 'CommonQuery.php';
 include_once 'SelectQuery.php';
 include_once 'InsertQuery.php';
+include_once 'UpdateQuery.php';
 
 class FluentPDO {
 
@@ -58,6 +59,16 @@ class FluentPDO {
 	 */
 	public function insertInto($table, $values = array()) {
 		$query = new InsertQuery($this, $table, $values);
+		return $query;
+	}
+
+	/** Create UPDATE query
+	 *
+	 * @param string $table
+	 * @return \UpdateQuery
+	 */
+	public function update($table) {
+		$query = new UpdateQuery($this, $table);
 		return $query;
 	}
 
