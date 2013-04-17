@@ -57,6 +57,14 @@ class SelectQuery extends CommonQuery {
 		return $this->fromAlias;
 	}
 
+	/** Returns a single column
+	 * @param int $columnNumber
+	 * @return string
+	 */
+	public function fetchColumn($columnNumber = 0) {
+		return $this->execute()->fetchColumn($columnNumber);
+	}
+
 	/** Fetch first row or column
 	 * @param string $column column name or empty string for the whole row
 	 * @return mixed string, array or false if there is no row
@@ -64,12 +72,19 @@ class SelectQuery extends CommonQuery {
 	public function fetch($column = '') {
 		$return = $this->execute()->fetch();
 		if ($return && $column != '') {
-			return $return[$column];
+			if(is_object($return)) {
+				return $return->{$column};
+			} else {
+				return $return[$column];
+			}
 		}
 		return $return;
 	}
 
-	/** Fetch pairs
+	/**
+	 * Fetch pairs
+	 * @param $key
+	 * @param $value
 	 * @return array of fetched rows as pairs
 	 */
 	public function fetchPairs($key, $value) {
@@ -88,7 +103,11 @@ class SelectQuery extends CommonQuery {
 		if ($index) {
 			$data = array();
 			foreach ($this as $row) {
-				$data[$row[$index]] = $row;
+				if(is_object($row)) {
+					$data[$row->{$index}] = $row;
+				} else {
+					$data[$row[$index]] = $row;
+				}
 			}
 			return $data;
 		} else {
