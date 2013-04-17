@@ -1,5 +1,7 @@
 # FluentPDO
 
+[![Build Status](https://secure.travis-ci.org/lichtner/fluentpdo.png?branch=master)](http://travis-ci.org/lichtner/fluentpdo)
+
 FluentPDO - smart SQL builder for PHP.
 
 FluentPDO is small PHP library for rapid query building. Killer feature is "Smart join builder" which generates joins automatically.
