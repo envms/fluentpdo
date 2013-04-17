@@ -24,18 +24,6 @@ abstract class CommonQuery extends BaseQuery {
 		return $this->isSmartJoinEnabled;
 	}
 
-	/** Specify columns to return.
-	 * @param $columns
-	 * @return SelectQuery
-	 */
-	public function columns($columns) {
-		if(!is_array($columns)) {
-			$columns = explode(',', $columns);
-		}
-		$this->statements['SELECT'] = $columns;
-		return $this;
-	}
-
 	/** Add where condition, more calls appends with AND
 	 * @param string $condition  possibly containing ? or :name (PDO syntax)
 	 * @param mixed $parameters  array or a scalar value
