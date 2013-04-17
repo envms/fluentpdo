@@ -10,7 +10,7 @@ $query = $fpdo->from('user')
 		->where('id > :id AND name <> :name', array(':id' => 1, ':name' => 'Marek'));
 
 echo $query->getQuery() . "\n";
-var_dump($query->getParameters());
+print_r($query->getParameters());
 foreach ($query as $row) {
 	echo "$row[name]\n";
 }
@@ -21,12 +21,10 @@ FROM user
 WHERE type = :type
     AND id > :id
     AND name <> :name
-array(3) {
-  [":type"]=>
-  string(6) "author"
-  [":id"]=>
-  int(1)
-  [":name"]=>
-  string(5) "Marek"
-}
+Array
+(
+    [:type] => author
+    [:id] => 1
+    [:name] => Marek
+)
 Robert
