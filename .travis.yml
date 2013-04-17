@@ -7,5 +7,5 @@ php:
 script: php tests/run-tests.php
 
 before_script:
-	- mysql -e 'create database fblog;'
-	- mysql -u root -D fblog < tests/fblog.sql
+  - mysql -e 'create database fblog;'
+  - mysql -u root -D fblog < tests/fblog.sql
