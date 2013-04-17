@@ -18,7 +18,7 @@ class UpdateQuery extends CommonQuery
 		$this->statements['UPDATE'] = $table;
 	}
 
-	public function set($field, $value = '')
+	public function set($field, $value)
 	{
 		$this->statements['SET'][$field] = $value;
 		return $this;
