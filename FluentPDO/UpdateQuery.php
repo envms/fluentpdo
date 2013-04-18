@@ -6,8 +6,8 @@
  *                        ($statement can be 'table' name only or 'table:' means back reference)
  * @method UpdateQuery  innerJoin(string $statement) add INNER JOIN to query
  *                        ($statement can be 'table' name only or 'table:' means back reference)
- * @method SelectQuery  orderBy(string $column) add ORDER BY to query
- * @method SelectQuery  limit(int $limit) add LIMIT to query
+ * @method UpdateQuery  orderBy(string $column) add ORDER BY to query
+ * @method UpdateQuery  limit(int $limit) add LIMIT to query
  */
 class UpdateQuery extends CommonQuery {
 
@@ -56,7 +56,7 @@ class UpdateQuery extends CommonQuery {
 	public function execute() {
 		$result = parent::execute();
 		if ($result) {
-			return true;
+			$result->rowCount();
 		}
 		return false;
 	}

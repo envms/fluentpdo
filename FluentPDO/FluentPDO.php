@@ -19,6 +19,7 @@ include_once 'CommonQuery.php';
 include_once 'SelectQuery.php';
 include_once 'InsertQuery.php';
 include_once 'UpdateQuery.php';
+include_once 'DeleteQuery.php';
 
 class FluentPDO {
 
@@ -69,6 +70,16 @@ class FluentPDO {
 	 */
 	public function update($table) {
 		$query = new UpdateQuery($this, $table);
+		return $query;
+	}
+
+	/** Create DELETE query
+	 *
+	 * @param string $table
+	 * @return \DeleteQuery
+	 */
+	public function deleteFrom($table) {
+		$query = new DeleteQuery($this, $table);
 		return $query;
 	}
 
