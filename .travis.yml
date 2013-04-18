@@ -1,11 +1,9 @@
 language: php
 php:
-  - "5.5"
-  - "5.4"
-  - "5.3"
-
+  - 5.5
+  - 5.4
+  - 5.3
 script: php tests/run-tests.php
-
 before_script:
   - mysql -e 'create database fblog;'
   - mysql -u root -D fblog < tests/fblog.sql

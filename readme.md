@@ -11,16 +11,16 @@ FluentPDO is small PHP library for rapid query building. Killer feature is "Smar
 - Fluent interface for creating queries step by step
 - Smart join builder
 - Simple API based on PDO and SQL syntax
-- Build SELECT, INSERT query (UPDATE and DELETE comming soon)
+- Build SELECT, INSERT, UPDATE & Delete queries
 - Small and fast
 - Type hinting with code completion in smart IDEs
-- requires PHP 5.1+ with any database supported by PDO
+- Requires PHP 5.1+ with any database supported by PDO
 
 ## Install
 
 ### Composer
 
-Preferred way how to install FluentPDO is via [composer](http://getcomposer.org/).
+The preferred way to install FluentPDO is via [composer](http://getcomposer.org/).
 
 Add in your `composer.json`:
 
@@ -66,7 +66,27 @@ And executed query is:
 	LIMIT 5
 
 
-Full documentation can you find on [FluentPDO homepage](http://fluentpdo.com)
+Full documentation can be found on the [FluentPDO homepage](http://fluentpdo.com)
+
+## Simple Query Examples
+
+##### SELECT
+
+	$query = $fpdo->from('article')->orderBy('published_at DESC')->limit(5);
+
+##### INSERT
+
+	$query = $fpdo->insertInto('article')->values(array('title' => 'article 1', 'content' => 'content 1'));
+
+##### UPDATE
+
+	$query = $fpdo->update('article')->set('published_at', new FluentLiteral('NOW()'))->where('id', 1);
+
+##### DELETE
+
+	$query = $fpdo->deleteFrom('article')->where('id', 1);
+
+Full documentation can be found on the [FluentPDO homepage](http://fluentpdo.com)
 
 ## Licence
 
