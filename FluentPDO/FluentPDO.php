@@ -66,10 +66,12 @@ class FluentPDO {
 	/** Create UPDATE query
 	 *
 	 * @param string $table
+	 * @param array|string $set
+	 * @param string $where
 	 * @return \UpdateQuery
 	 */
-	public function update($table) {
-		$query = new UpdateQuery($this, $table);
+	public function update($table, $set = array(), $where = '') {
+		$query = new UpdateQuery($this, $table, $set, $where);
 		return $query;
 	}
 

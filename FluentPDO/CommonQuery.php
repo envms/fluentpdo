@@ -30,6 +30,9 @@ abstract class CommonQuery extends BaseQuery {
 	 * @return SelectQuery
 	 */
 	public function where($condition, $parameters = array()) {
+		if (!$condition) {
+			return $this;
+		}
 		if (is_array($condition)) { // where(array("column1" => 1, "column2 > ?" => 2))
 			foreach ($condition as $key => $val) {
 				$this->where($key, $val);
