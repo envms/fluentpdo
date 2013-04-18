@@ -11,7 +11,7 @@
  */
 class UpdateQuery extends CommonQuery {
 
-	public function __construct(FluentPDO $fpdo, $table) {
+	public function __construct(FluentPDO $fpdo, $table, $set, $where) {
 		$clauses = array(
 			'UPDATE' => array($this, 'getClauseUpdate'),
 			'JOIN' => array($this, 'getClauseJoin'),
@@ -23,6 +23,8 @@ class UpdateQuery extends CommonQuery {
 		parent::__construct($fpdo, $clauses);
 
 		$this->statements['UPDATE'] = $table;
+		$this->set($set);
+		$this->where($where);
 
 		$tableParts = explode(' ', $table);
 		$this->joins[] = end($tableParts);
@@ -35,6 +37,9 @@ class UpdateQuery extends CommonQuery {
 	 * @throws Exception
 	 */
 	public function set($fieldOrArray, $value = null) {
+		if (!$fieldOrArray) {
+			return $this;
+		}
 		if (is_string($fieldOrArray) && !empty($value)) {
 			$this->statements['SET'][$fieldOrArray] = $value;
 		} else {
