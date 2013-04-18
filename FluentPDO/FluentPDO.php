@@ -115,16 +115,8 @@ class FluentPDO {
 	 * @return \DeleteQuery
 	 */
 	public function deleteFrom($table, $where = '', $whereParams = '') {
-		$query = new DeleteQuery($this, $table, true);
 		$args = func_get_args();
-		if (count($args) > 1) {
-			array_shift($args);
-			if (is_null($args)) {
-				$args = array();
-			}
-			$query = call_user_func_array(array($query, 'where'), $args);
-		}
-		return $query;
+		return call_user_func_array(array($this, 'delete'), $args);
 	}
 
 	/** @return \PDO
