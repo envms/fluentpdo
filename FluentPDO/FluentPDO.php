@@ -68,10 +68,22 @@ class FluentPDO {
 	 * @param string $table
 	 * @param array|string $set
 	 * @param string $where
+	 * @param string $whereParams one or more params for where
+	 *
 	 * @return \UpdateQuery
 	 */
-	public function update($table, $set = array(), $where = '') {
+	public function update($table, $set = array(), $where = '', $whereParams = '') {
 		$query = new UpdateQuery($this, $table, $set, $where);
+		$query->set($set);
+		$args = func_get_args();
+		if (count($args) > 2) {
+			array_shift($args);
+			array_shift($args);
+			if (is_null($args)) {
+				$args = array();
+			}
+			$query = call_user_func_array(array($query, 'where'), $args);
+		}
 		return $query;
 	}
 
