@@ -12,6 +12,9 @@ $fpdo->getPdo()->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
 
 print_r($query->getParameters());
 print_r($query->fetch());
+
+// Set back for other tests.
+$fpdo->getPdo()->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_BOTH);
 ?>
 --EXPECTF--
 Array
