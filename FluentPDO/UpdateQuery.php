@@ -6,6 +6,8 @@
  *                        ($statement can be 'table' name only or 'table:' means back reference)
  * @method UpdateQuery  innerJoin(string $statement) add INNER JOIN to query
  *                        ($statement can be 'table' name only or 'table:' means back reference)
+ * @method SelectQuery  orderBy(string $column) add ORDER BY to query
+ * @method SelectQuery  limit(int $limit) add LIMIT to query
  */
 class UpdateQuery extends CommonQuery {
 
@@ -14,7 +16,9 @@ class UpdateQuery extends CommonQuery {
 			'UPDATE' => array($this, 'getClauseUpdate'),
 			'JOIN' => array($this, 'getClauseJoin'),
 			'SET' => array($this, 'getClauseSet'),
-			'WHERE' => ' AND '
+			'WHERE' => ' AND ',
+			'ORDER BY' => ', ',
+			'LIMIT' => null,
 		);
 		parent::__construct($fpdo, $clauses);
 
