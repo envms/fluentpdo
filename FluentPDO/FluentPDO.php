@@ -90,20 +90,40 @@ class FluentPDO {
 	/** Create DELETE query
 	 *
 	 * @param string $tables
+	 * @param string $where
+	 * @param string $whereParams one or more params for where
 	 * @return \DeleteQuery
 	 */
-	public function delete($tables) {
+	public function delete($tables, $where = '', $whereParams = '') {
 		$query = new DeleteQuery($this, $tables);
+		$args = func_get_args();
+		if (count($args) > 1) {
+			array_shift($args);
+			if (is_null($args)) {
+				$args = array();
+			}
+			$query = call_user_func_array(array($query, 'where'), $args);
+		}
 		return $query;
 	}
 
 	/** Create DELETE FROM query
 	 *
 	 * @param string $table
+	 * @param string $where
+	 * @param string $whereParams one or more params for where
 	 * @return \DeleteQuery
 	 */
-	public function deleteFrom($table) {
+	public function deleteFrom($table, $where = '', $whereParams = '') {
 		$query = new DeleteQuery($this, $table, true);
+		$args = func_get_args();
+		if (count($args) > 1) {
+			array_shift($args);
+			if (is_null($args)) {
+				$args = array();
+			}
+			$query = call_user_func_array(array($query, 'where'), $args);
+		}
 		return $query;
 	}
 
