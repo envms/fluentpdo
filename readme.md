@@ -66,7 +66,7 @@ And executed query is:
 	LIMIT 5
 
 
-Full documentation can you find on [FluentPDO homepage](http://fluentpdo.com)
+Full documentation can be found on the [FluentPDO homepage](http://fluentpdo.com)
 
 ## Simple Query Examples
 
@@ -86,7 +86,7 @@ Full documentation can you find on [FluentPDO homepage](http://fluentpdo.com)
 
 	$query = $fpdo->deleteFrom('article')->where('id', 1);
 
-Full documentation can you find on [FluentPDO homepage](http://fluentpdo.com)
+Full documentation can be found on the [FluentPDO homepage](http://fluentpdo.com)
 
 ## Licence
 
