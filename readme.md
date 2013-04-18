@@ -20,7 +20,7 @@ FluentPDO is small PHP library for rapid query building. Killer feature is "Smar
 
 ### Composer
 
-Preferred way how to install FluentPDO is via [composer](http://getcomposer.org/).
+The preferred way to install FluentPDO is via [composer](http://getcomposer.org/).
 
 Add in your `composer.json`:
 
