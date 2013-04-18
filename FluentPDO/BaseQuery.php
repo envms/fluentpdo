@@ -7,7 +7,7 @@ abstract class BaseQuery implements IteratorAggregate {
 	/** @var FluentPDO */
 	private $fpdo;
 	/** @var array of definition clauses */
-	private $clauses = array();
+	protected $clauses = array();
 	/** @var PDOStatement */
 	private $result;
 	/** @var float */

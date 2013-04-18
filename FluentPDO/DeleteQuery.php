@@ -14,7 +14,7 @@ class DeleteQuery extends CommonQuery {
 
 	private $ignore = false;
 
-	public function __construct(FluentPDO $fpdo, $table, $shortcut = false) {
+	public function __construct(FluentPDO $fpdo, $table) {
 		$clauses = array(
 			'DELETE FROM' => array($this, 'getClauseDeleteFrom'),
 			'DELETE' => array($this, 'getClauseDelete'),
@@ -25,19 +25,10 @@ class DeleteQuery extends CommonQuery {
 			'LIMIT' => null,
 		);
 
-		if($shortcut) {
-			unset($clauses['DELETE']);
-		} else {
-			unset($clauses['DELETE FROM']);
-		}
-
 		parent::__construct($fpdo, $clauses);
 
-		if($shortcut) {
-			$this->statements['DELETE FROM'] = $table;
-		} else {
-			$this->statements['DELETE'] = $table;
-		}
+		$this->statements['DELETE FROM'] = $table;
+		$this->statements['DELETE'] = $table;
 	}
 
 	/** DELETE IGNORE - Delete operation fails silently
@@ -46,6 +37,18 @@ class DeleteQuery extends CommonQuery {
 	public function ignore() {
 		$this->ignore = true;
 		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function buildQuery() {
+		if ($this->statements['FROM']) {
+			unset($this->clauses['DELETE FROM']);
+		} else {
+			unset($this->clauses['DELETE']);
+		}
+		return parent::buildQuery();
 	}
 
 	/** Execute DELETE query
