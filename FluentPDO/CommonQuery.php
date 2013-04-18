@@ -122,7 +122,11 @@ abstract class CommonQuery extends BaseQuery {
 		}
 
 		preg_match_all('~([a-z_][a-z0-9_]*[\.:]?)~i', $joinTable, $matches);
-		$mainTable = $this->statements['FROM'];
+		if (isset($this->statements['FROM'])) {
+			$mainTable = $this->statements['FROM'];
+		} elseif (isset($this->statements['UPDATE'])) {
+			$mainTable = $this->statements['UPDATE'];
+		}
 		$lastItem = array_pop($matches[1]);
 		array_push($matches[1], $lastItem);
 		foreach ($matches[1] as $joinItem) {
