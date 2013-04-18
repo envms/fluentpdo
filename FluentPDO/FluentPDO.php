@@ -75,11 +75,21 @@ class FluentPDO {
 
 	/** Create DELETE query
 	 *
+	 * @param string $tables
+	 * @return \DeleteQuery
+	 */
+	public function delete($tables) {
+		$query = new DeleteQuery($this, $tables);
+		return $query;
+	}
+
+	/** Create DELETE FROM query
+	 *
 	 * @param string $table
 	 * @return \DeleteQuery
 	 */
 	public function deleteFrom($table) {
-		$query = new DeleteQuery($this, $table);
+		$query = new DeleteQuery($this, $table, true);
 		return $query;
 	}
 
