@@ -11,7 +11,7 @@ FluentPDO is small PHP library for rapid query building. Killer feature is "Smar
 - Fluent interface for creating queries step by step
 - Smart join builder
 - Simple API based on PDO and SQL syntax
-- Build SELECT, INSERT, UPDATE & Delete queries
+- Build SELECT, INSERT, UPDATE & DELETE queries
 - Small and fast
 - Type hinting with code completion in smart IDEs
 - Requires PHP 5.1+ with any database supported by PDO
@@ -36,9 +36,12 @@ then update your dependencies with `composer update`.
 If you are not familiar with composer just copy `/FluentPDO` directory into your `libs/` directory then:
 
 	include "libs/FluentPDO/FluentPDO.php";
+
+## Start usage
+
 	$pdo = new PDO("mysql:dbname=fblog", "root");
 	$fpdo = new FluentPDO($pdo);
-	
+
 ## First example
 
 FluentPDO is easy to use:
@@ -73,24 +76,35 @@ Full documentation can be found on the [FluentPDO homepage](http://fluentpdo.com
 ##### SELECT
 
 	$query = $fpdo->from('article')->orderBy('published_at DESC')->limit(5);
+	// or if you want to one row by primary key
+	$query = $fpdo->from('user', 2);
 
 ##### INSERT
 
 	$query = $fpdo->insertInto('article')->values(array('title' => 'article 1', 'content' => 'content 1'));
+	// or shortly
+	$values = array('title' => 'article 1', 'content' => 'content 1');
+	$query = $fpdo->insertInto('article', $values);
 
 ##### UPDATE
 
-	$query = $fpdo->update('article')->set('published_at', new FluentLiteral('NOW()'))->where('id', 1);
+    $set = array('published_at' => new FluentLiteral('NOW()'));
+	$query = $fpdo->update('article')->set($set)->where('id', 1);
+	// or shortly
+	$query = $fpdo->update('article', $set, 'id', 1);
 
 ##### DELETE
 
 	$query = $fpdo->deleteFrom('article')->where('id', 1);
+	// or shortly
+	$query = $fpdo->deleteFrom('article', 'id', 1);
+
+*Note: INSERT, UPDATE and DELETE will be executed after `->execute()`:*
+
+	$fpdo->deleteFrom('article', 'id', 1)->execute();
 
 Full documentation can be found on the [FluentPDO homepage](http://fluentpdo.com)
 
 ## Licence
 
 Free for commercial and non-commercial use ([Apache License](http://www.apache.org/licenses/LICENSE-2.0.html) or [GPL](http://www.gnu.org/licenses/gpl-2.0.html)).
-
-*Copyright (c) 2012, Marek Lichtner*
-
