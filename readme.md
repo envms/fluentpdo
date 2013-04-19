@@ -35,9 +35,9 @@ then update your dependencies with `composer update`.
 
 If you are not familiar with composer just copy `/FluentPDO` directory into your `libs/` directory then:
 
-	```php
-	include "libs/FluentPDO/FluentPDO.php";
-	```
+```php
+include "libs/FluentPDO/FluentPDO.php";
+```
 
 ## Start usage
 
@@ -50,31 +50,31 @@ $fpdo = new FluentPDO($pdo);
 
 FluentPDO is easy to use:
 
-    ```php
-    $query = $fpdo->from('article')
-                ->where('published_at > ?', $date)
-                ->orderBy('published_at DESC')
-                ->limit(5);
-    if ($user_id) {
-        $query = $query
-                ->where('user_id', $user_id)
-                ->select('user.name');        // this join table user
-    }
-    foreach ($query as $row) {
-        echo "$row[name] - $row[title]\n";
-    }
-    ```
+```php
+$query = $fpdo->from('article')
+            ->where('published_at > ?', $date)
+            ->orderBy('published_at DESC')
+            ->limit(5);
+if ($user_id) {
+    $query = $query
+            ->where('user_id', $user_id)
+            ->select('user.name');        // this join table user
+}
+foreach ($query as $row) {
+    echo "$row[name] - $row[title]\n";
+}
+```
 
 And executed query is:
 
-    ```mysql
-	SELECT article.*, user.name
-	FROM article
-    		LEFT JOIN user ON user.id = article.user_id
-	WHERE published_at > ? AND user_id = ?
-	ORDER BY published_at DESC
-	LIMIT 5
-	```
+```mysql
+SELECT article.*, user.name
+FROM article
+        LEFT JOIN user ON user.id = article.user_id
+WHERE published_at > ? AND user_id = ?
+ORDER BY published_at DESC
+LIMIT 5
+```
 
 
 Full documentation can be found on the [FluentPDO homepage](http://fluentpdo.com)
@@ -83,43 +83,43 @@ Full documentation can be found on the [FluentPDO homepage](http://fluentpdo.com
 
 ##### SELECT
 
-    ```php
-	$query = $fpdo->from('article')->orderBy('published_at DESC')->limit(5);
-	// or if you want to one row by primary key
-	$query = $fpdo->from('user', 2);
-    ```
+```php
+$query = $fpdo->from('article')->orderBy('published_at DESC')->limit(5);
+// or if you want to one row by primary key
+$query = $fpdo->from('user', 2);
+```
 
 ##### INSERT
 
-    ```php
-	$query = $fpdo->insertInto('article')->values(array('title' => 'article 1', 'content' => 'content 1'));
-	// or shortly
-	$values = array('title' => 'article 1', 'content' => 'content 1');
-	$query = $fpdo->insertInto('article', $values);
-    ```
+```php
+$query = $fpdo->insertInto('article')->values(array('title' => 'article 1', 'content' => 'content 1'));
+// or shortly
+$values = array('title' => 'article 1', 'content' => 'content 1');
+$query = $fpdo->insertInto('article', $values);
+```
 
 ##### UPDATE
 
-    ```php
-    $set = array('published_at' => new FluentLiteral('NOW()'));
-	$query = $fpdo->update('article')->set($set)->where('id', 1);
-	// or shortly
-	$query = $fpdo->update('article', $set, 'id', 1);
-    ```
+```php
+$set = array('published_at' => new FluentLiteral('NOW()'));
+$query = $fpdo->update('article')->set($set)->where('id', 1);
+// or shortly
+$query = $fpdo->update('article', $set, 'id', 1);
+```
 
 ##### DELETE
 
-    ```php
-	$query = $fpdo->deleteFrom('article')->where('id', 1);
-	// or shortly
-	$query = $fpdo->deleteFrom('article', 'id', 1);
-    ```
+```php
+$query = $fpdo->deleteFrom('article')->where('id', 1);
+// or shortly
+$query = $fpdo->deleteFrom('article', 'id', 1);
+```
 
 *Note: INSERT, UPDATE and DELETE will be executed after `->execute()`:*
 
-    ```php
-	$fpdo->deleteFrom('article', 'id', 1)->execute();
-    ```
+```php
+$fpdo->deleteFrom('article', 'id', 1)->execute();
+```
 
 Full documentation can be found on the [FluentPDO homepage](http://fluentpdo.com)
 
