@@ -41,10 +41,10 @@ If you are not familiar with composer just copy `/FluentPDO` directory into your
 
 ## Start usage
 
-	```php
-    $pdo = new PDO("mysql:dbname=fblog", "root");
-	$fpdo = new FluentPDO($pdo);
-	```
+```php
+$pdo = new PDO("mysql:dbname=fblog", "root");
+$fpdo = new FluentPDO($pdo);
+```
 
 ## First example
 
