@@ -92,9 +92,9 @@ $query = $fpdo->from('user', 2);
 ##### INSERT
 
 ```php
-$query = $fpdo->insertInto('article')->values(array('title' => 'article 1', 'content' => 'content 1'));
-// or shortly
 $values = array('title' => 'article 1', 'content' => 'content 1');
+$query = $fpdo->insertInto('article')->values($values);
+// or shortly
 $query = $fpdo->insertInto('article', $values);
 ```
 
