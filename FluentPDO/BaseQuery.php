@@ -12,6 +12,8 @@ abstract class BaseQuery implements IteratorAggregate {
 	private $result;
 	/** @var float */
 	private $time;
+	/** @var bool */
+	private $object = false;
 
 	protected $statements = array(), $parameters = array();
 
@@ -83,7 +85,14 @@ abstract class BaseQuery implements IteratorAggregate {
 		$parameters = $this->buildParameters();
 
 		$result = $this->fpdo->getPdo()->prepare($query);
-		if($this->fpdo->getPdo()->getAttribute(PDO::ATTR_DEFAULT_FETCH_MODE) == PDO::FETCH_BOTH) {
+		
+		if($this->object !== false) {
+			if(class_exists($this->object)) {
+				$result->setFetchMode(PDO::FETCH_CLASS, $this->object);
+			} else {
+				$result->setFetchMode(PDO::FETCH_OBJ);
+			}
+		} else if($this->fpdo->getPdo()->getAttribute(PDO::ATTR_DEFAULT_FETCH_MODE) == PDO::FETCH_BOTH) {
 			$result->setFetchMode(PDO::FETCH_ASSOC);
 		}
 
@@ -247,6 +256,18 @@ abstract class BaseQuery implements IteratorAggregate {
 			return $val->format("Y-m-d H:i:s"); //! may be driver specific
 		}
 		return $val;
+	}
+
+	/**
+	 * Select an item as object
+	 * @param  boolean|object $object If set to true, items are returned as stdClass, otherwise a class
+	 *                                name can be passed and a new instance of this class is return.
+	 *                                Can be set to false to return items as an associative array.
+	 * @return BaseQuery
+	 */
+	public function asObject($object = true) {
+		$this->object = $object;
+		return $this;
 	}
 
 }
