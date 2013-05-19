@@ -85,10 +85,11 @@ class SelectQuery extends CommonQuery {
 	 * Fetch pairs
 	 * @param $key
 	 * @param $value
+     * @param $object
 	 * @return array of fetched rows as pairs
 	 */
-	public function fetchPairs($key, $value) {
-		return $this->select(null)->select("$key, $value")->execute()->fetchAll(PDO::FETCH_KEY_PAIR);
+	public function fetchPairs($key, $value, $object = false) {
+		return $this->select(null)->select("$key, $value")->asObject($object)->execute()->fetchAll(PDO::FETCH_KEY_PAIR);
 	}
 
 	/** Fetch all row
