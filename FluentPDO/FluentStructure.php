@@ -4,23 +4,25 @@ class FluentStructure {
 	private $primaryKey, $foreignKey;
 	
 	function __construct($primaryKey = 'id', $foreignKey = '%s_id') {
+        if($foreignKey === null) {
+            $foreignKey = $primaryKey;
+        }
 		$this->primaryKey = $primaryKey;
 		$this->foreignKey = $foreignKey;
 	}
-	
-	public function getPrimaryKey($table) {
-		if(is_callable($this->primaryKey)) {
-			$method = $this->primaryKey;
-			return $method($table);
-		}
-		return sprintf($this->primaryKey, $table);
-	}
 
-	public function getForeignKey($table) {
-		if(is_callable($this->foreignKey)) {
-			$method = $this->foreignKey;
-			return $method($table);
-		}
-		return sprintf($this->foreignKey, $table);
-	}
+    public function getPrimaryKey($table) {
+        return $this->key($this->primaryKey, $table);
+    }
+
+    public function getForeignKey($table) {
+        return $this->key($this->foreignKey, $table);
+    }
+
+    private function key($key, $table) {
+        if(is_callable($key)) {
+            return $key($table);
+        }
+        return sprintf($key, $table);
+    }
 }
