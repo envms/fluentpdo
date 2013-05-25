@@ -5,7 +5,9 @@
 class InsertQuery extends BaseQuery {
 
 	private $columns = array();
+
 	private $firstValue = array();
+
 	private $ignore = false;
 
 	public function __construct(FluentPDO $fpdo, $table, $values) {
@@ -30,15 +32,15 @@ class InsertQuery extends BaseQuery {
 		}
 		return false;
 	}
-	
-	/** Add ON DUPLICATE KEY UPDATE 
+
+	/** Add ON DUPLICATE KEY UPDATE
 	 * @param array $values
 	 * @return \InsertQuery
 	 */
 	public function onDuplicateKeyUpdate($values) {
 		$this->statements['ON DUPLICATE KEY UPDATE'] = array_merge(
-				$this->statements['ON DUPLICATE KEY UPDATE'], $values
-			);
+			$this->statements['ON DUPLICATE KEY UPDATE'], $values
+		);
 		return $this;
 	}
 
@@ -64,7 +66,7 @@ class InsertQuery extends BaseQuery {
 		}
 		return $this;
 	}
-	
+
 	/** INSERT IGNORE - insert operation fails silently
 	 * @return \InsertQuery
 	 */
@@ -72,9 +74,9 @@ class InsertQuery extends BaseQuery {
 		$this->ignore = true;
 		return $this;
 	}
-	
+
 	protected function getClauseInsertInto() {
-		return 'INSERT' . ($this->ignore ? " IGNORE" : ''). ' INTO ' . $this->statements['INSERT INTO'];
+		return 'INSERT' . ($this->ignore ? " IGNORE" : '') . ' INTO ' . $this->statements['INSERT INTO'];
 	}
 
 	protected function getClauseValues() {

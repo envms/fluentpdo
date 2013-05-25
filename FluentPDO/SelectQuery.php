@@ -72,7 +72,7 @@ class SelectQuery extends CommonQuery {
 	public function fetch($column = '') {
 		$return = $this->execute()->fetch();
 		if ($return && $column != '') {
-			if(is_object($return)) {
+			if (is_object($return)) {
 				return $return->{$column};
 			} else {
 				return $return[$column];
@@ -85,7 +85,7 @@ class SelectQuery extends CommonQuery {
 	 * Fetch pairs
 	 * @param $key
 	 * @param $value
-     * @param $object
+	 * @param $object
 	 * @return array of fetched rows as pairs
 	 */
 	public function fetchPairs($key, $value, $object = false) {
@@ -104,7 +104,7 @@ class SelectQuery extends CommonQuery {
 		if ($index) {
 			$data = array();
 			foreach ($this as $row) {
-				if(is_object($row)) {
+				if (is_object($row)) {
 					$data[$row->{$index}] = $row;
 				} else {
 					$data[$row[$index]] = $row;

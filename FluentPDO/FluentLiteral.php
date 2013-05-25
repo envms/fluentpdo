@@ -1,20 +1,21 @@
 <?php
 
 /** SQL literal value
-*/
+ */
 class FluentLiteral {
+
 	protected $value = '';
-	
+
 	/** Create literal value
-	* @param string $value
-	*/
+	 * @param string $value
+	 */
 	function __construct($value) {
 		$this->value = $value;
 	}
-	
+
 	/** Get literal value
-	* @return string
-	*/
+	 * @return string
+	 */
 	function __toString() {
 		return $this->value;
 	}

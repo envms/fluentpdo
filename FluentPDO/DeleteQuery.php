@@ -63,10 +63,10 @@ class DeleteQuery extends CommonQuery {
 	}
 
 	protected function getClauseDelete() {
-		return 'DELETE' . ($this->ignore ? " IGNORE" : ''). ' ' . $this->statements['DELETE'];
+		return 'DELETE' . ($this->ignore ? " IGNORE" : '') . ' ' . $this->statements['DELETE'];
 	}
 
 	protected function getClauseDeleteFrom() {
-		return 'DELETE' . ($this->ignore ? " IGNORE" : ''). ' FROM ' . $this->statements['DELETE FROM'];
+		return 'DELETE' . ($this->ignore ? " IGNORE" : '') . ' FROM ' . $this->statements['DELETE FROM'];
 	}
 }

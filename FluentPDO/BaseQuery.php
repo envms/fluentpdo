@@ -6,12 +6,16 @@ abstract class BaseQuery implements IteratorAggregate {
 
 	/** @var FluentPDO */
 	private $fpdo;
+
 	/** @var array of definition clauses */
 	protected $clauses = array();
+
 	/** @var PDOStatement */
 	private $result;
+
 	/** @var float */
 	private $time;
+
 	/** @var bool */
 	private $object = false;
 
@@ -85,14 +89,14 @@ abstract class BaseQuery implements IteratorAggregate {
 		$parameters = $this->buildParameters();
 
 		$result = $this->fpdo->getPdo()->prepare($query);
-		
-		if($this->object !== false) {
-			if(class_exists($this->object)) {
+
+		if ($this->object !== false) {
+			if (class_exists($this->object)) {
 				$result->setFetchMode(PDO::FETCH_CLASS, $this->object);
 			} else {
 				$result->setFetchMode(PDO::FETCH_OBJ);
 			}
-		} else if($this->fpdo->getPdo()->getAttribute(PDO::ATTR_DEFAULT_FETCH_MODE) == PDO::FETCH_BOTH) {
+		} elseif ($this->fpdo->getPdo()->getAttribute(PDO::ATTR_DEFAULT_FETCH_MODE) == PDO::FETCH_BOTH) {
 			$result->setFetchMode(PDO::FETCH_ASSOC);
 		}
 
@@ -127,7 +131,7 @@ abstract class BaseQuery implements IteratorAggregate {
 						break;
 					}
 				}
-				$time = sprintf('%0.3f', $this->time * 1000).' ms';
+				$time = sprintf('%0.3f', $this->time * 1000) . ' ms';
 				$rows = $this->result->rowCount();
 				fwrite(STDERR, "# $backtrace[file]:$backtrace[line] ($time; rows = $rows)\n$debug\n\n");
 			} else {
@@ -137,7 +141,7 @@ abstract class BaseQuery implements IteratorAggregate {
 	}
 
 	/**
-	 *  @return \PDO
+	 * @return \PDO
 	 */
 	protected function getPDO() {
 		return $this->fpdo->getPdo();
@@ -217,7 +221,7 @@ abstract class BaseQuery implements IteratorAggregate {
 		foreach ($this->parameters as $clauses) {
 			if (is_array($clauses)) {
 				foreach ($clauses as $value) {
-					if (is_array($value) && is_string(key($value)) && substr(key($value),0,1) == ':') {
+					if (is_array($value) && is_string(key($value)) && substr(key($value), 0, 1) == ':') {
 						// this is named params e.g. (':name' => 'Mark')
 						$parameters = array_merge($parameters, $value);
 					} else {
