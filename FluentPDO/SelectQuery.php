@@ -70,7 +70,12 @@ class SelectQuery extends CommonQuery {
 	 * @return mixed string, array or false if there is no row
 	 */
 	public function fetch($column = '') {
-		$return = $this->execute()->fetch();
+		$return = $this->execute();
+		// trap execute() errors before trying to call fetch().
+		if ($return === false) {
+			return false;
+		}
+		$return = $return->fetch();
 		if ($return && $column != '') {
 			if (is_object($return)) {
 				return $return->{$column};
