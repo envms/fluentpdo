@@ -8,10 +8,10 @@ SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
 DROP TABLE IF EXISTS `article`;
 CREATE TABLE `article` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) unsigned NOT NULL,
-  `published_at` datetime NOT NULL,
-  `title` varchar(100) NOT NULL,
-  `content` text NOT NULL,
+  `user_id` int(11) unsigned,
+  `published_at` datetime,
+  `title` varchar(100) NOT NULL DEFAULT 'default title',
+  `content` text,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `article_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
