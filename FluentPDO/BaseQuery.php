@@ -132,7 +132,7 @@ abstract class BaseQuery implements IteratorAggregate {
 					}
 				}
 				$time = sprintf('%0.3f', $this->time * 1000) . ' ms';
-				$rows = $this->result->rowCount();
+				$rows = ($this->result) ? $this->result->rowCount() : 0;
 				fwrite(STDERR, "# $backtrace[file]:$backtrace[line] ($time; rows = $rows)\n$debug\n\n");
 			} else {
 				call_user_func($this->fpdo->debug, $this);
