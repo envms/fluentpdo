@@ -34,11 +34,11 @@ class UpdateQuery extends CommonQuery {
 	 * @return $this
 	 * @throws Exception
 	 */
-	public function set($fieldOrArray, $value = null) {
+	public function set($fieldOrArray, $value = false) {
 		if (!$fieldOrArray) {
 			return $this;
 		}
-		if (is_string($fieldOrArray) && !empty($value)) {
+		if (is_string($fieldOrArray) && $value !== false) {
 			$this->statements['SET'][$fieldOrArray] = $value;
 		} else {
 			if (!is_array($fieldOrArray)) {
