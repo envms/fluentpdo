@@ -90,6 +90,14 @@ abstract class BaseQuery implements IteratorAggregate {
 
 		$result = $this->fpdo->getPdo()->prepare($query);
 
+		// At this point, $result is a PDOStatement instance, or false.
+		// PDO::prepare() does not reliably return errors. Some database drivers
+		// do not support prepared statements, and PHP emulates them.  Postgres
+		// does support prepared statements, but PHP does not call Postgres's
+		// prepare function until we call PDOStatement::execute() (below).
+		// If PDO::prepare() worked properly, this is where we would check
+		// for prepare errors, such as invalid SQL.
+
 		if ($this->object !== false) {
 			if (class_exists($this->object)) {
 				$result->setFetchMode(PDO::FETCH_CLASS, $this->object);
@@ -132,7 +140,7 @@ abstract class BaseQuery implements IteratorAggregate {
 					}
 				}
 				$time = sprintf('%0.3f', $this->time * 1000) . ' ms';
-				$rows = $this->result->rowCount();
+				$rows = ($this->result) ? $this->result->rowCount() : 0;
 				fwrite(STDERR, "# $backtrace[file]:$backtrace[line] ($time; rows = $rows)\n$debug\n\n");
 			} else {
 				call_user_func($this->fpdo->debug, $this);

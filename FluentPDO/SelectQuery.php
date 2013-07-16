@@ -62,7 +62,10 @@ class SelectQuery extends CommonQuery {
 	 * @return string
 	 */
 	public function fetchColumn($columnNumber = 0) {
-		return $this->execute()->fetchColumn($columnNumber);
+		if ($s = $this->execute()) {
+			return $s->fetchColumn($columnNumber);
+		}
+		return false;
 	}
 
 	/** Fetch first row or column
@@ -70,7 +73,11 @@ class SelectQuery extends CommonQuery {
 	 * @return mixed string, array or false if there is no row
 	 */
 	public function fetch($column = '') {
-		$return = $this->execute()->fetch();
+		$return = $this->execute();
+		if ($return === false) {
+			return false;
+		}
+		$return = $return->fetch();
 		if ($return && $column != '') {
 			if (is_object($return)) {
 				return $return->{$column};
@@ -89,7 +96,10 @@ class SelectQuery extends CommonQuery {
 	 * @return array of fetched rows as pairs
 	 */
 	public function fetchPairs($key, $value, $object = false) {
-		return $this->select(null)->select("$key, $value")->asObject($object)->execute()->fetchAll(PDO::FETCH_KEY_PAIR);
+		if ($s = $this->select(null)->select("$key, $value")->asObject($object)->execute()) {
+			return $s->fetchAll(PDO::FETCH_KEY_PAIR);
+		}
+		return false;
 	}
 
 	/** Fetch all row
@@ -112,7 +122,10 @@ class SelectQuery extends CommonQuery {
 			}
 			return $data;
 		} else {
-			return $this->execute()->fetchAll();
+			if ($s = $this->execute()) {
+				return $s->fetchAll();
+			}
+			return false;
 		}
 	}
 
