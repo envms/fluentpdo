@@ -9,7 +9,7 @@ DROP TABLE IF EXISTS `article`;
 CREATE TABLE `article` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(11) unsigned NOT NULL DEFAULT 0,
-  `published_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `published_at` datetime NOT NULL DEFAULT 0,
   `title` varchar(100) NOT NULL DEFAULT '',
   `content` text NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
