@@ -57,7 +57,7 @@ class DeleteQuery extends CommonQuery {
 	public function execute() {
 		$result = parent::execute();
 		if ($result) {
-			$result->rowCount();
+			return $result->rowCount();
 		}
 		return false;
 	}
