@@ -52,7 +52,11 @@ abstract class BaseQuery implements IteratorAggregate {
 		}
 		# $statement !== null
 		if ($this->clauses[$clause]) {
-			$this->statements[$clause][] = $statement;
+		    if (is_array($statement)) {
+		        $this->statements[$clause] = array_merge($this->statements[$clause], $statement);
+		    } else {
+		        $this->statements[$clause][] = $statement;
+		    }
 			$this->parameters[$clause] = array_merge($this->parameters[$clause], $parameters);
 		} else {
 			$this->statements[$clause] = $statement;
@@ -68,6 +72,7 @@ abstract class BaseQuery implements IteratorAggregate {
 	 */
 	protected function resetClause($clause) {
 		$this->statements[$clause] = null;
+		$this->parameters[$clause] = array();
 		if ($this->clauses[$clause]) {
 			$this->statements[$clause] = array();
 		}

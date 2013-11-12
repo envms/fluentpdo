@@ -30,7 +30,10 @@ abstract class CommonQuery extends BaseQuery {
 	 * @return SelectQuery
 	 */
 	public function where($condition, $parameters = array()) {
-		if (!$condition) {
+		if ($condition === null) {
+			return $this->resetClause('WHERE');
+		}
+	    if (!$condition) {
 			return $this;
 		}
 		if (is_array($condition)) { // where(array("column1" => 1, "column2 > ?" => 2))
@@ -38,9 +41,6 @@ abstract class CommonQuery extends BaseQuery {
 				$this->where($key, $val);
 			}
 			return $this;
-		}
-		if ($condition === null) {
-			return $this->resetClause('WHERE');
 		}
 		$args = func_get_args();
 		if (count($args) == 1) {
