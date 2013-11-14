@@ -33,7 +33,7 @@ abstract class CommonQuery extends BaseQuery {
 		if ($condition === null) {
 			return $this->resetClause('WHERE');
 		}
-	    if (!$condition) {
+		if (!$condition) {
 			return $this;
 		}
 		if (is_array($condition)) { // where(array("column1" => 1, "column2 > ?" => 2))
