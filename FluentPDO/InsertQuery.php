@@ -85,8 +85,15 @@ class InsertQuery extends BaseQuery {
 			$quoted = array_map(array($this, 'quote'), $rows);
 			$valuesArray[] = '(' . implode(', ', $quoted) . ')';
 		}
-		$columns = implode(', ', $this->columns);
+
+		$cols = array();
+		foreach ($this->columns as $column) {
+			$cols[] = '`'.$column.'`';
+		}
+
+		$columns = implode(', ', $cols);
 		$values = implode(', ', $valuesArray);
+
 		return " ($columns) VALUES $values";
 	}
 
