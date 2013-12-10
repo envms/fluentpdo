@@ -55,31 +55,49 @@ $query = $fpdo->from('article')
             ->where('published_at > ?', $date)
             ->orderBy('published_at DESC')
             ->limit(5);
-if ($user_id) {
-    $query = $query
-            ->where('user_id', $user_id)
-            ->select('user.name');        // this join table user
-}
 foreach ($query as $row) {
-    echo "$row[name] - $row[title]\n";
+    echo "$row[title]\n";
 }
 ```
-
-And executed query is:
+executed query is:
 
 ```mysql
-SELECT article.*, user.name
+SELECT article.*
 FROM article
-        LEFT JOIN user ON user.id = article.user_id
-WHERE published_at > ? AND user_id = ?
+WHERE published_at > ?
 ORDER BY published_at DESC
 LIMIT 5
 ```
 
+## Smart join builder (howto build queries)
 
-Full documentation can be found on the [FluentPDO homepage](http://fluentpdo.com)
+If you want to join table you can use full sql join syntax. For example we would like to show list of articles with author name:
 
-## Simple Query Examples
+```php
+$query = $fpdo->from('article')->leftJoin('user ON user.id = article.user_id')->select('user.name');
+```
+
+It was not so much smart, was it? ;-) If your database uses convention for primary and foreign key names, you can write only:
+
+```php
+$query = $fpdo->from('article')->leftJoin('user')->select('user.name');
+```
+
+Smarter? May be. but **best practice how to write joins is not to write any joins ;-)**
+
+```php
+$query = $fpdo->from('article')->select('user.name');
+```
+
+All three commands create same query:
+
+```mysql
+SELECT article.*, user.name 
+FROM article 
+LEFT JOIN user ON user.id = article.user_id
+```
+
+## Simple CRUD Query Examples
 
 ##### SELECT
 
