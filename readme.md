@@ -74,7 +74,9 @@ LIMIT 5
 If you want to join table you can use full sql join syntax. For example we would like to show list of articles with author name:
 
 ```php
-$query = $fpdo->from('article')->leftJoin('user ON user.id = article.user_id')->select('user.name');
+$query = $fpdo->from('article')
+              ->leftJoin('user ON user.id = article.user_id')
+              ->select('user.name');
 ```
 
 It was not so much smart, was it? ;-) If your database uses convention for primary and foreign key names, you can write only:
