@@ -38,16 +38,16 @@ class FluentPDO {
 
 	/** Create SELECT query from $table
 	 * @param string $table  db table name
-	 * @param integer $id  return one row by primary key
+	 * @param integer $primaryKey  return one row by primary key
 	 * @return \SelectQuery
 	 */
-	public function from($table, $id = null) {
+	public function from($table, $primaryKey = null) {
 		$query = new SelectQuery($this, $table);
-		if ($id) {
+		if ($primaryKey) {
 			$tableTable = $query->getFromTable();
 			$tableAlias = $query->getFromAlias();
-			$primary = $this->structure->getPrimaryKey($tableTable);
-			$query = $query->where("$tableAlias.$primary = ?", $id);
+			$primaryKeyName = $this->structure->getPrimaryKey($tableTable);
+			$query = $query->where("$tableAlias.$primaryKeyName", $primaryKey);
 		}
 		return $query;
 	}
@@ -67,42 +67,31 @@ class FluentPDO {
 	 *
 	 * @param string $table
 	 * @param array|string $set
-	 * @param string $where
-	 * @param string $whereParams one or more params for where
+	 * @param string $primaryKey
 	 *
 	 * @return \UpdateQuery
 	 */
-	public function update($table, $set = array(), $where = '', $whereParams = '') {
-		$query = new UpdateQuery($this, $table, $set, $where);
+	public function update($table, $set = array(), $primaryKey = null) {
+		$query = new UpdateQuery($this, $table);
 		$query->set($set);
-		$args = func_get_args();
-		if (count($args) > 2) {
-			array_shift($args);
-			array_shift($args);
-			if (is_null($args)) {
-				$args = array();
-			}
-			$query = call_user_func_array(array($query, 'where'), $args);
+		if ($primaryKey) {
+			$primaryKeyName = $this->getStructure()->getPrimaryKey($table);
+			$query = $query->where($primaryKeyName, $primaryKey);
 		}
 		return $query;
 	}
 
 	/** Create DELETE query
 	 *
-	 * @param string $tables
-	 * @param string $where
-	 * @param string $whereParams one or more params for where
+	 * @param string $table
+	 * @param string $primaryKey  delete only row by primary key
 	 * @return \DeleteQuery
 	 */
-	public function delete($tables, $where = '', $whereParams = '') {
-		$query = new DeleteQuery($this, $tables);
-		$args = func_get_args();
-		if (count($args) > 1) {
-			array_shift($args);
-			if (is_null($args)) {
-				$args = array();
-			}
-			$query = call_user_func_array(array($query, 'where'), $args);
+	public function delete($table, $primaryKey = null) {
+		$query = new DeleteQuery($this, $table);
+		if ($primaryKey) {
+			$primaryKeyName = $this->getStructure()->getPrimaryKey($table);
+			$query = $query->where($primaryKeyName, $primaryKey);
 		}
 		return $query;
 	}
@@ -110,11 +99,10 @@ class FluentPDO {
 	/** Create DELETE FROM query
 	 *
 	 * @param string $table
-	 * @param string $where
-	 * @param string $whereParams one or more params for where
+	 * @param string $primaryKey
 	 * @return \DeleteQuery
 	 */
-	public function deleteFrom($table, $where = '', $whereParams = '') {
+	public function deleteFrom($table, $primaryKey = null) {
 		$args = func_get_args();
 		return call_user_func_array(array($this, 'delete'), $args);
 	}

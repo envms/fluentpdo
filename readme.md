@@ -1,6 +1,4 @@
-# FluentPDO
-
-[![Build Status](https://secure.travis-ci.org/lichtner/fluentpdo.png?branch=master)](http://travis-ci.org/lichtner/fluentpdo)
+# FluentPDO [![Build Status](https://secure.travis-ci.org/lichtner/fluentpdo.png?branch=master)](http://travis-ci.org/lichtner/fluentpdo)
 
 FluentPDO - smart SQL builder for PHP.
 
@@ -69,7 +67,7 @@ ORDER BY published_at DESC
 LIMIT 5
 ```
 
-## Smart join builder (howto build queries)
+## Smart join builder (how to build queries)
 
 If you want to join table you can use full sql join syntax. For example we would like to show list of articles with author name:
 
@@ -104,9 +102,9 @@ LEFT JOIN user ON user.id = article.user_id
 ##### SELECT
 
 ```php
-$query = $fpdo->from('article')->orderBy('published_at DESC')->limit(5);
-// or if you want to one row by primary key
-$query = $fpdo->from('user', 2);
+$query = $fpdo->from('article')->where('id', 1);
+// or shortly if you select one row by primary key
+$query = $fpdo->from('user', 1);
 ```
 
 ##### INSERT
@@ -123,22 +121,22 @@ $query = $fpdo->insertInto('article', $values);
 ```php
 $set = array('published_at' => new FluentLiteral('NOW()'));
 $query = $fpdo->update('article')->set($set)->where('id', 1);
-// or shortly
-$query = $fpdo->update('article', $set, 'id', 1);
+// or shortly if you update one row by primary key
+$query = $fpdo->update('article', $set, 1);
 ```
 
 ##### DELETE
 
 ```php
 $query = $fpdo->deleteFrom('article')->where('id', 1);
-// or shortly
-$query = $fpdo->deleteFrom('article', 'id', 1);
+// or shortly if you delete one row by primary key
+$query = $fpdo->deleteFrom('article', 1);
 ```
 
 *Note: INSERT, UPDATE and DELETE will be executed after `->execute()`:*
 
 ```php
-$fpdo->deleteFrom('article', 'id', 1)->execute();
+$fpdo->deleteFrom('article', 1)->execute();
 ```
 
 Full documentation can be found on the [FluentPDO homepage](http://fluentpdo.com)

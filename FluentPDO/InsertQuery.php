@@ -23,7 +23,7 @@ class InsertQuery extends BaseQuery {
 	}
 
 	/** Execute insert query
-	 * @return integer last interted id or false
+	 * @return integer last inserted id or false
 	 */
 	public function execute() {
 		$result = parent::execute();
