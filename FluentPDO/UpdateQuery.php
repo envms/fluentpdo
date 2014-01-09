@@ -54,19 +54,18 @@ class UpdateQuery extends CommonQuery {
 	}
 
 	/** Execute update query
-         * @param boolean $getResultAsPdoStatement true to return the pdo statement instead of row count
+	 * @param boolean $getResultAsPdoStatement true to return the pdo statement instead of row count
 	 * @return int|boolean|PDOStatement
 	 */
-	public function execute($getResultAsPdoStatement=false) {
+	public function execute($getResultAsPdoStatement = false) {
 		$result = parent::execute();
-                if ($getResultAsPdoStatement) {
-                    return $result;
-                } else {
-                    if ($result) {
-                            return $result->rowCount();
-                    }
-                    return false;
-                }
+		if ($getResultAsPdoStatement) {
+			return $result;
+		}
+		if ($result) {
+			return $result->rowCount();
+		}
+		return false;
 	}
 
 	protected function getClauseUpdate() {
