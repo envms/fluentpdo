@@ -18,6 +18,9 @@ abstract class BaseQuery implements IteratorAggregate {
 
 	/** @var bool */
 	private $object = false;
+    
+    /** @var bool|Array() **/
+    public $errorInfo = false;
 
 	protected $statements = array(), $parameters = array();
 
@@ -116,7 +119,9 @@ abstract class BaseQuery implements IteratorAggregate {
 		$time = microtime(true);
 		if ($result && $result->execute($parameters)) {
 			$this->time = microtime(true) - $time;
+            $this->errorInfo = false;
 		} else {
+            $this->errorInfo = $result->errorInfo();
 			$result = false;
 		}
 
