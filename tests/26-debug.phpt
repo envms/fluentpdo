@@ -10,13 +10,15 @@ include_once dirname(__FILE__) . "/connect.inc.php";
  * $fpdo->debug = $callback;  // see below
  */
 
-$fpdo->debug = function($BaseQuery) {
+function _debug_fpdo($BaseQuery) {
 	echo "query: " . $BaseQuery->getQuery(false) . "\n";
 	echo "parameters: " . implode(', ', $BaseQuery->getParameters()) . "\n";
 	echo "rowCount: " . $BaseQuery->getResult()->rowCount() . "\n";
 	// time is impossible to test (each time is other)
 	// echo $FluentQuery->getTime() . "\n";
 };
+
+$fpdo->debug = '_debug_fpdo';
 
 $fpdo->from('user')->where('id < ? AND name <> ?', 7, 'Peter')->execute();
 $fpdo->debug = null;
