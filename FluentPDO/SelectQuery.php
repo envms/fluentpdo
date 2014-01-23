@@ -14,9 +14,17 @@
  * @method SelectQuery  limit(int $limit) add LIMIT to query
  * @method SelectQuery  offset(int $offset) add OFFSET to query
  */
-class SelectQuery extends CommonQuery {
-
+class SelectQuery extends CommonQuery implements Countable {
+	
 	private $fromTable, $fromAlias;
+
+    /**
+     * Counting rows with function 'count'
+     * @return int
+     */
+    public function count(){
+        return $this->getIterator()->rowCount();
+    }
 
 	function __construct(FluentPDO $fpdo, $from) {
 		$clauses = array(
