@@ -128,6 +128,19 @@ class SelectQuery extends CommonQuery {
 			return false;
 		}
 	}
-
+	
+	/**
+	 * Count rows
+	 * @param $column
+	 * @return mixed, integer or false if there is no row
+	 */
+        public function count($column = '*') {
+		$query = $this->select(null)->select("COUNT({$column}) AS num")->fetch();
+		if ($query === false) {
+			return false;
+		}
+		return $query['num'];
+	}
+	
 }
 
