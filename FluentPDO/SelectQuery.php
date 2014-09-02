@@ -14,7 +14,7 @@
  * @method SelectQuery  limit(int $limit) add LIMIT to query
  * @method SelectQuery  offset(int $offset) add OFFSET to query
  */
-class SelectQuery extends CommonQuery {
+class SelectQuery extends CommonQuery implements Countable {
 
 	private $fromTable, $fromAlias;
 
@@ -127,6 +127,33 @@ class SelectQuery extends CommonQuery {
 			}
 			return false;
 		}
+	}
+
+	/**
+	 * Count rows via SQL
+	 * @param $column
+	 * @return mixed, integer or false if there is no row
+	 */
+        public function selectCount($column = '*', $useClone = true) {
+		$fpdo = $useClone ? clone $this : $this;
+		$result = $fpdo->select(null)->select("COUNT({$column}) AS num")->fetch();
+		if ($result === false) {
+			return false;
+		}
+		return $result['num'];
+	}
+	
+	/**
+	 * Fetch result and count rows
+	 * @param $column
+	 * @return mixed, integer or false if there is no row
+	 */
+        public function count() {
+		$result = $this->fetchAll();
+		if ($result === false) {
+			return false;
+		}
+		return count($result);
 	}
 
 }
