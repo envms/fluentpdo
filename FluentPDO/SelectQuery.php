@@ -14,7 +14,7 @@
  * @method SelectQuery  limit(int $limit) add LIMIT to query
  * @method SelectQuery  offset(int $offset) add OFFSET to query
  */
-class SelectQuery extends CommonQuery {
+class SelectQuery extends CommonQuery implements Countable {
 
 	private $fromTable, $fromAlias;
 
@@ -129,5 +129,12 @@ class SelectQuery extends CommonQuery {
 		}
 	}
 
+	/** Countable interface
+	 * doesn't break current fluentpdo select query
+	 * @return
+	 */
+	public function count() {
+		$fpdo = clone $this;
+		return $fpdo->select(null)->select('COUNT(*)')->fetchColumn();
+	}
 }
-
