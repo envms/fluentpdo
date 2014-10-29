@@ -34,6 +34,7 @@ class SelectQuery extends CommonQuery implements Countable {
 		parent::__construct($fpdo, $clauses);
 
 		# initialize statements
+		$from = preg_match("/`.*`/", $from) ? $from : sprintf("`%s`", $from);
 		$fromParts = explode(' ', $from);
 		$this->fromTable = reset($fromParts);
 		$this->fromAlias = end($fromParts);

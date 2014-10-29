@@ -46,8 +46,9 @@ abstract class CommonQuery extends BaseQuery {
 		if (count($args) == 1) {
 			return $this->addStatement('WHERE', $condition);
 		}
-		if (count($args) == 2 && preg_match('~^(NOT )?[a-z_:][a-z0-9_.:]*$~i', $condition)) {
+		if (count($args) == 2 && preg_match('~^(NOT )?[a-z_:`][a-z0-9_.:`]*$~i', $condition)) {
 			# condition is column only
+			$condition = preg_match("/`.*`/", $condition) ? $condition : sprintf("`%s`", $condition);
 			if (is_null($parameters)) {
 				return $this->addStatement('WHERE', "$condition is NULL");
 			} elseif (is_array($args[1])) {
