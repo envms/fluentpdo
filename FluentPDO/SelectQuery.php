@@ -128,6 +128,14 @@ class SelectQuery extends CommonQuery implements Countable {
 			return false;
 		}
 	}
+    
+    /**
+    * Make current query counting rows
+    * @return int 
+    */
+    public function fetchCount(){
+        return $this->select(null)->limit(null)->orderBy(null)->select('COUNT(*)')->fetch('COUNT(*)');    
+    }
 
 	/** Countable interface
 	 * doesn't break current fluentpdo select query

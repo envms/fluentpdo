@@ -18,6 +18,9 @@ abstract class BaseQuery implements IteratorAggregate {
 
 	/** @var bool */
 	private $object = false;
+    
+    /** @var bool|Array() **/
+    private $errorInfo = false;
 
 	protected $statements = array(), $parameters = array();
 
@@ -108,16 +111,18 @@ abstract class BaseQuery implements IteratorAggregate {
 				$result->setFetchMode(PDO::FETCH_CLASS, $this->object);
 			} else {
 				$result->setFetchMode(PDO::FETCH_OBJ);
-			}
+		    }
 		} elseif ($this->fpdo->getPdo()->getAttribute(PDO::ATTR_DEFAULT_FETCH_MODE) == PDO::FETCH_BOTH) {
 			$result->setFetchMode(PDO::FETCH_ASSOC);
 		}
 
 		$time = microtime(true);
 		if ($result && $result->execute($parameters)) {
-			$this->time = microtime(true) - $time;
+		    $this->time = microtime(true) - $time;
+            $this->errorInfo = false;
 		} else {
-			$result = false;
+            $this->errorInfo = $result->errorInfo();
+		    $result = false;
 		}
 
 		$this->result = $result;
@@ -187,6 +192,13 @@ abstract class BaseQuery implements IteratorAggregate {
 	public function getParameters() {
 		return $this->buildParameters();
 	}
+    
+    /** Get errorInfo
+     * @return array|boolean
+     */
+    public function getErrorInfo() {
+        return $this->errorInfo;
+    }
 
 	/** Get query string
 	 * @param boolean $formated  return formated query
