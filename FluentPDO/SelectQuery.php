@@ -135,6 +135,6 @@ class SelectQuery extends CommonQuery implements Countable {
 	 */
 	public function count() {
 		$fpdo = clone $this;
-		return $fpdo->select(null)->select('COUNT(*)')->fetchColumn();
+		return (int) $fpdo->select(null)->select('COUNT(*)')->fetchColumn();
 	}
 }
