@@ -19,6 +19,9 @@ abstract class BaseQuery implements IteratorAggregate {
 	/** @var bool */
 	private $object = false;
 
+    /** @var FluentQueryException */
+    private $last_error = null;
+
 	protected $statements = array(), $parameters = array();
 
 	protected function __construct(FluentPDO $fpdo, $clauses) {
@@ -114,9 +117,15 @@ abstract class BaseQuery implements IteratorAggregate {
 		}
 
 		$time = microtime(true);
-		if ($result && $result->execute($parameters)) {
+		if ($result && @$result->execute($parameters)) {
 			$this->time = microtime(true) - $time;
-		} else {
+		} else { // Oops, something went wrong with the query.
+            $info = $result->errorInfo();
+            $this->last_error = new FluentQueryException(
+                $this->getFullQuery($query, $parameters),
+                $info[2],
+                $info[1]
+            ); 
 			$result = false;
 		}
 
@@ -197,6 +206,24 @@ abstract class BaseQuery implements IteratorAggregate {
 		if ($formated) $query = FluentUtils::formatQuery($query);
 		return $query;
 	}
+
+    /** Get the last error.
+     * @return FluentQueryException
+     */
+    public function getLastError() {
+        return $this->last_error;
+    }
+
+    /** Get the full query with parameters (naively) replaced
+     * @param string $query
+     * @param array $parameters
+     * @param boolean $formated return formated query
+     */
+    public function getFullQuery($query, array $parameters, $formated = true) {
+        $query = FluentUtils::populate($query, $parameters);
+        if ($formated) $query = FluentUtils::formatQuery($query);
+        return $query;
+    }
 
 	/**
 	 * Generate query

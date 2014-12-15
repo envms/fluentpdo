@@ -23,4 +23,23 @@ class FluentUtils {
 		$query = preg_replace("/\s+\n/", "\n", $query);
 		return $query;
 	}
+
+    /** Fills in query placeholders with their parameter values; useful only for debugging.
+     * @param string $query
+     * @param array parameters
+     */
+    public static function populate($query, array $parameters) {
+        foreach ($parameters as $parameter_value) {
+            // Quoting mechanism.
+            if(!in_array($parameter_value, array(
+                'NULL',
+                'NOW()',
+                // Add more exceptions here if needed.
+            ))) {
+                $parameter_value = sprintf("'%s'", $parameter_value);
+            }
+            $query = preg_replace('%\?%', $parameter_value, $query, 1);
+        }
+        return $query;
+    }
 }
