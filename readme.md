@@ -40,7 +40,7 @@ include "libs/FluentPDO/FluentPDO.php";
 ## Start usage
 
 ```php
-$pdo = new PDO("mysql:dbname=fblog", "root");
+$pdo = new PDO("mysql:host=localhost;dbname=myDatabase", "root", "password");
 $fpdo = new FluentPDO($pdo);
 ```
 
