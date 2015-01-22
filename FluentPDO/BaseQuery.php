@@ -73,7 +73,7 @@ abstract class BaseQuery implements IteratorAggregate {
 	protected function resetClause($clause) {
 		$this->statements[$clause] = null;
 		$this->parameters[$clause] = array();
-		if ($this->clauses[$clause]) {
+		if (isset($this->clauses[$clause]) && $this->clauses[$clause]) {
 			$this->statements[$clause] = array();
 		}
 		return $this;
