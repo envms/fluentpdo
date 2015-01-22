@@ -9,6 +9,7 @@ class InsertQuery extends BaseQuery {
 	private $firstValue = array();
 
 	private $ignore = false;
+	private $delayed = false;
 
 	public function __construct(FluentPDO $fpdo, $table, $values) {
 		$clauses = array(
@@ -74,9 +75,17 @@ class InsertQuery extends BaseQuery {
 		$this->ignore = true;
 		return $this;
 	}
+	
+	/** INSERT DELAYED - insert operation delay support
+	 * @return \InsertQuery
+	 */
+	public function delayed() {
+		$this->delayed = true;
+		return $this;
+	}
 
 	protected function getClauseInsertInto() {
-		return 'INSERT' . ($this->ignore ? " IGNORE" : '') . ' INTO ' . $this->statements['INSERT INTO'];
+		return 'INSERT' . ($this->ignore ? " IGNORE" : '') . ($this->delayed ? " DELAYED" : '') . ' INTO ' . $this->statements['INSERT INTO'];
 	}
 
 	protected function getClauseValues() {
