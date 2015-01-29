@@ -116,14 +116,15 @@ abstract class BaseQuery implements IteratorAggregate {
 		$time = microtime(true);
 		if ($result && $result->execute($parameters)) {
 			$this->time = microtime(true) - $time;
+			$result2 = $result;
 		} else {
-			$result = false;
+			$result2 = false;
 		}
 
 		$this->result = $result;
 		$this->debugger();
 
-		return $result;
+		return $result2;
 	}
 
 	private function debugger() {
