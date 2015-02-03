@@ -41,12 +41,24 @@ class SelectQuery extends CommonQuery implements Countable {
 		$this->statements['FROM'] = $from;
 		$this->joins[] = $this->fromAlias;
 	}
-	
+
         protected function clauseNotEmpty($clause) {
             $return = parent::clauseNotEmpty($clause);
-            if (!$return && $clause == "SELECT") {
-                $this->statements['SELECT'][] = $this->fromAlias . '.*';
-                $return = true;
+            if ($clause == "SELECT") {
+                if (!empty($this->statements['JOIN']) && $return) {
+                    $return = false;
+                    foreach($this->statements['SELECT'] as $select) {
+                        $parts = explode(".", $select);
+                        $table = $parts['0'];
+                        if ($table == $this->statements['FROM']) {
+                            $return = true;
+                        }
+                    }
+                }
+                if (!$return) {
+                    array_unshift($this->statements['SELECT'], $this->fromAlias.'.*');
+                    $return = true;
+                }
             }
             return $return;
         }
