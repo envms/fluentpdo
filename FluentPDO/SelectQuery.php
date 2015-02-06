@@ -50,7 +50,7 @@ class SelectQuery extends CommonQuery implements Countable {
 				$res = explode(",", $select);
 				array_walk($res, function(&$res, $key, &$data) {
 					$res = rtrim(trim($res), '() _a..zA..Z');
-					if (preg_match('/('.$data[0][0].'(?:[\`\"])?\.)/', $res) || empty($res)) {
+					if (preg_match('/('.$data[0][0].'(?:[\`\"])?\.)|((?<!\.)\*)/', $res) || empty($res)) {
 						$data[0][1] = true;
 					}
 				}, array(&$data));
