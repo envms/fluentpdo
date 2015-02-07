@@ -49,7 +49,7 @@ class SelectQuery extends CommonQuery implements Countable {
 				$data = array($this->fromAlias, false);
 				$res = explode(",", $select);
 				array_walk($res, function(&$res, $key, &$data) {
-					$res = rtrim(trim($res), '() _a..zA..Z');
+					$res = rtrim(trim($res), '() _a..zA..Z0..9');
 					if (preg_match('/('.$data[0][0].'(?:[\`\"])?\.)|((?<!\.)\*)/', $res) || empty($res)) {
 						$data[0][1] = true;
 					}
