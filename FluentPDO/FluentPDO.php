@@ -118,4 +118,21 @@ class FluentPDO {
 	public function getStructure() {
 		return $this->structure;
 	}
+	
+	/** 
+	 * Enable developper to use $fpdo->mytable() instead of $fpdo->from('mytable')
+	 
+	 * @param string $table  db table name
+	 * @param integer $primaryKey  return one row by primary key
+	 * @return \SelectQuery
+	 */
+	public function __call($name, $arguments)
+	{
+		if(is_array($arguments) && count($arguments) > 0) {
+			return $this->from($name, $arguments[0]);
+		} else {
+			return $this->from($name);
+		}
+	}
+	
 }
