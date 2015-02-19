@@ -44,7 +44,7 @@ abstract class BaseQuery implements IteratorAggregate {
 	 * @param $clause
 	 * @param $statement
 	 * @param array $parameters
-	 * @return $this|SelectQuery
+	 * @return $this|\SelectQuery
 	 */
 	protected function addStatement($clause, $statement, $parameters = array()) {
 		if ($statement === null) {
@@ -80,14 +80,14 @@ abstract class BaseQuery implements IteratorAggregate {
 	}
 
 	/** Implements method from IteratorAggregate
-	 * @return PDOStatement
+	 * @return \PDOStatement
 	 */
 	public function getIterator() {
 		return $this->execute();
 	}
 
 	/** Execute query with earlier added parameters
-	 * @return PDOStatement
+	 * @return \PDOStatement
 	 */
 	public function execute() {
 		$query = $this->buildQuery();
@@ -280,7 +280,7 @@ abstract class BaseQuery implements IteratorAggregate {
 	 * @param  boolean|object $object If set to true, items are returned as stdClass, otherwise a class
 	 *                                name can be passed and a new instance of this class is return.
 	 *                                Can be set to false to return items as an associative array.
-	 * @return BaseQuery
+	 * @return \BaseQuery
 	 */
 	public function asObject($object = true) {
 		$this->object = $object;

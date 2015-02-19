@@ -55,7 +55,7 @@ class UpdateQuery extends CommonQuery {
 
 	/** Execute update query
 	 * @param boolean $getResultAsPdoStatement true to return the pdo statement instead of row count
-	 * @return int|boolean|PDOStatement
+	 * @return int|boolean|\PDOStatement
 	 */
 	public function execute($getResultAsPdoStatement = false) {
 		$result = parent::execute();
