@@ -27,7 +27,7 @@ abstract class CommonQuery extends BaseQuery {
 	/** Add where condition, more calls appends with AND
 	 * @param string $condition  possibly containing ? or :name (PDO syntax)
 	 * @param mixed $parameters  array or a scalar value
-	 * @return SelectQuery
+	 * @return \SelectQuery
 	 */
 	public function where($condition, $parameters = array()) {
 		if ($condition === null) {
@@ -63,7 +63,7 @@ abstract class CommonQuery extends BaseQuery {
 	/**
 	 * @param $clause
 	 * @param array $parameters - first is $statement followed by $parameters
-	 * @return $this|SelectQuery
+	 * @return $this|\SelectQuery
 	 */
 	public function __call($clause, $parameters = array()) {
 		$clause = FluentUtils::toUpperWords($clause);
@@ -86,7 +86,7 @@ abstract class CommonQuery extends BaseQuery {
 	 * @param $clause
 	 * @param $statement
 	 * @param array $parameters
-	 * @return $this|SelectQuery
+	 * @return $this|\SelectQuery
 	 */
 	private function addJoinStatements($clause, $statement, $parameters = array()) {
 		if ($statement === null) {
