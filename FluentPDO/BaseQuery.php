@@ -117,6 +117,7 @@ abstract class BaseQuery implements IteratorAggregate {
 		if ($result && $result->execute($parameters)) {
 			$this->time = microtime(true) - $time;
 		} else {
+			$this->errorHandler($result);
 			$result = false;
 		}
 
@@ -149,6 +150,16 @@ abstract class BaseQuery implements IteratorAggregate {
 				fwrite(STDERR, "# $backtrace[file]:$backtrace[line] ($time; rows = $rows)\n$debug\n\n");
 			} else {
 				call_user_func($this->fpdo->debug, $this);
+			}
+		}
+	}
+
+	private function errorHandler(PDO $result) {
+		if ($this->fpdo->errorHandler) {
+			if (!is_callable($this->fpdo->errorHandler)) {
+				// default behavior is to ignore the error
+			} else {
+				call_user_func($this->fpdo->errorHandler, $this, $result);
 			}
 		}
 	}
