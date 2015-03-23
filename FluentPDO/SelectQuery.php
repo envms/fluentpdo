@@ -39,8 +39,17 @@ class SelectQuery extends CommonQuery implements Countable {
 		$this->fromAlias = end($fromParts);
 
 		$this->statements['FROM'] = $from;
-		$this->statements['SELECT'][] = $this->fromAlias . '.*';
 		$this->joins[] = $this->fromAlias;
+	}
+	
+	/**
+	 * @return string
+	 */
+	 protected function buildQuery() {
+		if (empty($this->statements['SELECT'])) {
+			$this->statements['SELECT'][] = '*';
+        	}
+        	return parent::buildQuery();
 	}
 
 	/** Return table name from FROM clause
