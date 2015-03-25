@@ -114,6 +114,7 @@ $values = array('title' => 'article 1', 'content' => 'content 1');
 $query = $fpdo->insertInto('article')->values($values);
 // or shortly
 $query = $fpdo->insertInto('article', $values);
+$insert = $query->execute();
 ```
 
 ##### UPDATE
