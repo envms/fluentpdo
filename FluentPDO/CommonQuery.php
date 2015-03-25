@@ -98,15 +98,27 @@ abstract class CommonQuery extends BaseQuery {
 		}
 
 		# match "tables AS alias"
-		preg_match('~`?([a-z_][a-z0-9_\.:]*)`?(\s+AS)?(\s+`?([a-z_][a-z0-9_]*)`?)?~i', $statement, $matches);
-		$joinAlias = '';
-		$joinTable = '';
-		if ($matches) {
-			$joinTable = $matches[1];
-			if (isset($matches[4]) && !in_array(strtoupper($matches[4]), array('ON', 'USING'))) {
-				$joinAlias = $matches[4];
-			}
-		}
+        # try "(stuff) AS alias" first:
+        preg_match('~`?\((?:.|\n)*\)(\s+AS)(\s+`?([a-z_][a-z0-9_]*)`?)?~i', $statement, $matches);
+        $joinAlias = '';
+        $joinTable = '';
+        if ($matches) {
+            $joinTable = $matches[3];
+            if (isset($matches[3]) && !in_array(strtoupper($matches[3]), array('ON', 'USING'))) {
+                $joinAlias = $matches[3];
+            }
+        } else {
+            # Then try "tables as alias"
+            preg_match('~`?([a-z_][a-z0-9_\.:]*)`?(\s+AS)?(\s+`?([a-z_][a-z0-9_]*)`?)?~i', $statement, $matches);
+            $joinAlias = '';
+            $joinTable = '';
+            if ($matches) {
+                $joinTable = $matches[1];
+                if (isset($matches[4]) && !in_array(strtoupper($matches[4]), array('ON', 'USING'))) {
+                    $joinAlias = $matches[4];
+                }
+            }
+        }
 
 		if (strpos(strtoupper($statement), ' ON ') || strpos(strtoupper($statement), ' USING')) {
 			if (!$joinAlias) $joinAlias = $joinTable;
