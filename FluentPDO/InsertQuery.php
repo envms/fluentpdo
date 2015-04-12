@@ -26,10 +26,10 @@ class InsertQuery extends BaseQuery {
 	/** Execute insert query
 	 * @return integer last inserted id or false
 	 */
-	public function execute() {
+	public function execute($sequence = null) {
 		$result = parent::execute();
 		if ($result) {
-			return $this->getPDO()->lastInsertId();
+			return $this->getPDO()->lastInsertId($sequence);
 		}
 		return false;
 	}
