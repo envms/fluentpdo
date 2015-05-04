@@ -20,6 +20,7 @@ include_once 'SelectQuery.php';
 include_once 'InsertQuery.php';
 include_once 'UpdateQuery.php';
 include_once 'DeleteQuery.php';
+include_once 'ReplaceQuery.php';
 
 class FluentPDO {
 
@@ -106,6 +107,12 @@ class FluentPDO {
 		$args = func_get_args();
 		return call_user_func_array(array($this, 'delete'), $args);
 	}
+
+    public function replaceInto($table, $set) {
+        $query = new ReplaceQuery($this, $table);
+        $query->set($set);
+        return $query;
+    }
 
 	/** @return \PDO
 	 */
