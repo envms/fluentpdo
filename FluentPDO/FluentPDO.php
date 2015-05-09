@@ -11,6 +11,7 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License, version 2 (one or other)
  */
 
+include_once 'UpdateReplaceTrait.php';
 include_once 'FluentStructure.php';
 include_once 'FluentUtils.php';
 include_once 'FluentLiteral.php';
@@ -108,7 +109,13 @@ class FluentPDO {
 		return call_user_func_array(array($this, 'delete'), $args);
 	}
 
-    public function replaceInto($table, $set) {
+    /** Create REPLACE INTO query
+     *
+     * @param string $table
+     * @param array $set
+     * @return ReplaceQuery
+     */
+    public function replaceInto($table, $set = array()) {
         $query = new ReplaceQuery($this, $table);
         $query->set($set);
         return $query;

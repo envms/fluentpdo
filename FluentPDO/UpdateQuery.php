@@ -10,6 +10,7 @@
  * @method UpdateQuery  limit(int $limit) add LIMIT to query
  */
 class UpdateQuery extends CommonQuery {
+    use UpdateReplaceTrait;
 
 	public function __construct(FluentPDO $fpdo, $table) {
 		$clauses = array(
@@ -26,46 +27,6 @@ class UpdateQuery extends CommonQuery {
 
 		$tableParts = explode(' ', $table);
 		$this->joins[] = end($tableParts);
-	}
-
-	/**
-	 * @param string|array $fieldOrArray
-	 * @param null $value
-	 * @return $this
-	 * @throws Exception
-	 */
-	public function set($fieldOrArray, $value = false) {
-		if (!$fieldOrArray) {
-			return $this;
-		}
-		if (is_string($fieldOrArray) && $value !== false) {
-			$this->statements['SET'][$fieldOrArray] = $value;
-		} else {
-			if (!is_array($fieldOrArray)) {
-				throw new Exception('You must pass a value, or provide the SET list as an associative array. column => value');
-			} else {
-				foreach ($fieldOrArray as $field => $value) {
-					$this->statements['SET'][$field] = $value;
-				}
-			}
-		}
-
-		return $this;
-	}
-
-	/** Execute update query
-	 * @param boolean $getResultAsPdoStatement true to return the pdo statement instead of row count
-	 * @return int|boolean|\PDOStatement
-	 */
-	public function execute($getResultAsPdoStatement = false) {
-		$result = parent::execute();
-		if ($getResultAsPdoStatement) {
-			return $result;
-		}
-		if ($result) {
-			return $result->rowCount();
-		}
-		return false;
 	}
 
 	protected function getClauseUpdate() {

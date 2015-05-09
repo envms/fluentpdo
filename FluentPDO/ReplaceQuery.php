@@ -2,6 +2,7 @@
 /** REPLACE INTO query builder
  */
 class ReplaceQuery extends BaseQuery {
+    use UpdateReplaceTrait;
 
     public function __construct(FluentPDO $fpdo, $table) {
         $clauses = array(
@@ -13,27 +14,16 @@ class ReplaceQuery extends BaseQuery {
         $this->statements['REPLACE INTO'] = $table;
     }
 
-    /**
-     * @param string|array $fieldOrArray
-     * @param null $value
+    /** Alias for SET statement
+     * @param $values
      * @return $this
      * @throws Exception
      */
-    public function set($fieldOrArray, $value = false) {
-        if (!$fieldOrArray) {
-            return $this;
+    public function values($values) {
+        if (!is_array($values)) {
+            throw new Exception('Param VALUES for REPLACE query must be array');
         }
-        if (is_string($fieldOrArray) && $value !== false) {
-            $this->statements['SET'][$fieldOrArray] = $value;
-        } else {
-            if (!is_array($fieldOrArray)) {
-                throw new Exception('You must pass a value, or provide the SET list as an associative array. column => value');
-            } else {
-                foreach ($fieldOrArray as $field => $value) {
-                    $this->statements['SET'][$field] = $value;
-                }
-            }
-        }
+        $this->set($values);
 
         return $this;
     }
