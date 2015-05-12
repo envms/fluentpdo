@@ -2,7 +2,7 @@
 /** REPLACE INTO query builder
  */
 class ReplaceQuery extends BaseQuery {
-    use UpdateReplaceTrait;
+    private $setStatement;
 
     public function __construct(FluentPDO $fpdo, $table) {
         $clauses = array(
@@ -12,6 +12,7 @@ class ReplaceQuery extends BaseQuery {
         parent::__construct($fpdo, $clauses);
 
         $this->statements['REPLACE INTO'] = $table;
+        $this->setStatement = new SetStatement();
     }
 
     /** Alias for SET statement
@@ -25,6 +26,23 @@ class ReplaceQuery extends BaseQuery {
         }
         $this->set($values);
 
+        return $this;
+    }
+
+    /**
+     * @param string|array $fieldOrArray
+     * @param null $value
+     * @return $this
+     * @throws Exception
+     */
+    public function set($fieldOrArray, $value = false) {
+        $values = $this->setStatement->set($fieldOrArray, $value);
+        if (!$values) {
+            return $this;
+        }
+        foreach ($values as $field => $value) {
+            $this->statements['SET'][$field] = $value;
+        }
         return $this;
     }
 
@@ -48,17 +66,9 @@ class ReplaceQuery extends BaseQuery {
     }
 
     protected function getClauseSet() {
-        $setArray = array();
-        foreach ($this->statements['SET'] as $field => $value) {
-            if ($value instanceof FluentLiteral) {
-                $setArray[] = $field . ' = ' . $value;
-            } else {
-                $setArray[] = $field . ' = ?';
-                $this->parameters['SET'][$field] = $value;
-            }
-        }
-
-        return ' SET ' . implode(', ', $setArray);
+        $set = $this->setStatement->getClauseSet();
+        $this->parameters['SET'] = $this->setStatement->getParameters();
+        return $set;
     }
 
 }

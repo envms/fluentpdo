@@ -10,7 +10,7 @@
  * @method UpdateQuery  limit(int $limit) add LIMIT to query
  */
 class UpdateQuery extends CommonQuery {
-    use UpdateReplaceTrait;
+    private $setStatement;
 
 	public function __construct(FluentPDO $fpdo, $table) {
 		$clauses = array(
@@ -27,6 +27,39 @@ class UpdateQuery extends CommonQuery {
 
 		$tableParts = explode(' ', $table);
 		$this->joins[] = end($tableParts);
+        $this->setStatement = new SetStatement();
+	}
+
+	/**
+	 * @param string|array $fieldOrArray
+	 * @param null $value
+	 * @return $this
+	 * @throws Exception
+	 */
+    public function set($fieldOrArray, $value = false) {
+        $values = $this->setStatement->set($fieldOrArray, $value);
+        if (!$values) {
+            return $this;
+        }
+        foreach ($values as $field => $value) {
+            $this->statements['SET'][$field] = $value;
+        }
+        return $this;
+    }
+
+	/** Execute update query
+	 * @param boolean $getResultAsPdoStatement true to return the pdo statement instead of row count
+	 * @return int|boolean|\PDOStatement
+	 */
+	public function execute($getResultAsPdoStatement = false) {
+		$result = parent::execute();
+		if ($getResultAsPdoStatement) {
+			return $result;
+		}
+		if ($result) {
+			return $result->rowCount();
+		}
+		return false;
 	}
 
 	protected function getClauseUpdate() {
@@ -34,17 +67,9 @@ class UpdateQuery extends CommonQuery {
 	}
 
 	protected function getClauseSet() {
-		$setArray = array();
-		foreach ($this->statements['SET'] as $field => $value) {
-			if ($value instanceof FluentLiteral) {
-				$setArray[] = $field . ' = ' . $value;
-			} else {
-				$setArray[] = $field . ' = ?';
-				$this->parameters['SET'][$field] = $value;
-			}
-		}
-
-		return ' SET ' . implode(', ', $setArray);
+        $set = $this->setStatement->getClauseSet();
+        $this->parameters['SET'] = $this->setStatement->getParameters();
+		return $set;
 	}
 }
 

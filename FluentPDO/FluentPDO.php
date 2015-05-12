@@ -11,10 +11,10 @@
  * @license http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License, version 2 (one or other)
  */
 
-include_once 'UpdateReplaceTrait.php';
 include_once 'FluentStructure.php';
 include_once 'FluentUtils.php';
 include_once 'FluentLiteral.php';
+include_once 'SetStatement.php';
 include_once 'BaseQuery.php';
 include_once 'CommonQuery.php';
 include_once 'SelectQuery.php';
