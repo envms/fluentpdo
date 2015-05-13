@@ -4,7 +4,7 @@ class SetStatement {
 
     public function set($fieldOrArray, $value = false) {
         if (!$fieldOrArray) {
-            return [];
+            return array();
         }
 
         if (is_string($fieldOrArray) && $value !== false) {
