@@ -229,7 +229,7 @@ abstract class BaseQuery implements IteratorAggregate {
 		}
 	}
 
-	private function buildParameters() {
+	protected function buildParameters() {
 		$parameters = array();
 		foreach ($this->parameters as $clauses) {
 			if (is_array($clauses)) {

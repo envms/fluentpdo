@@ -13,8 +13,15 @@ $query = $fpdo->insertInto('article',
 		))->delayed();
 
 echo $query->getQuery() . "\n";
+print_r($query->getParameters());
 
 ?>
 --EXPECTF--
 INSERT DELAYED INTO article (user_id, title, content)
-VALUES (1, 'new title', 'new content')
+VALUES (?, ?, ?)
+Array
+(
+    [0] => 1
+    [1] => new title
+    [2] => new content
+)
