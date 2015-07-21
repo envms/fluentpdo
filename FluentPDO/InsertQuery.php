@@ -115,9 +115,10 @@ class InsertQuery extends BaseQuery {
 	 * @return array
 	 */
 	protected function filterLiterals($statements) {
-		return array_map(function($item) {
+        $self = $this;
+		return array_map(function($item) use($self) {
 			if (is_array($item)) {
-                return call_user_func(array($this, 'filterLiterals'), $item);
+                return call_user_func(array($self, 'filterLiterals'), $item);
 			}
 
 			return $item;
