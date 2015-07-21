@@ -108,24 +108,25 @@ class InsertQuery extends BaseQuery {
 	}
 
 	/**
-	 * Recursively removes all FluentLiteral instances from the argument
+	 * Removes all FluentLiteral instances from the argument
 	 * since they are not to be used as PDO parameters but rather injected directly into the query
 	 *
 	 * @param $statements
 	 * @return array
 	 */
-	protected function filterLiterals($statements) {
-        $self = $this;
-		return array_map(function($item) use($self) {
-			if (is_array($item)) {
-                return call_user_func(array($self, 'filterLiterals'), $item);
-			}
+    protected function filterLiterals($statements) {
+        $f = function($item){
+            return !$item instanceof FluentLiteral;
+        };
 
-			return $item;
-		}, array_filter($statements, function($item){
-			return !$item instanceof FluentLiteral;
-		}));
-	}
+        return array_map(function($item) use($f) {
+            if (is_array($item)) {
+                return array_filter($item, $f);
+            }
+
+            return $item;
+        }, array_filter($statements, $f));
+    }
 
 	protected function buildParameters(){
 		$this->parameters = array_merge(
