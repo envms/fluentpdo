@@ -88,19 +88,19 @@ class InsertQuery extends BaseQuery {
 		return 'INSERT' . ($this->ignore ? " IGNORE" : '') . ($this->delayed ? " DELAYED" : '') . ' INTO ' . $this->statements['INSERT INTO'];
 	}
 
-    protected function parameterGetValue($param) {
-        return $param instanceof FluentLiteral ? (string)$param : '?';
-    }
+	protected function parameterGetValue($param) {
+		return $param instanceof FluentLiteral ? (string)$param : '?';
+	}
 
 	protected function getClauseValues() {
 		$valuesArray = array();
 		foreach ($this->statements['VALUES'] as $rows) {
 			$placeholders = array_map(function($item){
-                // literals should not be parametrized.
-                // They are commonly used to call engine functions or literals.
-                // Eg: NOW(), CURRENT_TIMESTAMP etc
-                return $this->parameterGetValue($item);
-            }, $rows);
+				// literals should not be parametrized.
+				// They are commonly used to call engine functions or literals.
+				// Eg: NOW(), CURRENT_TIMESTAMP etc
+				return $this->parameterGetValue($item);
+			}, $rows);
 			$valuesArray[] = '(' . implode(', ', $placeholders) . ')';
 		}
 
@@ -109,33 +109,33 @@ class InsertQuery extends BaseQuery {
 		return " ($columns) VALUES $values";
 	}
 
-    /**
-     * Recursively removes all FluentLiteral instances from the argument
-     * since they are not to be used as PDO parameters but rather injected directly into the query
-     *
-     * @param $statements
-     * @return array
-     */
-    protected function filterLiterals($statements) {
-        return array_map(function($item) {
-            if (is_array($item)) {
-                return $this->filterLiterals($item);
-            }
+	/**
+	 * Recursively removes all FluentLiteral instances from the argument
+	 * since they are not to be used as PDO parameters but rather injected directly into the query
+	 *
+	 * @param $statements
+	 * @return array
+	 */
+	protected function filterLiterals($statements) {
+		return array_map(function($item) {
+			if (is_array($item)) {
+				return $this->filterLiterals($item);
+			}
 
-            return $item;
-        }, array_filter($statements, function($item){
-            return !$item instanceof FluentLiteral;
-        }));
-    }
+			return $item;
+		}, array_filter($statements, function($item){
+			return !$item instanceof FluentLiteral;
+		}));
+	}
 
-    protected function buildParameters(){
-        $this->parameters = array_merge(
-            $this->filterLiterals($this->statements['VALUES']),
-            $this->filterLiterals($this->statements['ON DUPLICATE KEY UPDATE'])
-        );
+	protected function buildParameters(){
+		$this->parameters = array_merge(
+			$this->filterLiterals($this->statements['VALUES']),
+			$this->filterLiterals($this->statements['ON DUPLICATE KEY UPDATE'])
+		);
 
-        return parent::buildParameters();
-    }
+		return parent::buildParameters();
+	}
 
 	protected function getClauseOnDuplicateKeyUpdate() {
 		$result = array();
