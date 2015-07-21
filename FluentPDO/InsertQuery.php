@@ -95,12 +95,10 @@ class InsertQuery extends BaseQuery {
 	protected function getClauseValues() {
 		$valuesArray = array();
 		foreach ($this->statements['VALUES'] as $rows) {
-			$placeholders = array_map(function($item){
-				// literals should not be parametrized.
-				// They are commonly used to call engine functions or literals.
-				// Eg: NOW(), CURRENT_TIMESTAMP etc
-				return $this->parameterGetValue($item);
-			}, $rows);
+            // literals should not be parametrized.
+            // They are commonly used to call engine functions or literals.
+            // Eg: NOW(), CURRENT_TIMESTAMP etc
+			$placeholders = array_map(array($this, 'parameterGetValue'), $rows);
 			$valuesArray[] = '(' . implode(', ', $placeholders) . ')';
 		}
 
@@ -119,7 +117,7 @@ class InsertQuery extends BaseQuery {
 	protected function filterLiterals($statements) {
 		return array_map(function($item) {
 			if (is_array($item)) {
-				return $this->filterLiterals($item);
+                return call_user_func(array($this, 'filterLiterals'), $item);
 			}
 
 			return $item;
