@@ -139,7 +139,7 @@ $query = $fpdo->deleteFrom('article', 1)->execute();
 
 *Note: INSERT, UPDATE and DELETE will be executed after `->execute()`:*
 
-Full documentation can be found on the [FluentPDO homepage](http://lichtner.github.io/fluentpdo/)
+Full documentation can be found on the [FluentPDO homepage](http://fpdo.github.io/fluentpdo/)
 
 ## Licence
 
