@@ -14,8 +14,15 @@ $query = $fpdo->insertInto('article',
 		));
 
 echo $query->getQuery() . "\n";
+print_r($query->getParameters());
 
 ?>
 --EXPECTF--
 INSERT INTO article (user_id, updated_at, title, content)
-VALUES (1, NOW(), 'new title', 'new content')
+VALUES (?, NOW(), ?, ?)
+Array
+(
+    [0] => 1
+    [1] => new title
+    [2] => new content
+)
