@@ -1,4 +1,4 @@
-# FluentPDO [![Build Status](https://secure.travis-ci.org/lichtner/fluentpdo.png?branch=master)](http://travis-ci.org/lichtner/fluentpdo)
+# FluentPDO [![Build Status](https://secure.travis-ci.org/fpdo/fluentpdo.png?branch=master)](http://travis-ci.org/fpdo/fluentpdo)
 
 FluentPDO - smart SQL builder for PHP.
 
