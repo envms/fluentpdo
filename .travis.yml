@@ -6,7 +6,7 @@ php:
   - 5.6
   - 7.0
   - hhvm
-  - nighly
+  - nightly
 
 script: php tests/run-tests.php
 before_script:
