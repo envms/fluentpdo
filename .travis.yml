@@ -1,12 +1,17 @@
 language: php
 php:
-- 5.5
-- 5.4
-- 5.3
+  - 5.3
+  - 5.4
+  - 5.5
+  - 5.6
+  - 7.0
+  - hhvm
+  - nightly
+
 script: php tests/run-tests.php
 before_script:
-- mysql -e 'create database fblog;'
-- mysql -u root -D fblog < tests/fblog.sql
+  - mysql -e 'create database fblog;'
+  - mysql -u root -D fblog < tests/fblog.sql
 notifications:
   slack:
     secure: cyZnqOCV/gO9p23Z8Lr0e4sc3TqXi0v+VQ8neeRTNalYuiwgn9Co1NakCBO7yyku6qyWE9EOaypYBJlZgaLExLAyCGmaSTRduLlE7P1bdcNnkmns0ikoenFzXd5Uq26ExsegGzUGSbjwtzVhiHLUwigPsJNpnwsMOa2Co5ieo04=

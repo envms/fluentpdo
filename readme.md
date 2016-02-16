@@ -12,7 +12,7 @@ FluentPDO is small PHP library for rapid query building. Killer feature is "Smar
 - Build SELECT, INSERT, UPDATE & DELETE queries
 - Small and fast
 - Type hinting with code completion in smart IDEs
-- Requires PHP 5.1+ with any database supported by PDO
+- Requires PHP 5.3+ with any database supported by PDO
 
 ## Reference
 
