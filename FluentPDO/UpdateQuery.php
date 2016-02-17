@@ -10,6 +10,7 @@
  * @method UpdateQuery  limit(int $limit) add LIMIT to query
  */
 class UpdateQuery extends CommonQuery {
+    private $setStatement;
 
 	public function __construct(FluentPDO $fpdo, $table) {
 		$clauses = array(
@@ -26,6 +27,7 @@ class UpdateQuery extends CommonQuery {
 
 		$tableParts = explode(' ', $table);
 		$this->joins[] = end($tableParts);
+        $this->setStatement = new SetStatement();
 	}
 
 	/**
@@ -34,24 +36,16 @@ class UpdateQuery extends CommonQuery {
 	 * @return $this
 	 * @throws Exception
 	 */
-	public function set($fieldOrArray, $value = false) {
-		if (!$fieldOrArray) {
-			return $this;
-		}
-		if (is_string($fieldOrArray) && $value !== false) {
-			$this->statements['SET'][$fieldOrArray] = $value;
-		} else {
-			if (!is_array($fieldOrArray)) {
-				throw new Exception('You must pass a value, or provide the SET list as an associative array. column => value');
-			} else {
-				foreach ($fieldOrArray as $field => $value) {
-					$this->statements['SET'][$field] = $value;
-				}
-			}
-		}
-
-		return $this;
-	}
+    public function set($fieldOrArray, $value = false) {
+        $values = $this->setStatement->set($fieldOrArray, $value);
+        if (!$values) {
+            return $this;
+        }
+        foreach ($values as $field => $value) {
+            $this->statements['SET'][$field] = $value;
+        }
+        return $this;
+    }
 
 	/** Execute update query
 	 * @param boolean $getResultAsPdoStatement true to return the pdo statement instead of row count
@@ -73,17 +67,9 @@ class UpdateQuery extends CommonQuery {
 	}
 
 	protected function getClauseSet() {
-		$setArray = array();
-		foreach ($this->statements['SET'] as $field => $value) {
-			if ($value instanceof FluentLiteral) {
-				$setArray[] = $field . ' = ' . $value;
-			} else {
-				$setArray[] = $field . ' = ?';
-				$this->parameters['SET'][$field] = $value;
-			}
-		}
-
-		return ' SET ' . implode(', ', $setArray);
+        $set = $this->setStatement->getClauseSet();
+        $this->parameters['SET'] = $this->setStatement->getParameters();
+		return $set;
 	}
 }
 

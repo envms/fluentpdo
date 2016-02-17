@@ -14,12 +14,14 @@
 include_once 'FluentStructure.php';
 include_once 'FluentUtils.php';
 include_once 'FluentLiteral.php';
+include_once 'SetStatement.php';
 include_once 'BaseQuery.php';
 include_once 'CommonQuery.php';
 include_once 'SelectQuery.php';
 include_once 'InsertQuery.php';
 include_once 'UpdateQuery.php';
 include_once 'DeleteQuery.php';
+include_once 'ReplaceQuery.php';
 
 class FluentPDO {
 
@@ -106,6 +108,18 @@ class FluentPDO {
 		$args = func_get_args();
 		return call_user_func_array(array($this, 'delete'), $args);
 	}
+
+    /** Create REPLACE INTO query
+     *
+     * @param string $table
+     * @param array $set
+     * @return ReplaceQuery
+     */
+    public function replaceInto($table, $set = array()) {
+        $query = new ReplaceQuery($this, $table);
+        $query->set($set);
+        return $query;
+    }
 
 	/** @return \PDO
 	 */
