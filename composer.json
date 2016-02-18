@@ -1,8 +1,8 @@
 {
-	"name": "lichtner/fluentpdo",
+	"name": "fpdo/fluentpdo",
 	"description": "FluentPDO is small PHP library for rapid query building. Killer feature is smart join builder which generates joins automatically.",
 	"keywords": ["database", "dbal", "pdo"],
-	"homepage": "http://fluentpdo.com/",
+	"homepage": "https://github.com/fpdo/fluentpdo",
 	"license": ["Apache-2.0", "GPL-2.0+"],
 	"authors": [
 		{
