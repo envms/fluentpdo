@@ -190,6 +190,8 @@ abstract class CommonQuery extends BaseQuery {
 	protected function buildQuery() {
 		# first create extra join from statements with columns with referenced tables
 		$statementsWithReferences = array('WHERE', 'SELECT', 'GROUP BY', 'ORDER BY');
+		if( count( $this->statements['SELECT'] ) > 1 )
+			array_shift($this->statements['SELECT']);
 		foreach ($statementsWithReferences as $clause) {
 			if (array_key_exists($clause, $this->statements)) {
 				$this->statements[$clause] = array_map(array($this, 'createUndefinedJoins'), $this->statements[$clause]);
