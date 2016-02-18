@@ -43,7 +43,7 @@ class FluentPDO {
 	 */
 	public function from($table, $primaryKey = null) {
 		$query = new SelectQuery($this, $table);
-		if ($primaryKey) {
+		if (!is_null($primaryKey)) {
 			$tableTable = $query->getFromTable();
 			$tableAlias = $query->getFromAlias();
 			$primaryKeyName = $this->structure->getPrimaryKey($tableTable);
