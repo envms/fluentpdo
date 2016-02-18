@@ -23,7 +23,7 @@ include_once 'DeleteQuery.php';
 
 class FluentPDO {
 
-	private $pdo, $structure;
+	protected $pdo, $structure;
 
 	/** @var boolean|callback */
 	public $debug;
