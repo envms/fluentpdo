@@ -28,7 +28,7 @@ Add in your `composer.json`:
 
 	"require": {
 		...
-		"lichtner/fluentpdo": "dev-master"	
+		"fpdo/fluentpdo": "dev-master"
 	}
 
 then update your dependencies with `composer update`.
