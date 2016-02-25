@@ -48,11 +48,11 @@ abstract class CommonQuery extends BaseQuery {
 		}
 
 		// check that there are 2 arguments, a condition and a parameter value
-		// if the condition contains comparison operator simply add them
+		// if the condition contains a parameter simply add them
 		// since its up to the user if it's valid sql or not
 		// Otherwise we're probably with just an identifier. So lets
 		// construct a new condition based on the passed parameter value.
-		if (count($args) == 2 && !preg_match('~[>|>=|<|<=|=|!=|<>|<!|!>]~i', $condition)) {
+		if (count($args) == 2 && !preg_match('~(\?|:\w+)~i', $condition)) {
 			# condition is column only
 			if (is_null($parameters)) {
 				return $this->addStatement('WHERE', "$condition is NULL");
