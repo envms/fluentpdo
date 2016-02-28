@@ -229,26 +229,21 @@ abstract class BaseQuery implements IteratorAggregate {
 		}
 	}
 
-	protected function buildParameters()
-	{
+	protected function buildParameters() {
 		$parameters = array();
 
-		foreach ($this->parameters as $clauses)
-		{
-			if (!is_array($clauses))
-			{
+		foreach ($this->parameters as $clauses) {
+			if (!is_array($clauses)) {
 				if ($clauses !== NULL)
 					$parameters[] = $clauses;
 
 				continue;
 			}
 
-			foreach ($clauses as $value)
-			{
+			foreach ($clauses as $value) {
 				$isNamedArgs = is_array($value) && is_string(key($value)) && substr(key($value), 0, 1) == ':';
 
-				if ($isNamedArgs)
-				{
+				if ($isNamedArgs) {
 					// this is named params e.g. (':name' => 'Mark')
 					$parameters = array_merge($parameters, $value);
 
