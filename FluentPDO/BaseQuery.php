@@ -237,7 +237,7 @@ abstract class BaseQuery implements IteratorAggregate {
 		{
 			if (!is_array($clauses))
 			{
-				if ($clauses)
+				if ($clauses !== NULL)
 					$parameters[] = $clauses;
 
 				continue;
