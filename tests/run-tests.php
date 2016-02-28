@@ -15,7 +15,7 @@ foreach ($tests as $filename) {
 		echo "wrong test in $filename\n";
 	} elseif ($match[2]) {
 		echo "skipped $filename ($match[1]): $match[2]";
-	} elseif ($match[3] !== $match[4]) {
+	} elseif (trim($match[3]) !== trim($match[4])) {
 		$error = true;
 		echo "failed $filename ($match[1])\n";
 		if ($verbose) {
