@@ -131,6 +131,7 @@ class SelectQuery extends CommonQuery implements Countable {
 
 	/**
 	 * Paginated list
+	 *
 	 * @param int $perPage specify how many items must appear on one page
 	 * @param int $currentPage specify current page
 	 * @return array(items, currentPage, lastPage, totalItems)
