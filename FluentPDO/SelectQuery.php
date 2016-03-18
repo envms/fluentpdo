@@ -129,9 +129,34 @@ class SelectQuery extends CommonQuery implements Countable {
 		}
 	}
 
+	/**
+	 * Paginated list
+	 *
+	 * @param int $perPage specify how many items must appear on one page
+	 * @param int $currentPage specify current page
+	 * @return array(items, currentPage, lastPage, totalItems)
+	 */
+	public function paginate($perPage, $currentPage)
+	{
+		$clone = clone $this;
+
+		$totalItems = count($clone);
+		$lastPage = ceil($totalItems / $perPage);
+
+		$clone->offset(($currentPage - 1) * $perPage);
+		$clone->limit($perPage);
+
+		return [
+			"items" => $clone->fetchAll(),
+			"currentPage" => $currentPage,
+			"lastPage" => $lastPage,
+			"totalItems" => $totalItems
+		];
+	}
+
 	/** Countable interface
 	 * doesn't break current fluentpdo select query
-	 * @return
+	 * @return int
 	 */
 	public function count() {
 		$fpdo = clone $this;
