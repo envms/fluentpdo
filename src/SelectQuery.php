@@ -1,7 +1,9 @@
 <?php
 
+namespace FluentPDO;
+
 /**
- * SELECT query builder
+ * SELECT query builder.
  *
  * @method SelectQuery  select(string $column) add one or more columns in SELECT to query
  * @method SelectQuery  leftJoin(string $statement) add LEFT JOIN to query
@@ -14,11 +16,12 @@
  * @method SelectQuery  limit(int $limit) add LIMIT to query
  * @method SelectQuery  offset(int $offset) add OFFSET to query
  */
-class SelectQuery extends CommonQuery implements Countable {
-
+class SelectQuery extends CommonQuery implements \Countable
+{
 	private $fromTable, $fromAlias;
 
-	function __construct(FluentPDO $fpdo, $from) {
+	public function __construct(FluentPDO $fpdo, $from)
+	{
 		$clauses = array(
 			'SELECT' => ', ',
 			'FROM' => null,
@@ -39,40 +42,47 @@ class SelectQuery extends CommonQuery implements Countable {
 		$this->fromAlias = end($fromParts);
 
 		$this->statements['FROM'] = $from;
-		$this->statements['SELECT'][] = $this->fromAlias . '.*';
+		$this->statements['SELECT'][] = $this->fromAlias.'.*';
 		$this->joins[] = $this->fromAlias;
 	}
 
 	/** Return table name from FROM clause
 	 * @internal
 	 */
-	public function getFromTable() {
+	public function getFromTable()
+	{
 		return $this->fromTable;
 	}
 
 	/** Return table alias from FROM clause
 	 * @internal
 	 */
-	public function getFromAlias() {
+	public function getFromAlias()
+	{
 		return $this->fromAlias;
 	}
 
 	/** Returns a single column
 	 * @param int $columnNumber
+	 *
 	 * @return string
 	 */
-	public function fetchColumn($columnNumber = 0) {
+	public function fetchColumn($columnNumber = 0)
+	{
 		if ($s = $this->execute()) {
 			return $s->fetchColumn($columnNumber);
 		}
+
 		return false;
 	}
 
 	/** Fetch first row or column
 	 * @param string $column column name or empty string for the whole row
+	 *
 	 * @return mixed string, array or false if there is no row
 	 */
-	public function fetch($column = '') {
+	public function fetch($column = '')
+	{
 		$return = $this->execute();
 		if ($return === false) {
 			return false;
@@ -85,31 +95,38 @@ class SelectQuery extends CommonQuery implements Countable {
 				return $return[$column];
 			}
 		}
+
 		return $return;
 	}
 
 	/**
-	 * Fetch pairs
+	 * Fetch pairs.
+	 *
 	 * @param $key
 	 * @param $value
 	 * @param $object
+	 *
 	 * @return array of fetched rows as pairs
 	 */
-	public function fetchPairs($key, $value, $object = false) {
+	public function fetchPairs($key, $value, $object = false)
+	{
 		if ($s = $this->select(null)->select("$key, $value")->asObject($object)->execute()) {
-			return $s->fetchAll(PDO::FETCH_KEY_PAIR);
+			return $s->fetchAll(\PDO::FETCH_KEY_PAIR);
 		}
+
 		return false;
 	}
 
 	/** Fetch all row
-	 * @param string $index  specify index column
-	 * @param string $selectOnly  select columns which could be fetched
+	 * @param string $index      specify index column
+	 * @param string $selectOnly select columns which could be fetched
+	 *
 	 * @return array of fetched rows
 	 */
-	public function fetchAll($index = '', $selectOnly = '') {
+	public function fetchAll($index = '', $selectOnly = '')
+	{
 		if ($selectOnly) {
-			$this->select(null)->select($index . ', ' . $selectOnly);
+			$this->select(null)->select($index.', '.$selectOnly);
 		}
 		if ($index) {
 			$data = array();
@@ -120,21 +137,26 @@ class SelectQuery extends CommonQuery implements Countable {
 					$data[$row[$index]] = $row;
 				}
 			}
+
 			return $data;
 		} else {
 			if ($s = $this->execute()) {
 				return $s->fetchAll();
 			}
+
 			return false;
 		}
 	}
 
 	/** Countable interface
-	 * doesn't break current fluentpdo select query
+	 * doesn't break current fluentpdo select query.
+	 *
 	 * @return
 	 */
-	public function count() {
+	public function count()
+	{
 		$fpdo = clone $this;
+
 		return (int) $fpdo->select(null)->select('COUNT(*)')->fetchColumn();
 	}
 }

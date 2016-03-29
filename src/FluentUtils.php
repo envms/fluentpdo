@@ -1,16 +1,21 @@
 <?php
 
-class FluentUtils {
+namespace FluentPDO;
 
+class FluentUtils
+{
 	/** Convert "camelCaseWord" to "CAMEL CASE WORD"
 	 * @param string $string
+	 *
 	 * @return string
 	 */
-	public static function toUpperWords($string) {
+	public static function toUpperWords($string)
+	{
 		return trim(strtoupper(preg_replace('#(.)([A-Z]+)#', '$1 $2', $string)));
 	}
 
-	public static function formatQuery($query) {
+	public static function formatQuery($query)
+	{
 		$query = preg_replace(
 			'/WHERE|FROM|GROUP BY|HAVING|ORDER BY|LIMIT|OFFSET|UNION|ON DUPLICATE KEY UPDATE|VALUES/',
 			"\n$0", $query
@@ -21,6 +26,7 @@ class FluentUtils {
 		);
 		# remove trailing spaces
 		$query = preg_replace("/\s+\n/", "\n", $query);
+
 		return $query;
 	}
 }

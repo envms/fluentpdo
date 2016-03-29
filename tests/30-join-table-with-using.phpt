@@ -4,8 +4,8 @@ join using USING
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
 /* @var $fpdo2 FluentPDO */
-$fluent_structure2 = new FluentStructure('%s_id', '%s_id');
-$fpdo2 = new FluentPDO($pdo, $fluent_structure2);
+$fluent_structure2 = new \FluentPDO\FluentStructure('%s_id', '%s_id');
+$fpdo2 = new \FluentPDO\FluentPDO($pdo, $fluent_structure2);
 
 $query = $fpdo2->from('article')
 		->innerJoin('user USING (user_id)')

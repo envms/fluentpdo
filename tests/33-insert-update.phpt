@@ -8,7 +8,7 @@ include_once dirname(__FILE__) . "/connect.inc.php";
 $query = $fpdo->insertInto('article', array('id' => 1))
 		->onDuplicateKeyUpdate(array(
 			'title' => 'article 1b',
-			'content' => new FluentLiteral('abs(-1)') // let's update with a literal and a parameter value
+			'content' => new \FluentPDO\FluentLiteral('abs(-1)') // let's update with a literal and a parameter value
 		));
 
 echo $query->getQuery() . "\n";

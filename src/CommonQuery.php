@@ -1,35 +1,44 @@
 <?php
 
+namespace FluentPDO;
+
 /** CommonQuery add JOIN and WHERE clauses for (SELECT, UPDATE, DELETE)
  */
-abstract class CommonQuery extends BaseQuery {
-
+abstract class CommonQuery extends BaseQuery
+{
 	/** @var array of used tables (also include table from clause FROM) */
 	protected $joins = array();
 
-	/** @var boolean disable adding undefined joins to query? */
+	/** @var bool disable adding undefined joins to query? */
 	protected $isSmartJoinEnabled = true;
 
-	public function enableSmartJoin() {
+	public function enableSmartJoin()
+	{
 		$this->isSmartJoinEnabled = true;
+
 		return $this;
 	}
 
-	public function disableSmartJoin() {
+	public function disableSmartJoin()
+	{
 		$this->isSmartJoinEnabled = false;
+
 		return $this;
 	}
 
-	public function isSmartJoinEnabled() {
+	public function isSmartJoinEnabled()
+	{
 		return $this->isSmartJoinEnabled;
 	}
 
 	/** Add where condition, more calls appends with AND
 	 * @param string $condition  possibly containing ? or :name (PDO syntax)
-	 * @param mixed $parameters  array or a scalar value
+	 * @param mixed  $parameters array or a scalar value
+	 *
 	 * @return \SelectQuery
 	 */
-	public function where($condition, $parameters = array()) {
+	public function where($condition, $parameters = array())
+	{
 		if ($condition === null) {
 			return $this->resetClause('WHERE');
 		}
@@ -40,6 +49,7 @@ abstract class CommonQuery extends BaseQuery {
 			foreach ($condition as $key => $val) {
 				$this->where($key, $val);
 			}
+
 			return $this;
 		}
 		$args = func_get_args();
@@ -58,48 +68,64 @@ abstract class CommonQuery extends BaseQuery {
 				return $this->addStatement('WHERE', "$condition is NULL");
 			} elseif (is_array($args[1])) {
 				$in = $this->quote($args[1]);
+
 				return $this->addStatement('WHERE', "$condition IN $in");
 			}
 			$condition = "$condition = ?";
 		}
 		array_shift($args);
+
 		return $this->addStatement('WHERE', $condition, $args);
 	}
 
 	/**
 	 * @param $clause
 	 * @param array $parameters - first is $statement followed by $parameters
+	 *
 	 * @return $this|\SelectQuery
 	 */
-	public function __call($clause, $parameters = array()) {
+	public function __call($clause, $parameters = array())
+	{
 		$clause = FluentUtils::toUpperWords($clause);
-		if ($clause == 'GROUP') $clause = 'GROUP BY';
-		if ($clause == 'ORDER') $clause = 'ORDER BY';
-		if ($clause == 'FOOT NOTE') $clause = "\n--";
+		if ($clause == 'GROUP') {
+			$clause = 'GROUP BY';
+		}
+		if ($clause == 'ORDER') {
+			$clause = 'ORDER BY';
+		}
+		if ($clause == 'FOOT NOTE') {
+			$clause = "\n--";
+		}
 		$statement = array_shift($parameters);
-		if (strpos($clause, 'JOIN') !== FALSE) {
+		if (strpos($clause, 'JOIN') !== false) {
 			return $this->addJoinStatements($clause, $statement, $parameters);
 		}
+
 		return $this->addStatement($clause, $statement, $parameters);
 	}
 
-	protected function getClauseJoin() {
+	protected function getClauseJoin()
+	{
 		return implode(' ', $this->statements['JOIN']);
 	}
 
 	/**
-	 * Statement can contain more tables (e.g. "table1.table2:table3:")
+	 * Statement can contain more tables (e.g. "table1.table2:table3:").
+	 *
 	 * @param $clause
 	 * @param $statement
 	 * @param array $parameters
+	 *
 	 * @return $this|\SelectQuery
 	 */
-	private function addJoinStatements($clause, $statement, $parameters = array()) {
+	private function addJoinStatements($clause, $statement, $parameters = array())
+	{
 		if ($statement === null) {
 			$this->joins = array();
+
 			return $this->resetClause('JOIN');
 		}
-		if (array_search(substr($statement, 0, -1), $this->joins) !== FALSE) {
+		if (array_search(substr($statement, 0, -1), $this->joins) !== false) {
 			return $this;
 		}
 
@@ -115,12 +141,15 @@ abstract class CommonQuery extends BaseQuery {
 		}
 
 		if (strpos(strtoupper($statement), ' ON ') || strpos(strtoupper($statement), ' USING')) {
-			if (!$joinAlias) $joinAlias = $joinTable;
+			if (!$joinAlias) {
+				$joinAlias = $joinTable;
+			}
 			if (in_array($joinAlias, $this->joins)) {
 				return $this;
 			} else {
 				$this->joins[] = $joinAlias;
 				$statement = " $clause $statement";
+
 				return $this->addStatement('JOIN', $statement, $parameters);
 			}
 		}
@@ -139,28 +168,38 @@ abstract class CommonQuery extends BaseQuery {
 		$lastItem = array_pop($matches[1]);
 		array_push($matches[1], $lastItem);
 		foreach ($matches[1] as $joinItem) {
-			if ($mainTable == substr($joinItem, 0, -1)) continue;
+			if ($mainTable == substr($joinItem, 0, -1)) {
+				continue;
+			}
 
 			# use $joinAlias only for $lastItem
 			$alias = '';
-			if ($joinItem == $lastItem) $alias = $joinAlias;
+			if ($joinItem == $lastItem) {
+				$alias = $joinAlias;
+			}
 
 			$newJoin = $this->createJoinStatement($clause, $mainTable, $joinItem, $alias);
-			if ($newJoin) $this->addStatement('JOIN', $newJoin, $parameters);
+			if ($newJoin) {
+				$this->addStatement('JOIN', $newJoin, $parameters);
+			}
 			$mainTable = $joinItem;
 		}
+
 		return $this;
 	}
 
 	/**
-	 * Create join string
+	 * Create join string.
+	 *
 	 * @param $clause
 	 * @param $mainTable
 	 * @param $joinTable
 	 * @param string $joinAlias
+	 *
 	 * @return string
 	 */
-	private function createJoinStatement($clause, $mainTable, $joinTable, $joinAlias = '') {
+	private function createJoinStatement($clause, $mainTable, $joinTable, $joinAlias = '')
+	{
 		if (in_array(substr($mainTable, -1), array(':', '.'))) {
 			$mainTable = substr($mainTable, 0, -1);
 		}
@@ -182,10 +221,12 @@ abstract class CommonQuery extends BaseQuery {
 			# back reference
 			$primaryKey = $this->getStructure()->getPrimaryKey($mainTable);
 			$foreignKey = $this->getStructure()->getForeignKey($mainTable);
+
 			return " $clause $joinTable$asJoinAlias ON $joinAlias.$foreignKey = $mainTable.$primaryKey";
 		} else {
 			$primaryKey = $this->getStructure()->getPrimaryKey($joinTable);
 			$foreignKey = $this->getStructure()->getForeignKey($joinTable);
+
 			return " $clause $joinTable$asJoinAlias ON $joinAlias.$primaryKey = $mainTable.$foreignKey";
 		}
 	}
@@ -193,7 +234,8 @@ abstract class CommonQuery extends BaseQuery {
 	/**
 	 * @return string
 	 */
-	protected function buildQuery() {
+	protected function buildQuery()
+	{
 		# first create extra join from statements with columns with referenced tables
 		$statementsWithReferences = array('WHERE', 'SELECT', 'GROUP BY', 'ORDER BY');
 		foreach ($statementsWithReferences as $clause) {
@@ -207,9 +249,11 @@ abstract class CommonQuery extends BaseQuery {
 
 	/** Create undefined joins from statement with column with referenced tables
 	 * @param string $statement
-	 * @return string  rewrited $statement (e.g. tab1.tab2:col => tab2.col)
+	 *
+	 * @return string rewrited $statement (e.g. tab1.tab2:col => tab2.col)
 	 */
-	private function createUndefinedJoins($statement) {
+	private function createUndefinedJoins($statement)
+	{
 		if (!$this->isSmartJoinEnabled) {
 			return $statement;
 		}
@@ -223,13 +267,14 @@ abstract class CommonQuery extends BaseQuery {
 
 		# don't rewrite table from other databases
 		foreach ($this->joins as $join) {
-			if (strpos($join, '.') !== FALSE && strpos($statement, $join) === 0) {
+			if (strpos($join, '.') !== false && strpos($statement, $join) === 0) {
 				return $statement;
 			}
 		}
 
 		# remove extra referenced tables (rewrite tab1.tab2:col => tab2.col)
 		$statement = preg_replace('~(?:\\b[a-z_][a-z0-9_.:]*[.:])?([a-z_][a-z0-9_]*)[.:]([a-z_*])~i', '\\1.\\2', $statement);
+
 		return $statement;
 	}
 }

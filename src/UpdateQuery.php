@@ -1,7 +1,8 @@
 <?php
 
+namespace FluentPDO;
+
 /** UPDATE query builder
- *
  * @method UpdateQuery  leftJoin(string $statement) add LEFT JOIN to query
  *                        ($statement can be 'table' name only or 'table:' means back reference)
  * @method UpdateQuery  innerJoin(string $statement) add INNER JOIN to query
@@ -9,9 +10,10 @@
  * @method UpdateQuery  orderBy(string $column) add ORDER BY to query
  * @method UpdateQuery  limit(int $limit) add LIMIT to query
  */
-class UpdateQuery extends CommonQuery {
-
-	public function __construct(FluentPDO $fpdo, $table) {
+class UpdateQuery extends CommonQuery
+{
+	public function __construct(FluentPDO $fpdo, $table)
+	{
 		$clauses = array(
 			'UPDATE' => array($this, 'getClauseUpdate'),
 			'JOIN' => array($this, 'getClauseJoin'),
@@ -30,11 +32,14 @@ class UpdateQuery extends CommonQuery {
 
 	/**
 	 * @param string|array $fieldOrArray
-	 * @param null $value
+	 * @param null         $value
+	 *
 	 * @return $this
+	 *
 	 * @throws Exception
 	 */
-	public function set($fieldOrArray, $value = false) {
+	public function set($fieldOrArray, $value = false)
+	{
 		if (!$fieldOrArray) {
 			return $this;
 		}
@@ -54,10 +59,12 @@ class UpdateQuery extends CommonQuery {
 	}
 
 	/** Execute update query
-	 * @param boolean $getResultAsPdoStatement true to return the pdo statement instead of row count
-	 * @return int|boolean|\PDOStatement
+	 * @param bool $getResultAsPdoStatement true to return the pdo statement instead of row count
+	 *
+	 * @return int|bool|\PDOStatement
 	 */
-	public function execute($getResultAsPdoStatement = false) {
+	public function execute($getResultAsPdoStatement = false)
+	{
 		$result = parent::execute();
 		if ($getResultAsPdoStatement) {
 			return $result;
@@ -65,27 +72,27 @@ class UpdateQuery extends CommonQuery {
 		if ($result) {
 			return $result->rowCount();
 		}
+
 		return false;
 	}
 
-	protected function getClauseUpdate() {
-		return 'UPDATE ' . $this->statements['UPDATE'];
+	protected function getClauseUpdate()
+	{
+		return 'UPDATE '.$this->statements['UPDATE'];
 	}
 
-	protected function getClauseSet() {
+	protected function getClauseSet()
+	{
 		$setArray = array();
 		foreach ($this->statements['SET'] as $field => $value) {
 			if ($value instanceof FluentLiteral) {
-				$setArray[] = $field . ' = ' . $value;
+				$setArray[] = $field.' = '.$value;
 			} else {
-				$setArray[] = $field . ' = ?';
+				$setArray[] = $field.' = ?';
 				$this->parameters['SET'][$field] = $value;
 			}
 		}
 
-		return ' SET ' . implode(', ', $setArray);
+		return ' SET '.implode(', ', $setArray);
 	}
 }
-
-
-
