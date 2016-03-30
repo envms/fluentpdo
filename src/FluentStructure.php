@@ -1,10 +1,13 @@
 <?php
 
-class FluentStructure {
+namespace FluentPDO;
 
+class FluentStructure
+{
 	private $primaryKey, $foreignKey;
 
-	function __construct($primaryKey = 'id', $foreignKey = '%s_id') {
+	public function __construct($primaryKey = 'id', $foreignKey = '%s_id')
+	{
 		if ($foreignKey === null) {
 			$foreignKey = $primaryKey;
 		}
@@ -12,18 +15,22 @@ class FluentStructure {
 		$this->foreignKey = $foreignKey;
 	}
 
-	public function getPrimaryKey($table) {
+	public function getPrimaryKey($table)
+	{
 		return $this->key($this->primaryKey, $table);
 	}
 
-	public function getForeignKey($table) {
+	public function getForeignKey($table)
+	{
 		return $this->key($this->foreignKey, $table);
 	}
 
-	private function key($key, $table) {
+	private function key($key, $table)
+	{
 		if (is_callable($key)) {
 			return $key($table);
 		}
+
 		return sprintf($key, $table);
 	}
 }

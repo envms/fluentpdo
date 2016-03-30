@@ -11,6 +11,11 @@
 		}
 	],
 	"autoload": {
-		"files": ["FluentPDO/FluentPDO.php"]
+		"psr-4": {
+            "FluentPDO\\": ["src/"]
+        }
+	},
+	"require-dev": {
+		"fabpot/php-cs-fixer": "^1.11"
 	}
 }

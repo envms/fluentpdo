@@ -1,9 +1,11 @@
 <?php
 
+namespace FluentPDO;
+
 /** INSERT query builder
  */
-class InsertQuery extends BaseQuery {
-
+class InsertQuery extends BaseQuery
+{
 	private $columns = array();
 
 	private $firstValue = array();
@@ -11,7 +13,8 @@ class InsertQuery extends BaseQuery {
 	private $ignore = false;
 	private $delayed = false;
 
-	public function __construct(FluentPDO $fpdo, $table, $values) {
+	public function __construct(FluentPDO $fpdo, $table, $values)
+	{
 		$clauses = array(
 			'INSERT INTO' => array($this, 'getClauseInsertInto'),
 			'VALUES' => array($this, 'getClauseValues'),
@@ -24,34 +27,43 @@ class InsertQuery extends BaseQuery {
 	}
 
 	/** Execute insert query
-	 * @return integer last inserted id or false
+	 * @return int last inserted id or false
 	 */
-	public function execute($sequence = null) {
+	public function execute($sequence = null)
+	{
 		$result = parent::execute();
 		if ($result) {
 			return $this->getPDO()->lastInsertId($sequence);
 		}
+
 		return false;
 	}
 
 	/** Add ON DUPLICATE KEY UPDATE
 	 * @param array $values
+	 *
 	 * @return \InsertQuery
 	 */
-	public function onDuplicateKeyUpdate($values) {
+	public function onDuplicateKeyUpdate($values)
+	{
 		$this->statements['ON DUPLICATE KEY UPDATE'] = array_merge(
 			$this->statements['ON DUPLICATE KEY UPDATE'], $values
 		);
+
 		return $this;
 	}
 
 	/**
-	 * Add VALUES
+	 * Add VALUES.
+	 *
 	 * @param $values
+	 *
 	 * @return \InsertQuery
+	 *
 	 * @throws Exception
 	 */
-	public function values($values) {
+	public function values($values)
+	{
 		if (!is_array($values)) {
 			throw new Exception('Param VALUES for INSERT query must be array');
 		}
@@ -65,70 +77,82 @@ class InsertQuery extends BaseQuery {
 				$this->addOneValue($oneValue);
 			}
 		}
+
 		return $this;
 	}
 
 	/** INSERT IGNORE - insert operation fails silently
 	 * @return \InsertQuery
 	 */
-	public function ignore() {
+	public function ignore()
+	{
 		$this->ignore = true;
+
 		return $this;
 	}
 
 	/** INSERT DELAYED - insert operation delay support
 	 * @return \InsertQuery
 	 */
-	public function delayed() {
+	public function delayed()
+	{
 		$this->delayed = true;
+
 		return $this;
 	}
 
-	protected function getClauseInsertInto() {
-		return 'INSERT' . ($this->ignore ? " IGNORE" : '') . ($this->delayed ? " DELAYED" : '') . ' INTO ' . $this->statements['INSERT INTO'];
+	protected function getClauseInsertInto()
+	{
+		return 'INSERT'.($this->ignore ? ' IGNORE' : '').($this->delayed ? ' DELAYED' : '').' INTO '.$this->statements['INSERT INTO'];
 	}
 
-	protected function parameterGetValue($param) {
-		return $param instanceof FluentLiteral ? (string)$param : '?';
+	protected function parameterGetValue($param)
+	{
+		return $param instanceof FluentLiteral ? (string) $param : '?';
 	}
 
-	protected function getClauseValues() {
+	protected function getClauseValues()
+	{
 		$valuesArray = array();
 		foreach ($this->statements['VALUES'] as $rows) {
-            // literals should not be parametrized.
-            // They are commonly used to call engine functions or literals.
-            // Eg: NOW(), CURRENT_TIMESTAMP etc
+			// literals should not be parametrized.
+			// They are commonly used to call engine functions or literals.
+			// Eg: NOW(), CURRENT_TIMESTAMP etc
 			$placeholders = array_map(array($this, 'parameterGetValue'), $rows);
-			$valuesArray[] = '(' . implode(', ', $placeholders) . ')';
+			$valuesArray[] = '('.implode(', ', $placeholders).')';
 		}
 
 		$columns = implode(', ', $this->columns);
 		$values = implode(', ', $valuesArray);
+
 		return " ($columns) VALUES $values";
 	}
 
 	/**
 	 * Removes all FluentLiteral instances from the argument
-	 * since they are not to be used as PDO parameters but rather injected directly into the query
+	 * since they are not to be used as PDO parameters but rather injected directly into the query.
 	 *
 	 * @param $statements
+	 *
 	 * @return array
 	 */
-    protected function filterLiterals($statements) {
-        $f = function($item){
-            return !$item instanceof FluentLiteral;
-        };
+	protected function filterLiterals($statements)
+	{
+		$f = function ($item) {
+			return !$item instanceof FluentLiteral;
+		};
 
-        return array_map(function($item) use($f) {
-            if (is_array($item)) {
-                return array_filter($item, $f);
-            }
+		return array_map(function ($item) use ($f) {
+			if (is_array($item)) {
+				return array_filter($item, $f);
+			}
 
-            return $item;
-        }, array_filter($statements, $f));
-    }
+			return $item;
+		}, array_filter($statements, $f));
+	}
 
-	protected function buildParameters(){
+	protected function buildParameters()
+	{
 		$this->parameters = array_merge(
 			$this->filterLiterals($this->statements['VALUES']),
 			$this->filterLiterals($this->statements['ON DUPLICATE KEY UPDATE'])
@@ -137,16 +161,18 @@ class InsertQuery extends BaseQuery {
 		return parent::buildParameters();
 	}
 
-	protected function getClauseOnDuplicateKeyUpdate() {
+	protected function getClauseOnDuplicateKeyUpdate()
+	{
 		$result = array();
 		foreach ($this->statements['ON DUPLICATE KEY UPDATE'] as $key => $value) {
-			$result[] = "$key = " . $this->parameterGetValue($value);
+			$result[] = "$key = ".$this->parameterGetValue($value);
 		}
-		return ' ON DUPLICATE KEY UPDATE ' . implode(', ', $result);
+
+		return ' ON DUPLICATE KEY UPDATE '.implode(', ', $result);
 	}
 
-
-	private function addOneValue($oneValue) {
+	private function addOneValue($oneValue)
+	{
 		# check if all $keys are strings
 		foreach ($oneValue as $key => $value) {
 			if (!is_string($key)) {
@@ -164,8 +190,4 @@ class InsertQuery extends BaseQuery {
 		}
 		$this->statements['VALUES'][] = $oneValue;
 	}
-
 }
-
-
-

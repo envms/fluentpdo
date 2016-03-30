@@ -8,6 +8,8 @@ php:
   - hhvm
   - nightly
 
+install:
+  - composer install
 script: php tests/run-tests.php
 before_script:
   - mysql -e 'create database fblog;'
