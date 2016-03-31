@@ -19,6 +19,9 @@ abstract class BaseQuery implements IteratorAggregate {
 	/** @var bool */
 	private $object = false;
 
+	/** @var array of object's constructor arguments */
+	private $object_arguments = null;
+
 	protected $statements = array(), $parameters = array();
 
 	protected function __construct(FluentPDO $fpdo, $clauses) {
@@ -105,7 +108,11 @@ abstract class BaseQuery implements IteratorAggregate {
 
 		if ($this->object !== false) {
 			if (class_exists($this->object)) {
-				$result->setFetchMode(PDO::FETCH_CLASS, $this->object);
+				if(is_array($this->object_arguments)) {
+					$result->setFetchMode(PDO::FETCH_CLASS, $this->object, $this->object_arguments);
+				} else {
+					$result->setFetchMode(PDO::FETCH_CLASS, $this->object);
+				}
 			} else {
 				$result->setFetchMode(PDO::FETCH_OBJ);
 			}
@@ -277,13 +284,15 @@ abstract class BaseQuery implements IteratorAggregate {
 
 	/**
 	 * Select an item as object
-	 * @param  boolean|object $object If set to true, items are returned as stdClass, otherwise a class
-	 *                                name can be passed and a new instance of this class is return.
-	 *                                Can be set to false to return items as an associative array.
+	 * @param  boolean|object $object    If set to true, items are returned as stdClass, otherwise a class
+	 *                                   name can be passed and a new instance of this class is return.
+	 *                                   Can be set to false to return items as an associative array.
+	 * @param  array          $arguments If provided, its contents will be passed to object constructor.
 	 * @return \BaseQuery
 	 */
-	public function asObject($object = true) {
+	public function asObject($object = true, $arguments = null) {
 		$this->object = $object;
+		$this->object_arguments = $arguments;
 		return $this;
 	}
 
