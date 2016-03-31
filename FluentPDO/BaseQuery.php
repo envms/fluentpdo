@@ -116,7 +116,13 @@ abstract class BaseQuery implements IteratorAggregate {
 		$time = microtime(true);
 		if ($result && $result->execute($parameters)) {
 			$this->time = microtime(true) - $time;
-		} else {
+		} else { // Oops, something went wrong with the query.
+            $info = $result->errorInfo();
+            throw new FluentQueryException(
+                $this->getFullQuery($query, $parameters),
+                $info[2],
+                $info[1]
+            ); 
 			$result = false;
 		}
 
@@ -197,6 +203,17 @@ abstract class BaseQuery implements IteratorAggregate {
 		if ($formated) $query = FluentUtils::formatQuery($query);
 		return $query;
 	}
+
+    /** Get the full query with parameters (naively) replaced
+     * @param string $query
+     * @param array $parameters
+     * @param boolean $formated return formated query
+     */
+    public function getFullQuery($query, array $parameters, $formated = true) {
+        $query = FluentUtils::populate($query, $parameters);
+        if ($formated) $query = FluentUtils::formatQuery($query);
+        return $query;
+    }
 
 	/**
 	 * Generate query
