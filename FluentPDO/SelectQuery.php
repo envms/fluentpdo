@@ -108,6 +108,9 @@ class SelectQuery extends CommonQuery implements Countable {
 	 * @return array of fetched rows
 	 */
 	public function fetchAll($index = '', $selectOnly = '') {
+		if ($indexAsArray = strpos($index, '[]') !== FALSE) {
+			$index = str_replace('[]', '', $index);
+		}
 		if ($selectOnly) {
 			$this->select(null)->select($index . ', ' . $selectOnly);
 		}
@@ -115,9 +118,14 @@ class SelectQuery extends CommonQuery implements Countable {
 			$data = array();
 			foreach ($this as $row) {
 				if (is_object($row)) {
-					$data[$row->{$index}] = $row;
+					$key = $row->{$index};
 				} else {
-					$data[$row[$index]] = $row;
+					$key = $row[$index];
+				}
+				if ($indexAsArray) {
+					$data[$key][] = $row;
+				} else {
+					$data[$key] = $row;
 				}
 			}
 			return $data;
