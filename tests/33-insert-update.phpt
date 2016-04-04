@@ -5,6 +5,7 @@ INSERT with ON DUPLICATE KEY UPDATE
 include_once dirname(__FILE__) . "/connect.inc.php";
 /** @var $fpdo FluentPDO */
 
+//--------------------------------------------------------------------
 $query = $fpdo->insertInto('article', array('id' => 1))
 		->onDuplicateKeyUpdate(array(
 			'title' => 'article 1b',
@@ -16,6 +17,8 @@ print_r($query->getParameters());
 echo 'last_inserted_id = ' . $query->execute() . "\n";
 $q = $fpdo->from('article', 1)->fetch();
 print_r($q);
+
+//--------------------------------------------------------------------
 $query = $fpdo->insertInto('article', array('id' => 1))
 		->onDuplicateKeyUpdate(array(
 			'title' => 'article 1',
@@ -24,6 +27,40 @@ $query = $fpdo->insertInto('article', array('id' => 1))
 echo "last_inserted_id = $query\n";
 $q = $fpdo->from('article', 1)->fetch();
 print_r($q);
+//#############################################################################
+
+$sqlCreateLastAct = 'CREATE TABLE IF NOT EXISTS `last_activity` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`last_time` INT NOT NULL,
+	PRIMARY KEY (`id`)
+) AUTO_INCREMENT=100;';
+
+$fpdo->getPdo()->prepare('DROP TABLE IF EXISTS last_activity')->execute();
+$fpdo->getPdo()->prepare($sqlCreateLastAct)->execute();
+
+$query = $fpdo->insertInto('last_activity', array('last_time' => '777'))
+		->onDuplicateKeyUpdate(array(
+			'last_time' => 0,
+		))->execute();
+
+echo "last_inserted_id = $query\n";
+$q = $fpdo->from('last_activity', 100)->fetch();
+print_r($q);
+
+//--------------------------------------------------------------------
+
+$query = $fpdo->insertInto('last_activity', array('id' => 100, 'last_time' => '888'))
+		->onDuplicateKeyUpdate(array(
+			'last_time' => 0,
+		))->execute();
+
+echo "last_inserted_id = $query\n";
+$q = $fpdo->from('last_activity', 100)->fetch();
+print_r($q);
+
+//#############################################################################
+
+
 ?>
 --EXPECTF--
 INSERT INTO article (id)
@@ -52,3 +89,18 @@ Array
     [title] => article 1
     [content] => content 1
 )
+last_inserted_id = 100
+Array
+(
+    [id] => 100
+    [last_time] => 777
+)
+last_inserted_id = 100
+Array
+(
+    [id] => 100
+    [last_time] => 0
+)
+
+
+<? //
