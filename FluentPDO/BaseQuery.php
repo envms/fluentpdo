@@ -231,20 +231,29 @@ abstract class BaseQuery implements IteratorAggregate {
 
 	protected function buildParameters() {
 		$parameters = array();
+
 		foreach ($this->parameters as $clauses) {
-			if (is_array($clauses)) {
-				foreach ($clauses as $value) {
-					if (is_array($value) && is_string(key($value)) && substr(key($value), 0, 1) == ':') {
-						// this is named params e.g. (':name' => 'Mark')
-						$parameters = array_merge($parameters, $value);
-					} else {
-						$parameters[] = $value;
-					}
+			if (!is_array($clauses)) {
+				if ($clauses !== NULL)
+					$parameters[] = $clauses;
+
+				continue;
+			}
+
+			foreach ($clauses as $value) {
+				$isNamedArgs = is_array($value) && is_string(key($value)) && substr(key($value), 0, 1) == ':';
+
+				if ($isNamedArgs) {
+					// this is named params e.g. (':name' => 'Mark')
+					$parameters = array_merge($parameters, $value);
+
+					continue;
 				}
-			} else {
-				if ($clauses) $parameters[] = $clauses;
+
+				$parameters[] = $value;
 			}
 		}
+
 		return $parameters;
 	}
 
@@ -288,4 +297,3 @@ abstract class BaseQuery implements IteratorAggregate {
 	}
 
 }
-
