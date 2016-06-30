@@ -4,232 +4,267 @@
  */
 abstract class CommonQuery extends BaseQuery {
 
-	/** @var array of used tables (also include table from clause FROM) */
-	protected $joins = array();
+    /** @var array of used tables (also include table from clause FROM) */
+    protected $joins = array();
 
-	/** @var boolean disable adding undefined joins to query? */
-	protected $isSmartJoinEnabled = true;
+    /** @var boolean disable adding undefined joins to query? */
+    protected $isSmartJoinEnabled = true;
 
-	public function enableSmartJoin() {
-		$this->isSmartJoinEnabled = true;
-		return $this;
-	}
+    public function enableSmartJoin() {
+        $this->isSmartJoinEnabled = true;
 
-	public function disableSmartJoin() {
-		$this->isSmartJoinEnabled = false;
-		return $this;
-	}
+        return $this;
+    }
 
-	public function isSmartJoinEnabled() {
-		return $this->isSmartJoinEnabled;
-	}
+    public function disableSmartJoin() {
+        $this->isSmartJoinEnabled = false;
 
-	/** Add where condition, more calls appends with AND
-	 * @param string $condition  possibly containing ? or :name (PDO syntax)
-	 * @param mixed $parameters  array or a scalar value
-	 * @return \SelectQuery
-	 */
-	public function where($condition, $parameters = array()) {
-		if ($condition === null) {
-			return $this->resetClause('WHERE');
-		}
-		if (!$condition) {
-			return $this;
-		}
-		if (is_array($condition)) { // where(array("column1" => 1, "column2 > ?" => 2))
-			foreach ($condition as $key => $val) {
-				$this->where($key, $val);
-			}
-			return $this;
-		}
-		$args = func_get_args();
-		if (count($args) == 1) {
-			return $this->addStatement('WHERE', $condition);
-		}
+        return $this;
+    }
 
-		// check that there are 2 arguments, a condition and a parameter value
-		// if the condition contains a parameter simply add them
-		// since its up to the user if it's valid sql or not
-		// Otherwise we're probably with just an identifier. So lets
-		// construct a new condition based on the passed parameter value.
-		if (count($args) == 2 && !preg_match('~(\?|:\w+)~i', $condition)) {
-			# condition is column only
-			if (is_null($parameters)) {
-				return $this->addStatement('WHERE', "$condition is NULL");
-			} elseif (is_array($args[1])) {
-				$in = $this->quote($args[1]);
-				return $this->addStatement('WHERE', "$condition IN $in");
-			}
-			$condition = "$condition = ?";
-		}
-		array_shift($args);
-		return $this->addStatement('WHERE', $condition, $args);
-	}
+    public function isSmartJoinEnabled() {
+        return $this->isSmartJoinEnabled;
+    }
 
-	/**
-	 * @param $clause
-	 * @param array $parameters - first is $statement followed by $parameters
-	 * @return $this|\SelectQuery
-	 */
-	public function __call($clause, $parameters = array()) {
-		$clause = FluentUtils::toUpperWords($clause);
-		if ($clause == 'GROUP') $clause = 'GROUP BY';
-		if ($clause == 'ORDER') $clause = 'ORDER BY';
-		if ($clause == 'FOOT NOTE') $clause = "\n--";
-		$statement = array_shift($parameters);
-		if (strpos($clause, 'JOIN') !== FALSE) {
-			return $this->addJoinStatements($clause, $statement, $parameters);
-		}
-		return $this->addStatement($clause, $statement, $parameters);
-	}
+    /** Add where condition, more calls appends with AND
+     *
+     * @param string $condition  possibly containing ? or :name (PDO syntax)
+     * @param mixed  $parameters array or a scalar value
+     *
+     * @return \SelectQuery
+     */
+    public function where($condition, $parameters = array()) {
+        if ($condition === null) {
+            return $this->resetClause('WHERE');
+        }
+        if (!$condition) {
+            return $this;
+        }
+        if (is_array($condition)) { // where(array("column1" => 1, "column2 > ?" => 2))
+            foreach ($condition as $key => $val) {
+                $this->where($key, $val);
+            }
 
-	protected function getClauseJoin() {
-		return implode(' ', $this->statements['JOIN']);
-	}
+            return $this;
+        }
+        $args = func_get_args();
+        if (count($args) == 1) {
+            return $this->addStatement('WHERE', $condition);
+        }
 
-	/**
-	 * Statement can contain more tables (e.g. "table1.table2:table3:")
-	 * @param $clause
-	 * @param $statement
-	 * @param array $parameters
-	 * @return $this|\SelectQuery
-	 */
-	private function addJoinStatements($clause, $statement, $parameters = array()) {
-		if ($statement === null) {
-			$this->joins = array();
-			return $this->resetClause('JOIN');
-		}
-		if (array_search(substr($statement, 0, -1), $this->joins) !== FALSE) {
-			return $this;
-		}
+        // check that there are 2 arguments, a condition and a parameter value
+        // if the condition contains a parameter simply add them
+        // since its up to the user if it's valid sql or not
+        // Otherwise we're probably with just an identifier. So lets
+        // construct a new condition based on the passed parameter value.
+        if (count($args) == 2 && !preg_match('~(\?|:\w+)~i', $condition)) {
+            # condition is column only
+            if (is_null($parameters)) {
+                return $this->addStatement('WHERE', "$condition is NULL");
+            } elseif (is_array($args[1])) {
+                $in = $this->quote($args[1]);
 
-		# match "tables AS alias"
-		preg_match('~`?([a-z_][a-z0-9_\.:]*)`?(\s+AS)?(\s+`?([a-z_][a-z0-9_]*)`?)?~i', $statement, $matches);
-		$joinAlias = '';
-		$joinTable = '';
-		if ($matches) {
-			$joinTable = $matches[1];
-			if (isset($matches[4]) && !in_array(strtoupper($matches[4]), array('ON', 'USING'))) {
-				$joinAlias = $matches[4];
-			}
-		}
+                return $this->addStatement('WHERE', "$condition IN $in");
+            }
+            $condition = "$condition = ?";
+        }
+        array_shift($args);
 
-		if (strpos(strtoupper($statement), ' ON ') || strpos(strtoupper($statement), ' USING')) {
-			if (!$joinAlias) $joinAlias = $joinTable;
-			if (in_array($joinAlias, $this->joins)) {
-				return $this;
-			} else {
-				$this->joins[] = $joinAlias;
-				$statement = " $clause $statement";
-				return $this->addStatement('JOIN', $statement, $parameters);
-			}
-		}
+        return $this->addStatement('WHERE', $condition, $args);
+    }
 
-		# $joinTable is list of tables for join e.g.: table1.table2:table3....
-		if (!in_array(substr($joinTable, -1), array('.', ':'))) {
-			$joinTable .= '.';
-		}
+    /**
+     * @param       $clause
+     * @param array $parameters - first is $statement followed by $parameters
+     *
+     * @return $this|\SelectQuery
+     */
+    public function __call($clause, $parameters = array()) {
+        $clause = FluentUtils::toUpperWords($clause);
+        if ($clause == 'GROUP') {
+            $clause = 'GROUP BY';
+        }
+        if ($clause == 'ORDER') {
+            $clause = 'ORDER BY';
+        }
+        if ($clause == 'FOOT NOTE') {
+            $clause = "\n--";
+        }
+        $statement = array_shift($parameters);
+        if (strpos($clause, 'JOIN') !== false) {
+            return $this->addJoinStatements($clause, $statement, $parameters);
+        }
 
-		preg_match_all('~([a-z_][a-z0-9_]*[\.:]?)~i', $joinTable, $matches);
-		if (isset($this->statements['FROM'])) {
-			$mainTable = $this->statements['FROM'];
-		} elseif (isset($this->statements['UPDATE'])) {
-			$mainTable = $this->statements['UPDATE'];
-		}
-		$lastItem = array_pop($matches[1]);
-		array_push($matches[1], $lastItem);
-		foreach ($matches[1] as $joinItem) {
-			if ($mainTable == substr($joinItem, 0, -1)) continue;
+        return $this->addStatement($clause, $statement, $parameters);
+    }
 
-			# use $joinAlias only for $lastItem
-			$alias = '';
-			if ($joinItem == $lastItem) $alias = $joinAlias;
+    protected function getClauseJoin() {
+        return implode(' ', $this->statements['JOIN']);
+    }
 
-			$newJoin = $this->createJoinStatement($clause, $mainTable, $joinItem, $alias);
-			if ($newJoin) $this->addStatement('JOIN', $newJoin, $parameters);
-			$mainTable = $joinItem;
-		}
-		return $this;
-	}
+    /**
+     * Statement can contain more tables (e.g. "table1.table2:table3:")
+     *
+     * @param       $clause
+     * @param       $statement
+     * @param array $parameters
+     *
+     * @return $this|\SelectQuery
+     */
+    private function addJoinStatements($clause, $statement, $parameters = array()) {
+        if ($statement === null) {
+            $this->joins = array();
 
-	/**
-	 * Create join string
-	 * @param $clause
-	 * @param $mainTable
-	 * @param $joinTable
-	 * @param string $joinAlias
-	 * @return string
-	 */
-	private function createJoinStatement($clause, $mainTable, $joinTable, $joinAlias = '') {
-		if (in_array(substr($mainTable, -1), array(':', '.'))) {
-			$mainTable = substr($mainTable, 0, -1);
-		}
-		$referenceDirection = substr($joinTable, -1);
-		$joinTable = substr($joinTable, 0, -1);
-		$asJoinAlias = '';
-		if ($joinAlias) {
-			$asJoinAlias = " AS $joinAlias";
-		} else {
-			$joinAlias = $joinTable;
-		}
-		if (in_array($joinAlias, $this->joins)) {
-			# if join exists don't create same again
-			return '';
-		} else {
-			$this->joins[] = $joinAlias;
-		}
-		if ($referenceDirection == ':') {
-			# back reference
-			$primaryKey = $this->getStructure()->getPrimaryKey($mainTable);
-			$foreignKey = $this->getStructure()->getForeignKey($mainTable);
-			return " $clause $joinTable$asJoinAlias ON $joinAlias.$foreignKey = $mainTable.$primaryKey";
-		} else {
-			$primaryKey = $this->getStructure()->getPrimaryKey($joinTable);
-			$foreignKey = $this->getStructure()->getForeignKey($joinTable);
-			return " $clause $joinTable$asJoinAlias ON $joinAlias.$primaryKey = $mainTable.$foreignKey";
-		}
-	}
+            return $this->resetClause('JOIN');
+        }
+        if (array_search(substr($statement, 0, -1), $this->joins) !== false) {
+            return $this;
+        }
 
-	/**
-	 * @return string
-	 */
-	protected function buildQuery() {
-		# first create extra join from statements with columns with referenced tables
-		$statementsWithReferences = array('WHERE', 'SELECT', 'GROUP BY', 'ORDER BY');
-		foreach ($statementsWithReferences as $clause) {
-			if (array_key_exists($clause, $this->statements)) {
-				$this->statements[$clause] = array_map(array($this, 'createUndefinedJoins'), $this->statements[$clause]);
-			}
-		}
+        # match "tables AS alias"
+        preg_match('~`?([a-z_][a-z0-9_\.:]*)`?(\s+AS)?(\s+`?([a-z_][a-z0-9_]*)`?)?~i', $statement, $matches);
+        $joinAlias = '';
+        $joinTable = '';
+        if ($matches) {
+            $joinTable = $matches[1];
+            if (isset($matches[4]) && !in_array(strtoupper($matches[4]), array('ON', 'USING'))) {
+                $joinAlias = $matches[4];
+            }
+        }
 
-		return parent::buildQuery();
-	}
+        if (strpos(strtoupper($statement), ' ON ') || strpos(strtoupper($statement), ' USING')) {
+            if (!$joinAlias) {
+                $joinAlias = $joinTable;
+            }
+            if (in_array($joinAlias, $this->joins)) {
+                return $this;
+            } else {
+                $this->joins[] = $joinAlias;
+                $statement     = " $clause $statement";
 
-	/** Create undefined joins from statement with column with referenced tables
-	 * @param string $statement
-	 * @return string  rewrited $statement (e.g. tab1.tab2:col => tab2.col)
-	 */
-	private function createUndefinedJoins($statement) {
-		if (!$this->isSmartJoinEnabled) {
-			return $statement;
-		}
+                return $this->addStatement('JOIN', $statement, $parameters);
+            }
+        }
 
-		preg_match_all('~\\b([a-z_][a-z0-9_.:]*[.:])[a-z_]*~i', $statement, $matches);
-		foreach ($matches[1] as $join) {
-			if (!in_array(substr($join, 0, -1), $this->joins)) {
-				$this->addJoinStatements('LEFT JOIN', $join);
-			}
-		}
+        # $joinTable is list of tables for join e.g.: table1.table2:table3....
+        if (!in_array(substr($joinTable, -1), array('.', ':'))) {
+            $joinTable .= '.';
+        }
 
-		# don't rewrite table from other databases
-		foreach ($this->joins as $join) {
-			if (strpos($join, '.') !== FALSE && strpos($statement, $join) === 0) {
-				return $statement;
-			}
-		}
+        preg_match_all('~([a-z_][a-z0-9_]*[\.:]?)~i', $joinTable, $matches);
+        if (isset($this->statements['FROM'])) {
+            $mainTable = $this->statements['FROM'];
+        } elseif (isset($this->statements['UPDATE'])) {
+            $mainTable = $this->statements['UPDATE'];
+        }
+        $lastItem = array_pop($matches[1]);
+        array_push($matches[1], $lastItem);
+        foreach ($matches[1] as $joinItem) {
+            if ($mainTable == substr($joinItem, 0, -1)) {
+                continue;
+            }
 
-		# remove extra referenced tables (rewrite tab1.tab2:col => tab2.col)
-		$statement = preg_replace('~(?:\\b[a-z_][a-z0-9_.:]*[.:])?([a-z_][a-z0-9_]*)[.:]([a-z_*])~i', '\\1.\\2', $statement);
-		return $statement;
-	}
+            # use $joinAlias only for $lastItem
+            $alias = '';
+            if ($joinItem == $lastItem) {
+                $alias = $joinAlias;
+            }
+
+            $newJoin = $this->createJoinStatement($clause, $mainTable, $joinItem, $alias);
+            if ($newJoin) {
+                $this->addStatement('JOIN', $newJoin, $parameters);
+            }
+            $mainTable = $joinItem;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Create join string
+     *
+     * @param        $clause
+     * @param        $mainTable
+     * @param        $joinTable
+     * @param string $joinAlias
+     *
+     * @return string
+     */
+    private function createJoinStatement($clause, $mainTable, $joinTable, $joinAlias = '') {
+        if (in_array(substr($mainTable, -1), array(':', '.'))) {
+            $mainTable = substr($mainTable, 0, -1);
+        }
+        $referenceDirection = substr($joinTable, -1);
+        $joinTable          = substr($joinTable, 0, -1);
+        $asJoinAlias        = '';
+        if ($joinAlias) {
+            $asJoinAlias = " AS $joinAlias";
+        } else {
+            $joinAlias = $joinTable;
+        }
+        if (in_array($joinAlias, $this->joins)) {
+            // if join exists don't create same again
+            return '';
+        } else {
+            $this->joins[] = $joinAlias;
+        }
+        if ($referenceDirection == ':') {
+            # back reference
+            $primaryKey = $this->getStructure()->getPrimaryKey($mainTable);
+            $foreignKey = $this->getStructure()->getForeignKey($mainTable);
+
+            return " $clause $joinTable$asJoinAlias ON $joinAlias.$foreignKey = $mainTable.$primaryKey";
+        } else {
+            $primaryKey = $this->getStructure()->getPrimaryKey($joinTable);
+            $foreignKey = $this->getStructure()->getForeignKey($joinTable);
+
+            return " $clause $joinTable$asJoinAlias ON $joinAlias.$primaryKey = $mainTable.$foreignKey";
+        }
+    }
+
+    /**
+     * @return string
+     */
+    protected function buildQuery() {
+        # first create extra join from statements with columns with referenced tables
+        $statementsWithReferences = array('WHERE', 'SELECT', 'GROUP BY', 'ORDER BY');
+        foreach ($statementsWithReferences as $clause) {
+            if (array_key_exists($clause, $this->statements)) {
+                $this->statements[$clause] = array_map(array($this, 'createUndefinedJoins'), $this->statements[$clause]);
+            }
+        }
+
+        return parent::buildQuery();
+    }
+
+    /** Create undefined joins from statement with column with referenced tables
+     *
+     * @param string $statement
+     *
+     * @return string  rewrited $statement (e.g. tab1.tab2:col => tab2.col)
+     */
+    private function createUndefinedJoins($statement) {
+        if (!$this->isSmartJoinEnabled) {
+            return $statement;
+        }
+
+        preg_match_all('~\\b([a-z_][a-z0-9_.:]*[.:])[a-z_]*~i', $statement, $matches);
+        foreach ($matches[1] as $join) {
+            if (!in_array(substr($join, 0, -1), $this->joins)) {
+                $this->addJoinStatements('LEFT JOIN', $join);
+            }
+        }
+
+        # don't rewrite table from other databases
+        foreach ($this->joins as $join) {
+            if (strpos($join, '.') !== false && strpos($statement, $join) === 0) {
+                return $statement;
+            }
+        }
+
+        # remove extra referenced tables (rewrite tab1.tab2:col => tab2.col)
+        $statement = preg_replace('~(?:\\b[a-z_][a-z0-9_.:]*[.:])?([a-z_][a-z0-9_]*)[.:]([a-z_*])~i', '\\1.\\2', $statement);
+
+        return $statement;
+    }
 }
