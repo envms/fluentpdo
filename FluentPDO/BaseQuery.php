@@ -164,7 +164,7 @@ abstract class BaseQuery implements IteratorAggregate
                     $debug = '# parameters: ' . implode(', ', array_map(array($this, 'quote'), $parameters)) . "\n";
                 }
                 $debug .= $query;
-                $pattern = '(^' . preg_quote(dirname(__FILE__)) . '(\\.php$|[/\\\\]))'; // can be static
+                $pattern = '(^' . preg_quote(__DIR__) . '(\\.php$|[/\\\\]))'; // can be static
                 foreach (debug_backtrace() as $backtrace) {
                     if (isset($backtrace['file']) && !preg_match($pattern, $backtrace['file'])) {
                         // stop on first file outside FluentPDO source codes
@@ -173,7 +173,13 @@ abstract class BaseQuery implements IteratorAggregate
                 }
                 $time = sprintf('%0.3f', $this->time * 1000) . ' ms';
                 $rows = ($this->result) ? $this->result->rowCount() : 0;
-                fwrite(STDERR, "# $backtrace[file]:$backtrace[line] ($time; rows = $rows)\n$debug\n\n");
+                $finalString = "# $backtrace[file]:$backtrace[line] ($time; rows = $rows)\n$debug\n\n";
+                if (defined(STDERR)) { // if STDERR is set, send there, otherwise just output the string
+                    fwrite(STDERR, $finalString);
+                }
+                else {
+                    echo $finalString;
+                }
             } else {
                 call_user_func($this->fpdo->debug, $this);
             }
