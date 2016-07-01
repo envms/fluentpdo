@@ -1,6 +1,7 @@
 <?php
 
-/** DELETE query builder
+/**
+ * DELETE query builder
  *
  * @method DeleteQuery  leftJoin(string $statement) add LEFT JOIN to query
  *                        ($statement can be 'table' name only or 'table:' means back reference)
@@ -10,10 +11,17 @@
  * @method DeleteQuery  orderBy(string $column) add ORDER BY to query
  * @method DeleteQuery  limit(int $limit) add LIMIT to query
  */
-class DeleteQuery extends CommonQuery {
+class DeleteQuery extends CommonQuery
+{
 
     private $ignore = false;
 
+    /**
+     * DeleteQuery constructor.
+     *
+     * @param FluentPDO $fpdo
+     * @param string    $table
+     */
     public function __construct(FluentPDO $fpdo, $table) {
         $clauses = array(
             'DELETE FROM' => array($this, 'getClauseDeleteFrom'),
@@ -31,7 +39,8 @@ class DeleteQuery extends CommonQuery {
         $this->statements['DELETE']      = $table;
     }
 
-    /** DELETE IGNORE - Delete operation fails silently
+    /**
+     * Forces delete operation to fail silently
      *
      * @return \DeleteQuery
      */
@@ -54,9 +63,10 @@ class DeleteQuery extends CommonQuery {
         return parent::buildQuery();
     }
 
-    /** Execute DELETE query
+    /**
+     * Execute DELETE query
      *
-     * @return boolean
+     * @return bool
      */
     public function execute() {
         $result = parent::execute();
@@ -67,10 +77,16 @@ class DeleteQuery extends CommonQuery {
         return false;
     }
 
+    /**
+     * @return string
+     */
     protected function getClauseDelete() {
         return 'DELETE' . ($this->ignore ? " IGNORE" : '') . ' ' . $this->statements['DELETE'];
     }
 
+    /**
+     * @return string
+     */
     protected function getClauseDeleteFrom() {
         return 'DELETE' . ($this->ignore ? " IGNORE" : '') . ' FROM ' . $this->statements['DELETE FROM'];
     }

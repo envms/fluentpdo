@@ -3,7 +3,8 @@
 /**
  * CommonQuery add JOIN and WHERE clauses for (SELECT, UPDATE, DELETE)
  */
-abstract class CommonQuery extends BaseQuery {
+abstract class CommonQuery extends BaseQuery
+{
 
     /** @var array - Query tables (also include table from clause FROM) */
     protected $joins = array();
@@ -11,18 +12,27 @@ abstract class CommonQuery extends BaseQuery {
     /** @var bool - Disable adding undefined joins to query? */
     protected $isSmartJoinEnabled = true;
 
+    /**
+     * @return $this
+     */
     public function enableSmartJoin() {
         $this->isSmartJoinEnabled = true;
 
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function disableSmartJoin() {
         $this->isSmartJoinEnabled = false;
 
         return $this;
     }
 
+    /**
+     * @return bool
+     */
     public function isSmartJoinEnabled() {
         return $this->isSmartJoinEnabled;
     }
@@ -100,6 +110,9 @@ abstract class CommonQuery extends BaseQuery {
         return $this->addStatement($clause, $statement, $parameters);
     }
 
+    /**
+     * @return string
+     */
     protected function getClauseJoin() {
         return implode(' ', $this->statements['JOIN']);
     }
@@ -154,6 +167,7 @@ abstract class CommonQuery extends BaseQuery {
         }
 
         preg_match_all('/([a-z_][a-z0-9_]*[\.:]?)/i', $joinTable, $matches);
+        $mainTable = '';
         if (isset($this->statements['FROM'])) {
             $mainTable = $this->statements['FROM'];
         } elseif (isset($this->statements['UPDATE'])) {
@@ -239,7 +253,8 @@ abstract class CommonQuery extends BaseQuery {
         return parent::buildQuery();
     }
 
-    /** Create undefined joins from statement with column with referenced tables
+    /**
+     * Create undefined joins from statement with column with referenced tables
      *
      * @param string $statement
      *
@@ -269,4 +284,5 @@ abstract class CommonQuery extends BaseQuery {
 
         return $statement;
     }
+    
 }

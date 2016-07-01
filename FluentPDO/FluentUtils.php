@@ -1,8 +1,13 @@
 <?php
 
-class FluentUtils {
+/**
+ * Class FluentUtils
+ */
+class FluentUtils
+{
 
-    /** Convert "camelCaseWord" to "CAMEL CASE WORD"
+    /**
+     * Convert "camelCaseWord" to "CAMEL CASE WORD"
      *
      * @param string $string
      *
@@ -12,6 +17,11 @@ class FluentUtils {
         return trim(strtoupper(preg_replace('/(.)([A-Z]+)/', '$1 $2', $string)));
     }
 
+    /**
+     * @param string $query
+     *
+     * @return string
+     */
     public static function formatQuery($query) {
         $query = preg_replace(
             '/WHERE|FROM|GROUP BY|HAVING|ORDER BY|LIMIT|OFFSET|UNION|ON DUPLICATE KEY UPDATE|VALUES/',

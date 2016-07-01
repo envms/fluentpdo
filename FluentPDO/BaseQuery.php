@@ -8,9 +8,6 @@ abstract class BaseQuery implements IteratorAggregate
     /** @var FluentPDO */
     private $fpdo;
 
-    /** @var array of definition clauses */
-    protected $clauses = array();
-
     /** @var PDOStatement */
     private $result;
 
@@ -20,9 +17,10 @@ abstract class BaseQuery implements IteratorAggregate
     /** @var bool */
     private $object = false;
 
+    /** @var array - definition clauses */
+    protected $clauses = array();
     /** @var array */
     protected $statements = array();
-
     /** @var array */
     protected $parameters = array();
 
@@ -332,6 +330,11 @@ abstract class BaseQuery implements IteratorAggregate
         return $this->fpdo->getPdo()->quote($value);
     }
 
+    /**
+     * @param \DateTime $val
+     *
+     * @return string
+     */
     private function formatValue($val) {
         if ($val instanceof DateTime) {
             return $val->format("Y-m-d H:i:s"); //! may be driver specific

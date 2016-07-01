@@ -9,8 +9,15 @@
  * @method UpdateQuery  orderBy(string $column) add ORDER BY to query
  * @method UpdateQuery  limit(int $limit) add LIMIT to query
  */
-class UpdateQuery extends CommonQuery {
+class UpdateQuery extends CommonQuery
+{
 
+    /**
+     * UpdateQuery constructor.
+     *
+     * @param FluentPDO $fpdo
+     * @param           $table
+     */
     public function __construct(FluentPDO $fpdo, $table) {
         $clauses = array(
             'UPDATE'   => array($this, 'getClauseUpdate'),
@@ -30,7 +37,7 @@ class UpdateQuery extends CommonQuery {
 
     /**
      * @param string|array $fieldOrArray
-     * @param null         $value
+     * @param bool|string  $value
      *
      * @return $this
      * @throws Exception
@@ -73,10 +80,16 @@ class UpdateQuery extends CommonQuery {
         return false;
     }
 
+    /**
+     * @return string
+     */
     protected function getClauseUpdate() {
         return 'UPDATE ' . $this->statements['UPDATE'];
     }
 
+    /**
+     * @return string
+     */
     protected function getClauseSet() {
         $setArray = array();
         foreach ($this->statements['SET'] as $field => $value) {

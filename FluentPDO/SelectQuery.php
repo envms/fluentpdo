@@ -14,10 +14,20 @@
  * @method SelectQuery  limit(int $limit) add LIMIT to query
  * @method SelectQuery  offset(int $offset) add OFFSET to query
  */
-class SelectQuery extends CommonQuery implements Countable {
+class SelectQuery extends CommonQuery implements Countable
+{
 
-    private $fromTable, $fromAlias;
+    /** @var mixed */
+    private $fromTable;
+    /** @var mixed */
+    private $fromAlias;
 
+    /**
+     * SelectQuery constructor.
+     *
+     * @param FluentPDO $fpdo
+     * @param           $from
+     */
     function __construct(FluentPDO $fpdo, $from) {
         $clauses = array(
             'SELECT'   => ', ',
@@ -59,21 +69,23 @@ class SelectQuery extends CommonQuery implements Countable {
         return $this->fromAlias;
     }
 
-    /** Returns a single column
+    /**
+     * Returns a single column
      *
      * @param int $columnNumber
      *
      * @return string
      */
     public function fetchColumn($columnNumber = 0) {
-        if ($s = $this->execute()) {
+        if (($s = $this->execute()) !== false) {
             return $s->fetchColumn($columnNumber);
         }
 
-        return false;
+        return $s;
     }
 
-    /** Fetch first row or column
+    /**
+     * Fetch first row or column
      *
      * @param string $column column name or empty string for the whole row
      *
@@ -106,11 +118,11 @@ class SelectQuery extends CommonQuery implements Countable {
      * @return array of fetched rows as pairs
      */
     public function fetchPairs($key, $value, $object = false) {
-        if ($s = $this->select(null)->select("$key, $value")->asObject($object)->execute()) {
+        if (($s = $this->select(null)->select("$key, $value")->asObject($object)->execute()) !== false) {
             return $s->fetchAll(PDO::FETCH_KEY_PAIR);
         }
 
-        return false;
+        return $s;
     }
 
     /** Fetch all row
@@ -136,16 +148,16 @@ class SelectQuery extends CommonQuery implements Countable {
 
             return $data;
         } else {
-            if ($s = $this->execute()) {
+            if (($s = $this->execute()) !== false) {
                 return $s->fetchAll();
             }
 
-            return false;
+            return $s;
         }
     }
 
-    /** Countable interface
-     * doesn't break current fluentpdo select query
+    /**
+     * Countable interface doesn't break current \FluentPDO select query
      *
      * @return int
      */

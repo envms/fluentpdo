@@ -1,12 +1,16 @@
 <?php
 
-/** SQL literal value
+/**
+ * SQL literal value
  */
-class FluentLiteral {
+class FluentLiteral
+{
 
+    /** @var string */
     protected $value = '';
 
-    /** Create literal value
+    /**
+     * Create literal value
      *
      * @param string $value
      */
@@ -14,7 +18,8 @@ class FluentLiteral {
         $this->value = $value;
     }
 
-    /** Get literal value
+    /**
+     * Get literal value
      *
      * @return string
      */

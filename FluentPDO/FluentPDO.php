@@ -21,20 +21,30 @@ include_once 'InsertQuery.php';
 include_once 'UpdateQuery.php';
 include_once 'DeleteQuery.php';
 
-class FluentPDO {
+/**
+ * Class FluentPDO
+ */
+class FluentPDO
+{
 
-    /** @var PDO */
+    /** @var \PDO */
     protected $pdo;
-    /** @var FluentStructure|null */
+    /** @var \FluentStructure|null */
     protected $structure;
 
-    /** @var boolean|callback */
+    /** @var bool|callback */
     public $debug;
 
+    /**
+     * FluentPDO constructor.
+     *
+     * @param \PDO                  $pdo
+     * @param \FluentStructure|null $structure
+     */
     function __construct(PDO $pdo, FluentStructure $structure = null) {
         $this->pdo = $pdo;
         if (!$structure) {
-            $structure = new FluentStructure;
+            $structure = new FluentStructure();
         }
         $this->structure = $structure;
     }
@@ -42,8 +52,8 @@ class FluentPDO {
     /**
      * Create SELECT query from $table
      *
-     * @param string  $table      db table name
-     * @param integer $primaryKey return one row by primary key
+     * @param string  $table      - db table name
+     * @param integer $primaryKey - return one row by primary key
      *
      * @return \SelectQuery
      */
@@ -63,7 +73,7 @@ class FluentPDO {
      * Create INSERT INTO query
      *
      * @param string $table
-     * @param array  $values you can add one or multi rows array @see docs
+     * @param array  $values - accepts one or multiple rows, @see docs
      *
      * @return \InsertQuery
      */
@@ -140,6 +150,8 @@ class FluentPDO {
     }
 
     /**
+     * Closes the \PDO connection to the database
+     *
      * @return null
      */
     public function close() {
