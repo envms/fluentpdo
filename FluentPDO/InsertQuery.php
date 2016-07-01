@@ -64,10 +64,10 @@ class InsertQuery extends BaseQuery {
         }
         $first = current($values);
         if (is_string(key($values))) {
-            # is one row array
+            // is one row array
             $this->addOneValue($values);
         } elseif (is_array($first) && is_string(key($first))) {
-            # this is multi values
+            // this is multi values
             foreach ($values as $oneValue) {
                 $this->addOneValue($oneValue);
             }
@@ -162,7 +162,7 @@ class InsertQuery extends BaseQuery {
 
 
     private function addOneValue($oneValue) {
-        # check if all $keys are strings
+        // check if all $keys are strings
         foreach ($oneValue as $key => $value) {
             if (!is_string($key)) {
                 throw new Exception('INSERT query: All keys of value array have to be strings.');

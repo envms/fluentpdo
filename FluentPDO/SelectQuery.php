@@ -33,7 +33,7 @@ class SelectQuery extends CommonQuery implements Countable {
         );
         parent::__construct($fpdo, $clauses);
 
-        # initialize statements
+        // initialize statements
         $fromParts       = explode(' ', $from);
         $this->fromTable = reset($fromParts);
         $this->fromAlias = end($fromParts);

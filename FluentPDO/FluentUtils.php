@@ -9,7 +9,7 @@ class FluentUtils {
      * @return string
      */
     public static function toUpperWords($string) {
-        return trim(strtoupper(preg_replace('#(.)([A-Z]+)#', '$1 $2', $string)));
+        return trim(strtoupper(preg_replace('/(.)([A-Z]+)/', '$1 $2', $string)));
     }
 
     public static function formatQuery($query) {
@@ -21,7 +21,7 @@ class FluentUtils {
             '/INNER|LEFT|RIGHT|CASE|WHEN|END|ELSE|AND/',
             "\n    $0", $query
         );
-        # remove trailing spaces
+        // remove trailing spaces
         $query = preg_replace("/\s+\n/", "\n", $query);
 
         return $query;

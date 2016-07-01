@@ -1,13 +1,14 @@
 <?php
 
-/** CommonQuery add JOIN and WHERE clauses for (SELECT, UPDATE, DELETE)
+/**
+ * CommonQuery add JOIN and WHERE clauses for (SELECT, UPDATE, DELETE)
  */
 abstract class CommonQuery extends BaseQuery {
 
-    /** @var array of used tables (also include table from clause FROM) */
+    /** @var array - Query tables (also include table from clause FROM) */
     protected $joins = array();
 
-    /** @var boolean disable adding undefined joins to query? */
+    /** @var bool - Disable adding undefined joins to query? */
     protected $isSmartJoinEnabled = true;
 
     public function enableSmartJoin() {
@@ -26,7 +27,8 @@ abstract class CommonQuery extends BaseQuery {
         return $this->isSmartJoinEnabled;
     }
 
-    /** Add where condition, more calls appends with AND
+    /**
+     * Add where condition, more calls appends with AND
      *
      * @param string $condition  possibly containing ? or :name (PDO syntax)
      * @param mixed  $parameters array or a scalar value
@@ -57,8 +59,8 @@ abstract class CommonQuery extends BaseQuery {
         // since its up to the user if it's valid sql or not
         // Otherwise we're probably with just an identifier. So lets
         // construct a new condition based on the passed parameter value.
-        if (count($args) == 2 && !preg_match('~(\?|:\w+)~i', $condition)) {
-            # condition is column only
+        if (count($args) == 2 && !preg_match('/(\?|:\w+)/i', $condition)) {
+            // condition is column only
             if (is_null($parameters)) {
                 return $this->addStatement('WHERE', "$condition is NULL");
             } elseif (is_array($args[1])) {
@@ -121,8 +123,8 @@ abstract class CommonQuery extends BaseQuery {
             return $this;
         }
 
-        # match "tables AS alias"
-        preg_match('~`?([a-z_][a-z0-9_\.:]*)`?(\s+AS)?(\s+`?([a-z_][a-z0-9_]*)`?)?~i', $statement, $matches);
+        // match "tables AS alias"
+        preg_match('/`?([a-z_][a-z0-9_\.:]*)`?(\s+AS)?(\s+`?([a-z_][a-z0-9_]*)`?)?/i', $statement, $matches);
         $joinAlias = '';
         $joinTable = '';
         if ($matches) {
@@ -146,12 +148,12 @@ abstract class CommonQuery extends BaseQuery {
             }
         }
 
-        # $joinTable is list of tables for join e.g.: table1.table2:table3....
+        // $joinTable is list of tables for join e.g.: table1.table2:table3....
         if (!in_array(substr($joinTable, -1), array('.', ':'))) {
             $joinTable .= '.';
         }
 
-        preg_match_all('~([a-z_][a-z0-9_]*[\.:]?)~i', $joinTable, $matches);
+        preg_match_all('/([a-z_][a-z0-9_]*[\.:]?)/i', $joinTable, $matches);
         if (isset($this->statements['FROM'])) {
             $mainTable = $this->statements['FROM'];
         } elseif (isset($this->statements['UPDATE'])) {
@@ -164,7 +166,7 @@ abstract class CommonQuery extends BaseQuery {
                 continue;
             }
 
-            # use $joinAlias only for $lastItem
+            // use $joinAlias only for $lastItem
             $alias = '';
             if ($joinItem == $lastItem) {
                 $alias = $joinAlias;
@@ -209,7 +211,7 @@ abstract class CommonQuery extends BaseQuery {
             $this->joins[] = $joinAlias;
         }
         if ($referenceDirection == ':') {
-            # back reference
+            // back reference
             $primaryKey = $this->getStructure()->getPrimaryKey($mainTable);
             $foreignKey = $this->getStructure()->getForeignKey($mainTable);
 
@@ -226,7 +228,7 @@ abstract class CommonQuery extends BaseQuery {
      * @return string
      */
     protected function buildQuery() {
-        # first create extra join from statements with columns with referenced tables
+        // first create extra join from statements with columns with referenced tables
         $statementsWithReferences = array('WHERE', 'SELECT', 'GROUP BY', 'ORDER BY');
         foreach ($statementsWithReferences as $clause) {
             if (array_key_exists($clause, $this->statements)) {
@@ -248,22 +250,22 @@ abstract class CommonQuery extends BaseQuery {
             return $statement;
         }
 
-        preg_match_all('~\\b([a-z_][a-z0-9_.:]*[.:])[a-z_]*~i', $statement, $matches);
+        preg_match_all('/\\b([a-z_][a-z0-9_.:]*[.:])[a-z_]*/i', $statement, $matches);
         foreach ($matches[1] as $join) {
             if (!in_array(substr($join, 0, -1), $this->joins)) {
                 $this->addJoinStatements('LEFT JOIN', $join);
             }
         }
 
-        # don't rewrite table from other databases
+        // don't rewrite table from other databases
         foreach ($this->joins as $join) {
             if (strpos($join, '.') !== false && strpos($statement, $join) === 0) {
                 return $statement;
             }
         }
 
-        # remove extra referenced tables (rewrite tab1.tab2:col => tab2.col)
-        $statement = preg_replace('~(?:\\b[a-z_][a-z0-9_.:]*[.:])?([a-z_][a-z0-9_]*)[.:]([a-z_*])~i', '\\1.\\2', $statement);
+        // remove extra referenced tables (rewrite tab1.tab2:col => tab2.col)
+        $statement = preg_replace('/(?:\\b[a-z_][a-z0-9_.:]*[.:])?([a-z_][a-z0-9_]*)[.:]([a-z_*])/i', '\\1.\\2', $statement);
 
         return $statement;
     }

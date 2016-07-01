@@ -121,9 +121,9 @@ abstract class BaseQuery implements IteratorAggregate
 
         // At this point, $result is a PDOStatement instance, or false.
         // PDO::prepare() does not reliably return errors. Some database drivers
-        // do not support prepared statements, and PHP emulates them.  Postgres
+        // do not support prepared statements, and PHP emulates them. Postgresql
         // does support prepared statements, but PHP does not call Postgresql's
-        // prepare function until we call PDOStatement::execute() (below).
+        // prepare function until we call PDOStatement::execute() below.
         // If PDO::prepare() worked properly, this is where we would check
         // for prepare errors, such as invalid SQL.
 
