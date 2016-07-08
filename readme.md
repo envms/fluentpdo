@@ -22,13 +22,13 @@ FluentPDO is small PHP library for rapid query building. Killer feature is "Smar
 
 ### Composer
 
-The preferred way to install FluentPDO is via [composer](http://getcomposer.org/).
+The preferred way to install FluentPDO is via [composer](http://getcomposer.org/). v1.1.x will be the last until the release of 2.0, so we recommend using 1.1.* to ensure no breaking changes are introduced.
 
 Add in your `composer.json`:
 
 	"require": {
 		...
-		"fpdo/fluentpdo": "dev-master"
+		"fpdo/fluentpdo": "1.1.*"
 	}
 
 then update your dependencies with `composer update`.
