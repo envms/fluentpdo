@@ -22,6 +22,9 @@ class SelectQuery extends CommonQuery implements Countable
     /** @var mixed */
     private $fromAlias;
 
+    /** @var boolean */
+    private $convertTypes = false;
+
     /**
      * SelectQuery constructor.
      *
@@ -51,6 +54,10 @@ class SelectQuery extends CommonQuery implements Countable
         $this->statements['FROM']     = $from;
         $this->statements['SELECT'][] = $this->fromAlias . '.*';
         $this->joins[]                = $this->fromAlias;
+
+        if(isset($fpdo->convertTypes) && $fpdo->convertTypes){
+            $this->convertTypes = true;
+        }
     }
 
     /** Return table name from FROM clause
@@ -92,20 +99,25 @@ class SelectQuery extends CommonQuery implements Countable
      * @return mixed string, array or false if there is no row
      */
     public function fetch($column = '') {
-        $return = $this->execute();
-        if ($return === false) {
+        $s = $this->execute();
+        if ($s === false) {
             return false;
         }
-        $return = $return->fetch();
-        if ($return && $column != '') {
-            if (is_object($return)) {
-                return $return->{$column};
+        $row = $s->fetch();
+
+        if($this->convertTypes){
+            $row = $this->convertToNativeTypes($s,$row);
+        }
+
+        if ($row && $column != '') {
+            if (is_object($row)) {
+                return $row->{$column};
             } else {
-                return $return[$column];
+                return $row[$column];
             }
         }
 
-        return $return;
+        return $row;
     }
 
     /**
@@ -149,11 +161,61 @@ class SelectQuery extends CommonQuery implements Countable
             return $data;
         } else {
             if (($s = $this->execute()) !== false) {
-                return $s->fetchAll();
+                if($this->convertTypes){
+                    return $this->convertToNativeTypes($s,$s->fetchAll());
+                }else{
+                    return $s->fetchAll();
+                }
             }
 
             return $s;
         }
+    }
+
+    /**
+     * Converts columns from strings to types according to 
+     * PDOStatement::columnMeta
+     * http://stackoverflow.com/a/9952703/3006989
+     * 
+     * @param PDOStatement $st
+     * @param array $assoc returned by PDOStatement::fetch with PDO::FETCH_ASSOC
+     * @return copy of $assoc with matching type fields
+     */
+    private function convertToNativeTypes(PDOStatement $statement, $rows)
+    {
+        for ($i = 0; $columnMeta = $statement->getColumnMeta($i); $i++)
+        {
+            $type = $columnMeta['native_type'];
+    
+            switch($type)
+            {
+                case 'DECIMAL':
+                case 'TINY':
+                case 'SHORT':
+                case 'LONG':
+                case 'LONGLONG':
+                case 'INT24':
+                        if(isset($rows[$columnMeta['name']])){
+                            $rows[$columnMeta['name']] = $rows[$columnMeta['name']] + 0;
+                        }else{
+                            if(is_array($rows) || $rows instanceof Traversable){
+                                foreach($rows as &$row){
+                                    if(isset($row[$columnMeta['name']])){
+                                        $row[$columnMeta['name']] = $row[$columnMeta['name']] + 0;
+                                    }
+                                }
+                            }                           
+                        }
+                    break;
+                case 'DATETIME':
+                case 'DATE':
+                case 'TIMESTAMP':
+                    // convert to date type?
+                    break;
+                // default: keep as string
+            }
+        }
+        return $rows;
     }
 
     /**
@@ -165,6 +227,14 @@ class SelectQuery extends CommonQuery implements Countable
         $fpdo = clone $this;
 
         return (int)$fpdo->select(null)->select('COUNT(*)')->fetchColumn();
+    }
+
+    public function getIterator() {
+        if($this->convertTypes){
+            return new ArrayIterator($this->fetchAll());
+        }else{
+            return $this->execute();
+        }       
     }
     
 }
