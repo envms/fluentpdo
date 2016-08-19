@@ -22,6 +22,9 @@ class SelectQuery extends CommonQuery implements Countable
     /** @var mixed */
     private $fromAlias;
 
+    /** @var boolean */
+    private $convertTypes = false;
+
     /**
      * SelectQuery constructor.
      *
@@ -51,6 +54,10 @@ class SelectQuery extends CommonQuery implements Countable
         $this->statements['FROM']     = $from;
         $this->statements['SELECT'][] = $this->fromAlias . '.*';
         $this->joins[]                = $this->fromAlias;
+
+        if(isset($fpdo->convertTypes) && $fpdo->convertTypes){
+            $this->convertTypes = true;
+        }
     }
 
     /** Return table name from FROM clause
@@ -92,20 +99,25 @@ class SelectQuery extends CommonQuery implements Countable
      * @return mixed string, array or false if there is no row
      */
     public function fetch($column = '') {
-        $return = $this->execute();
-        if ($return === false) {
+        $s = $this->execute();
+        if ($s === false) {
             return false;
         }
-        $return = $return->fetch();
-        if ($return && $column != '') {
-            if (is_object($return)) {
-                return $return->{$column};
+        $row = $s->fetch();
+
+        if($this->convertTypes){
+            $row = FluentUtils::convertToNativeTypes($s,$row);
+        }
+
+        if ($row && $column != '') {
+            if (is_object($row)) {
+                return $row->{$column};
             } else {
-                return $return[$column];
+                return $row[$column];
             }
         }
 
-        return $return;
+        return $row;
     }
 
     /**
@@ -149,7 +161,11 @@ class SelectQuery extends CommonQuery implements Countable
             return $data;
         } else {
             if (($s = $this->execute()) !== false) {
-                return $s->fetchAll();
+                if($this->convertTypes){
+                    return FluentUtils::convertToNativeTypes($s,$s->fetchAll());
+                }else{
+                    return $s->fetchAll();
+                }
             }
 
             return $s;
@@ -165,6 +181,14 @@ class SelectQuery extends CommonQuery implements Countable
         $fpdo = clone $this;
 
         return (int)$fpdo->select(null)->select('COUNT(*)')->fetchColumn();
+    }
+
+    public function getIterator() {
+        if($this->convertTypes){
+            return new ArrayIterator($this->fetchAll());
+        }else{
+            return $this->execute();
+        }       
     }
     
 }

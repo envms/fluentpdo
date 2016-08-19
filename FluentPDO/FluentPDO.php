@@ -35,6 +35,9 @@ class FluentPDO
     /** @var bool|callback */
     public $debug;
 
+    /** @var boolean */
+    public $convertTypes = false;
+
     /**
      * FluentPDO constructor.
      *
