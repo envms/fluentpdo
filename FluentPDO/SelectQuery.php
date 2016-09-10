@@ -191,4 +191,11 @@ class SelectQuery extends CommonQuery implements Countable
         }       
     }
     
+    public function explain() {
+        $this->explain = true;
+		$results = $this->fetch();
+		$this->explain = false;
+        return $results;
+    }
+
 }

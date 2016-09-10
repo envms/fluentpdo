@@ -17,6 +17,9 @@ abstract class BaseQuery implements IteratorAggregate
     /** @var bool */
     private $object = false;
 
+    /** @var bool */
+    private $explain = false;
+
     /** @var array - definition clauses */
     protected $clauses = array();
     /** @var array */
@@ -249,6 +252,9 @@ abstract class BaseQuery implements IteratorAggregate
      */
     protected function buildQuery() {
         $query = '';
+        if ($this->explain) {
+            $query = 'EXPLAIN ';
+        }
         foreach ($this->clauses as $clause => $separator) {
             if ($this->clauseNotEmpty($clause)) {
                 if (is_string($separator)) {
