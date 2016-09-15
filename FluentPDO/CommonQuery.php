@@ -73,6 +73,8 @@ abstract class CommonQuery extends BaseQuery
             // condition is column only
             if (is_null($parameters)) {
                 return $this->addStatement('WHERE', "$condition is NULL");
+            } elseif ($args[1] === []) {
+                return $this->addStatement('WHERE', 'FALSE');
             } elseif (is_array($args[1])) {
                 $in = $this->quote($args[1]);
 
