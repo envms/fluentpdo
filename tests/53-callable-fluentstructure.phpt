@@ -13,10 +13,14 @@ echo $structure->getForeignKey('user') . "\n";
 echo $structure->getPrimaryKey('user') . "\n";
 
 $prefix = 'prefix_';
-$structure = new FluentStructure(function($table) use($prefix) {
+
+function _structure_function($table)  {
+    global $prefix;
     $table = substr($table, 0, strlen($prefix)) == $prefix ? substr($table, strlen($prefix)) : $table;
     return $table.'_id';
-}, null);
+}
+
+$structure = new FluentStructure('_structure_function', null);
 echo $structure->getForeignKey($prefix.'user') . "\n";
 echo $structure->getPrimaryKey($prefix.'user') . "\n";
 ?>
