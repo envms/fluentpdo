@@ -1,0 +1,25 @@
+<phpunit bootstrap="tests/boot.php"
+         colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         stopOnFailure="false"
+         syntaxCheck="true">
+
+    <php>
+        <!-- MySQL -->
+        <env name="FLUENTPDO_MYSQL_DSN" value="mysql:dbname=fluentpdo" />
+        <env name="FLUENTPDO_MYSQL_USER" value="root" />
+        <env name="FLUENTPDO_MYSQL_PASS" value="" />
+    </php>
+
+    <testsuite name="all">
+        <directory>tests/</directory>
+    </testsuite>
+
+    <filter>
+        <whitelist>
+            <directory suffix=".php">FluentPDO</directory>
+        </whitelist>
+    </filter>
+</phpunit>
