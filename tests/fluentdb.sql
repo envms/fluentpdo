@@ -1,4 +1,5 @@
--- Adminer 3.2.2 MySQL dump
+CREATE DATABASE fluentdb;
+USE fluentdb;
 
 SET NAMES utf8;
 SET foreign_key_checks = 0;
