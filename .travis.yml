@@ -10,8 +10,8 @@ php:
 
 script: php tests/run-tests.php
 before_script:
-  - mysql -e 'create database fblog;'
-  - mysql -u root -D fblog < tests/fblog.sql
+  - mysql -u root < tests/fluentdb.sql
+
 notifications:
   slack:
     secure: cyZnqOCV/gO9p23Z8Lr0e4sc3TqXi0v+VQ8neeRTNalYuiwgn9Co1NakCBO7yyku6qyWE9EOaypYBJlZgaLExLAyCGmaSTRduLlE7P1bdcNnkmns0ikoenFzXd5Uq26ExsegGzUGSbjwtzVhiHLUwigPsJNpnwsMOa2Co5ieo04=

@@ -44,7 +44,7 @@ include "libs/FluentPDO/FluentPDO.php";
 ## Start usage
 
 ```php
-$pdo = new PDO("mysql:dbname=fblog", "root");
+$pdo = new PDO("mysql:dbname=fluentdb", "root");
 $fpdo = new FluentPDO($pdo);
 ```
 
