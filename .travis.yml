@@ -15,3 +15,7 @@ before_script:
 notifications:
   slack:
     secure: cyZnqOCV/gO9p23Z8Lr0e4sc3TqXi0v+VQ8neeRTNalYuiwgn9Co1NakCBO7yyku6qyWE9EOaypYBJlZgaLExLAyCGmaSTRduLlE7P1bdcNnkmns0ikoenFzXd5Uq26ExsegGzUGSbjwtzVhiHLUwigPsJNpnwsMOa2Co5ieo04=
+
+os: linux
+group: stable
+dist: trusty
