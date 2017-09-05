@@ -37,6 +37,16 @@ abstract class BaseQuery implements IteratorAggregate
     }
 
     /**
+     * Return formatted query when request class representation
+     * ie: echo $query
+     *
+     * @return string - formatted query
+     */
+    public function __toString() {
+        return $this->getQuery();
+    }
+
+    /**
      * Initialize statement and parameter clauses.
      */
     private function initClauses() {
