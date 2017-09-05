@@ -55,6 +55,9 @@ class FluentUtils
             switch($type)
             {
                 case 'DECIMAL':
+                case 'NEWDECIMAL':
+                case 'FLOAT':
+                case 'DOUBLE':
                 case 'TINY':
                 case 'SHORT':
                 case 'LONG':
