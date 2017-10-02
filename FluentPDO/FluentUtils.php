@@ -24,15 +24,15 @@ class FluentUtils
      */
     public static function formatQuery($query) {
         $query = preg_replace(
-            '/WHERE|FROM|GROUP BY|HAVING|ORDER BY|LIMIT|OFFSET|UNION|ON DUPLICATE KEY UPDATE|VALUES/',
+            '/\b(WHERE|FROM|GROUP BY|HAVING|ORDER BY|LIMIT|OFFSET|UNION|ON DUPLICATE KEY UPDATE|VALUES)/',
             "\n$0", $query
         );
         $query = preg_replace(
-            '/INNER|LEFT|RIGHT|CASE|WHEN|END|ELSE|AND/',
+            '/\b(INNER|LEFT|RIGHT|CASE|WHEN|END|ELSE|AND)/',
             "\n    $0", $query
         );
-        // remove trailing spaces
-        $query = preg_replace("/\s+\n/", "\n", $query);
+
+        $query = preg_replace("/\s+\n/", "\n", $query); // remove trailing spaces
 
         return $query;
     }
@@ -42,9 +42,9 @@ class FluentUtils
      * PDOStatement::columnMeta
      * http://stackoverflow.com/a/9952703/3006989
      * 
-     * @param PDOStatement $st
-     * @param array $assoc returned by PDOStatement::fetch with PDO::FETCH_ASSOC
-     * @return copy of $assoc with matching type fields
+     * @param PDOStatement $statement
+     * @param array|Traversable $assoc - provided by PDOStatement::fetch with PDO::FETCH_ASSOC
+     * @return array|Traversable - copy of $assoc with matching type fields
      */
     public static function convertToNativeTypes(PDOStatement $statement, $rows)
     {
