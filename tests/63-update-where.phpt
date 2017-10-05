@@ -7,38 +7,40 @@ include_once dirname(__FILE__) . "/connect.inc.php";
 
 $query = $fpdo->update('users')
     ->set("`users`.`active`", 1)
-    ->where("`confirm`.`key`", 123)
-    ->where("`users`.`email`", 123);
-
+    ->where("`country`.`name`", 'Slovakia')
+    ->where("`users`.`name`", 'Marek');
 
 echo $query->getQuery() . "\n";
 print_r($query->getParameters());
 $query = $fpdo->update('users')
     ->set("[users].[active]", 1)
-    ->where("[confirm].[key]", 123)
-    ->where("[users].[email]", 123);
-
+    ->where("[country].[name]", 'Slovakia')
+    ->where("[users].[name]", 'Marek');
 
 echo $query->getQuery() . "\n";
 print_r($query->getParameters());
 
 ?>
 --EXPECTF--
-UPDATE users SET `users`.`active` = ?
-WHERE `confirm`.`key` = ?
-    AND `users`.`email` = ?
+UPDATE users
+    LEFT JOIN country ON country.id = users.country_id
+SET `users`.`active` = ?
+WHERE `country`.`name` = ?
+    AND `users`.`name` = ?
 Array
 (
     [0] => 1
-    [1] => 123
-    [2] => 123
+    [1] => Slovakia
+    [2] => Marek
 )
-UPDATE users SET [users].[active] = ?
-WHERE [confirm].[key] = ?
-    AND [users].[email] = ?
+UPDATE users
+    LEFT JOIN country ON country.id = users.country_id
+SET [users].[active] = ?
+WHERE [country].[name] = ?
+    AND [users].[name] = ?
 Array
 (
     [0] => 1
-    [1] => 123
-    [2] => 123
+    [1] => Slovakia
+    [2] => Marek
 )
