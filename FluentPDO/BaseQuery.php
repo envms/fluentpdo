@@ -307,11 +307,13 @@ abstract class BaseQuery implements IteratorAggregate
                     if (is_array($value) && is_string(key($value)) && substr(key($value), 0, 1) == ':') {
                         // this is named params e.g. (':name' => 'Mark')
                         $parameters = array_merge($parameters, $value);
-                    } else {
+                    }
+                    else {
                         $parameters[] = $value;
                     }
                 }
-            } else {
+            }
+            else {
                 if ($clauses) {
                     $parameters[] = $clauses;
                 }
