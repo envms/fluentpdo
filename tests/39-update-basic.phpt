@@ -19,7 +19,8 @@ $query = $fpdo->from('country')->where('id', 1);
 print_r($query->fetch());
 ?>
 --EXPECTF--
-UPDATE country SET name = ?
+UPDATE country
+SET name = ?
 WHERE id = ?
 Array
 (

@@ -14,7 +14,8 @@ $query = $fpdo->update('user')->set(array('name' => 'Marek', '`type`' => 'admin'
 $query->execute();
 ?>
 --EXPECTF--
-UPDATE user SET name = ?, `type` = ?
+UPDATE user
+SET name = ?, `type` = ?
 WHERE id = ?
 Array
 (

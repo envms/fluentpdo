@@ -14,7 +14,9 @@ echo $query->getQuery() . "\n";
 print_r($query->getParameters()) . "\n";
 ?>
 --EXPECTF--
-UPDATE user OUTER JOIN country ON country.id = user.country_id SET name = ?, `type` = ?
+UPDATE user
+    OUTER JOIN country ON country.id = user.country_id
+SET name = ?, `type` = ?
 WHERE id = ?
 Array
 (
