@@ -1,6 +1,7 @@
 <?php
 
-/** Base query builder
+/**
+ * Base query builder
  */
 abstract class BaseQuery implements IteratorAggregate
 {
@@ -74,13 +75,14 @@ abstract class BaseQuery implements IteratorAggregate
         if ($statement === null) {
             return $this->resetClause($clause);
         }
-        // $statement !== null
+
         if ($this->clauses[$clause]) {
             if (is_array($statement)) {
                 $this->statements[$clause] = array_merge($this->statements[$clause], $statement);
             } else {
                 $this->statements[$clause][] = $statement;
             }
+
             $this->parameters[$clause] = array_merge($this->parameters[$clause], $parameters);
         } else {
             $this->statements[$clause] = $statement;
@@ -182,8 +184,13 @@ abstract class BaseQuery implements IteratorAggregate
                 $time = sprintf('%0.3f', $this->time * 1000) . ' ms';
                 $rows = ($this->result) ? $this->result->rowCount() : 0;
                 $finalString = "# $backtrace[file]:$backtrace[line] ($time; rows = $rows)\n$debug\n\n";
-                if (is_resource(STDERR)) { // if STDERR is set, send there, otherwise just output the string
-                    fwrite(STDERR, $finalString);
+                if (defined('STDERR')) { // if STDERR is set, send there, otherwise just output the string
+                    if (is_resource(STDERR)) {
+                        fwrite(STDERR, $finalString);
+                    }
+                    else {
+                        echo $finalString;
+                    }
                 }
                 else {
                     echo $finalString;
@@ -323,16 +330,20 @@ abstract class BaseQuery implements IteratorAggregate
         if (!isset($value)) {
             return "NULL";
         }
+
         if (is_array($value)) { // (a, b) IN ((1, 2), (3, 4))
             return "(" . implode(", ", array_map(array($this, 'quote'), $value)) . ")";
         }
+
         $value = $this->formatValue($value);
         if (is_float($value)) {
             return sprintf("%F", $value); // otherwise depends on setlocale()
         }
+
         if ($value === false) {
             return "0";
         }
+
         if (is_int($value) || $value instanceof FluentLiteral) { // number or SQL code - for example "NOW()"
             return (string)$value;
         }
@@ -347,7 +358,7 @@ abstract class BaseQuery implements IteratorAggregate
      */
     private function formatValue($val) {
         if ($val instanceof DateTime) {
-            return $val->format("Y-m-d H:i:s"); //! may be driver specific
+            return $val->format("Y-m-d H:i:s"); // may be driver specific
         }
 
         return $val;

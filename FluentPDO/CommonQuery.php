@@ -43,15 +43,17 @@ abstract class CommonQuery extends BaseQuery
      * @param string $condition  possibly containing ? or :name (PDO syntax)
      * @param mixed  $parameters array or a scalar value
      *
-     * @return \SelectQuery
+     * @return CommonQuery
      */
     public function where($condition, $parameters = array()) {
         if ($condition === null) {
             return $this->resetClause('WHERE');
         }
+
         if (!$condition) {
             return $this;
         }
+
         if (is_array($condition)) { // where(array("column1" => 1, "column2 > ?" => 2))
             foreach ($condition as $key => $val) {
                 $this->where($key, $val);
@@ -59,16 +61,18 @@ abstract class CommonQuery extends BaseQuery
 
             return $this;
         }
+
         $args = func_get_args();
+
         if (count($args) == 1) {
             return $this->addStatement('WHERE', $condition);
         }
 
-        // check that there are 2 arguments, a condition and a parameter value
-        // if the condition contains a parameter simply add them
-        // since its up to the user if it's valid sql or not
-        // Otherwise we're probably with just an identifier. So lets
-        // construct a new condition based on the passed parameter value.
+        /*
+        Check that there are 2 arguments, a condition and a parameter value. If the condition contains
+        a parameter, add them; it's up to the dev to be valid sql. Otherwise it's probably
+        just an identifier, so construct a new condition based on the passed parameter value.
+        */
         if (count($args) == 2 && !preg_match('/(\?|:\w+)/i', $condition)) {
             // condition is column only
             if (is_null($parameters)) {
@@ -80,8 +84,10 @@ abstract class CommonQuery extends BaseQuery
 
                 return $this->addStatement('WHERE', "$condition IN $in");
             }
+
             $condition = "$condition = ?";
         }
+
         array_shift($args);
 
         return $this->addStatement('WHERE', $condition, $args);
@@ -95,6 +101,7 @@ abstract class CommonQuery extends BaseQuery
      */
     public function __call($clause, $parameters = array()) {
         $clause = FluentUtils::toUpperWords($clause);
+
         if ($clause == 'GROUP') {
             $clause = 'GROUP BY';
         }
@@ -104,7 +111,9 @@ abstract class CommonQuery extends BaseQuery
         if ($clause == 'FOOT NOTE') {
             $clause = "\n--";
         }
+
         $statement = array_shift($parameters);
+
         if (strpos($clause, 'JOIN') !== false) {
             return $this->addJoinStatements($clause, $statement, $parameters);
         }
@@ -134,14 +143,16 @@ abstract class CommonQuery extends BaseQuery
 
             return $this->resetClause('JOIN');
         }
+
         if (array_search(substr($statement, 0, -1), $this->joins) !== false) {
             return $this;
         }
 
-        // match "tables AS alias"
+        // match "table AS alias"
         preg_match('/`?([a-z_][a-z0-9_\.:]*)`?(\s+AS)?(\s+`?([a-z_][a-z0-9_]*)`?)?/i', $statement, $matches);
         $joinAlias = '';
         $joinTable = '';
+
         if ($matches) {
             $joinTable = $matches[1];
             if (isset($matches[4]) && !in_array(strtoupper($matches[4]), array('ON', 'USING'))) {
@@ -170,22 +181,25 @@ abstract class CommonQuery extends BaseQuery
 
         preg_match_all('/([a-z_][a-z0-9_]*[\.:]?)/i', $joinTable, $matches);
         $mainTable = '';
+
         if (isset($this->statements['FROM'])) {
             $mainTable = $this->statements['FROM'];
         } elseif (isset($this->statements['UPDATE'])) {
             $mainTable = $this->statements['UPDATE'];
         }
+
         $lastItem = array_pop($matches[1]);
         array_push($matches[1], $lastItem);
+
         foreach ($matches[1] as $joinItem) {
             if ($mainTable == substr($joinItem, 0, -1)) {
                 continue;
             }
 
-            // use $joinAlias only for $lastItem
             $alias = '';
+
             if ($joinItem == $lastItem) {
-                $alias = $joinAlias;
+                $alias = $joinAlias; // use $joinAlias only for $lastItem
             }
 
             $newJoin = $this->createJoinStatement($clause, $mainTable, $joinItem, $alias);
@@ -212,22 +226,24 @@ abstract class CommonQuery extends BaseQuery
         if (in_array(substr($mainTable, -1), array(':', '.'))) {
             $mainTable = substr($mainTable, 0, -1);
         }
+
         $referenceDirection = substr($joinTable, -1);
         $joinTable          = substr($joinTable, 0, -1);
         $asJoinAlias        = '';
+
         if ($joinAlias) {
             $asJoinAlias = " AS $joinAlias";
         } else {
             $joinAlias = $joinTable;
         }
-        if (in_array($joinAlias, $this->joins)) {
-            // if join exists don't create same again
+
+        if (in_array($joinAlias, $this->joins)) { // if the join exists don't create it again
             return '';
         } else {
             $this->joins[] = $joinAlias;
         }
-        if ($referenceDirection == ':') {
-            // back reference
+
+        if ($referenceDirection == ':') { // back reference
             $primaryKey = $this->getStructure()->getPrimaryKey($mainTable);
             $foreignKey = $this->getStructure()->getForeignKey($mainTable);
 
@@ -246,6 +262,7 @@ abstract class CommonQuery extends BaseQuery
     protected function buildQuery() {
         // first create extra join from statements with columns with referenced tables
         $statementsWithReferences = array('WHERE', 'SELECT', 'GROUP BY', 'ORDER BY');
+
         foreach ($statementsWithReferences as $clause) {
             if (array_key_exists($clause, $this->statements)) {
                 $this->statements[$clause] = array_map(array($this, 'createUndefinedJoins'), $this->statements[$clause]);
@@ -260,14 +277,17 @@ abstract class CommonQuery extends BaseQuery
      *
      * @param string $statement
      *
-     * @return string  rewrited $statement (e.g. tab1.tab2:col => tab2.col)
+     * @return string - the rewritten $statement (e.g. tab1.tab2:col => tab2.col)
      */
     private function createUndefinedJoins($statement) {
         if (!$this->isSmartJoinEnabled) {
             return $statement;
         }
 
-        preg_match_all('/\\b([a-z_][a-z0-9_.:]*[.:])[a-z_]*/i', $statement, $matches);
+        // matches a table name made of any printable characters followed by a dot/colon,
+        // followed by any letters, numbers and most punctuation (to exclude '*')
+        preg_match_all('/([^[:space:]\(\)]+[.:])[\p{L}\p{N}\p{Pd}\p{Pi}\p{Pf}\p{Pc}]*/u', $statement, $matches);
+
         foreach ($matches[1] as $join) {
             if (!in_array(substr($join, 0, -1), $this->joins)) {
                 $this->addJoinStatements('LEFT JOIN', $join);
@@ -282,7 +302,7 @@ abstract class CommonQuery extends BaseQuery
         }
 
         // remove extra referenced tables (rewrite tab1.tab2:col => tab2.col)
-        $statement = preg_replace('/(?:\\b[a-z_][a-z0-9_.:]*[.:])?([a-z_][a-z0-9_]*)[.:]([a-z_*])/i', '\\1.\\2', $statement);
+        $statement = preg_replace('/(?:[^\s]*[.:])?([^\s]+)[.:]([^\s]*)/u', '$1.$2', $statement);
 
         return $statement;
     }

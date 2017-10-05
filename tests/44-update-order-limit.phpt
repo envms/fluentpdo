@@ -15,7 +15,8 @@ echo $query->getQuery() . "\n";
 print_r($query->getParameters()) . "\n";
 ?>
 --EXPECTF--
-UPDATE user SET type = ?
+UPDATE user
+SET type = ?
 WHERE id = ?
 ORDER BY name
 LIMIT 1

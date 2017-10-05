@@ -184,11 +184,11 @@ class SelectQuery extends CommonQuery implements Countable
     }
 
     public function getIterator() {
-        if($this->convertTypes){
+        if ($this->convertTypes) {
             return new ArrayIterator($this->fetchAll());
-        }else{
+        } else {
             return $this->execute();
-        }       
+        }
     }
     
 }

@@ -10,7 +10,8 @@ echo $query->getQuery() . "\n";
 print_r($query->getParameters()) . "\n";
 ?>
 --EXPECTF--
-UPDATE article SET published_at = NOW()
+UPDATE article
+SET published_at = NOW()
 WHERE user_id = ?
 Array
 (
