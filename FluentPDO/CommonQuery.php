@@ -49,9 +49,11 @@ abstract class CommonQuery extends BaseQuery
         if ($condition === null) {
             return $this->resetClause('WHERE');
         }
+
         if (!$condition) {
             return $this;
         }
+
         if (is_array($condition)) { // where(array("column1" => 1, "column2 > ?" => 2))
             foreach ($condition as $key => $val) {
                 $this->where($key, $val);
@@ -59,7 +61,9 @@ abstract class CommonQuery extends BaseQuery
 
             return $this;
         }
+
         $args = func_get_args();
+
         if (count($args) == 1) {
             return $this->addStatement('WHERE', $condition);
         }
@@ -80,8 +84,10 @@ abstract class CommonQuery extends BaseQuery
 
                 return $this->addStatement('WHERE', "$condition IN $in");
             }
+
             $condition = "$condition = ?";
         }
+
         array_shift($args);
 
         return $this->addStatement('WHERE', $condition, $args);
@@ -280,7 +286,7 @@ abstract class CommonQuery extends BaseQuery
 
         // matches a table name made of any printable characters followed by a dot/colon,
         // followed by any letters, numbers and most punctuation (to exclude '*')
-        preg_match_all('/([[:graph:]]+[.:])[\p{L}\p{N}\p{Pd}\p{Ps}\p{Pe}\p{Pi}\p{Pf}\p{Pc}]*/u', $statement, $matches);
+        preg_match_all('/([^[:space:]\(\)]+[.:])[\p{L}\p{N}\p{Pd}\p{Pi}\p{Pf}\p{Pc}]*/u', $statement, $matches);
 
         foreach ($matches[1] as $join) {
             if (!in_array(substr($join, 0, -1), $this->joins)) {
@@ -296,7 +302,7 @@ abstract class CommonQuery extends BaseQuery
         }
 
         // remove extra referenced tables (rewrite tab1.tab2:col => tab2.col)
-        $statement = preg_replace('/(?:.*[.:])?(.*)[.:](.*)/u', '$1.$2', $statement);
+        $statement = preg_replace('/(?:[^\s]*[.:])?([^\s]+)[.:]([^\s]*)/u', '$1.$2', $statement);
 
         return $statement;
     }
