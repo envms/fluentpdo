@@ -24,11 +24,11 @@ class FluentUtils
      */
     public static function formatQuery($query) {
         $query = preg_replace(
-            '/\b(WHERE|FROM|GROUP BY|HAVING|ORDER BY|LIMIT|OFFSET|UNION|ON DUPLICATE KEY UPDATE|VALUES)/',
+            '/\b(WHERE|FROM|GROUP BY|HAVING|ORDER BY|LIMIT|OFFSET|UNION|ON DUPLICATE KEY UPDATE|VALUES|SET)/',
             "\n$0", $query
         );
         $query = preg_replace(
-            '/\b(INNER|LEFT|RIGHT|CASE|WHEN|END|ELSE|AND)/',
+            '/\b(INNER|OUTER|LEFT|RIGHT|FULL|CASE|WHEN|END|ELSE|AND)/',
             "\n    $0", $query
         );
 
