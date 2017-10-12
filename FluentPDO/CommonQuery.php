@@ -5,6 +5,9 @@
  */
 abstract class CommonQuery extends BaseQuery
 {
+    /** @var array - methods which are allowed to be call by the magic method __call() */
+    private $validMethods = ['from', 'fullJoin', 'group', 'groupBy', 'having', 'innerJoin', 'join', 'leftJoin',
+        'limit', 'offset', 'order', 'orderBy', 'outerJoin', 'rightJoin', 'select'];
 
     /** @var array - Query tables (also include table from clause FROM) */
     protected $joins = array();
@@ -102,13 +105,17 @@ abstract class CommonQuery extends BaseQuery
     }
 
     /**
-     * @param       $clause
-     * @param array $parameters - first is $statement followed by $parameters
+     * @param string $name
+     * @param array  $parameters - first is $statement followed by $parameters
      *
-     * @return $this|\SelectQuery
+     * @return $this|SelectQuery
      */
-    public function __call($clause, $parameters = array()) {
-        $clause = FluentUtils::toUpperWords($clause);
+    public function __call($name, $parameters = array()) {
+        if (!in_array($name, $this->validMethods)) {
+            trigger_error("Call to invalid method " . get_class($this) . "::{$name}()", E_USER_ERROR);
+        }
+
+        $clause = FluentUtils::toUpperWords($name);
 
         if ($clause == 'GROUP') {
             $clause = 'GROUP BY';
