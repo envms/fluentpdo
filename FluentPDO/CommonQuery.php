@@ -85,7 +85,15 @@ abstract class CommonQuery extends BaseQuery
                 return $this->addStatement('WHERE', "$condition IN $in");
             }
 
-            $condition = "$condition = ?";
+            // don't parameterize the value if it's an instance of FluentLiteral
+            if ($parameters instanceof FluentLiteral) {
+                $condition = "{$condition} = {$parameters}";
+
+                return $this->addStatement('WHERE', $condition);
+            }
+            else {
+                $condition = "$condition = ?";
+            }
         }
 
         array_shift($args);
