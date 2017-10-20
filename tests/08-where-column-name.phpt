@@ -3,9 +3,9 @@ where with named :params
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
-$query = $fpdo->from('user')
+$query = $fluent->from('user')
 		->where('type = :type', array(':type' => 'author'))
 		->where('id > :id AND name <> :name', array(':id' => 1, ':name' => 'Marek'));
 

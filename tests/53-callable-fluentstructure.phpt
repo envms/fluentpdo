@@ -1,19 +1,19 @@
 --TEST--
-callable arguments for FluentStructure
+callable arguments for Envms\FluentPDO\Structure
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
-$structure = new FluentStructure();
+$structure = new Envms\FluentPDO\Structure();
 echo $structure->getForeignKey('user') . "\n";
 echo $structure->getPrimaryKey('user') . "\n";
-$structure = new FluentStructure('%s_id', null);
+$structure = new Envms\FluentPDO\Structure('%s_id', null);
 echo $structure->getForeignKey('user') . "\n";
 echo $structure->getPrimaryKey('user') . "\n";
 
 $prefix = 'prefix_';
-$structure = new FluentStructure(function($table) use($prefix) {
+$structure = new Envms\FluentPDO\Structure(function($table) use($prefix) {
     $table = substr($table, 0, strlen($prefix)) == $prefix ? substr($table, strlen($prefix)) : $table;
     return $table.'_id';
 }, null);

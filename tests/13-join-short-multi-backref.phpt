@@ -3,9 +3,9 @@ multi short join
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
-$query = $fpdo->from('article')->innerJoin('comment:user AS comment_user');
+$query = $fluent->from('article')->innerJoin('comment:user AS comment_user');
 echo $query->getQuery() . "\n";
 print_r($query->fetch());
 ?>

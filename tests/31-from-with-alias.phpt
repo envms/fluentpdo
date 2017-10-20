@@ -3,15 +3,15 @@ FROM with alias
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
-$query = $fpdo->from('user author')->getQuery();
+$query = $fluent->from('user author')->getQuery();
 echo "$query\n";
-$query = $fpdo->from('user AS author')->getQuery();
+$query = $fluent->from('user AS author')->getQuery();
 echo "$query\n";
-$query = $fpdo->from('user AS author', 1)->getQuery();
+$query = $fluent->from('user AS author', 1)->getQuery();
 echo "$query\n";
-$query = $fpdo->from('user AS author')->select('country.name')->getQuery();
+$query = $fluent->from('user AS author')->select('country.name')->getQuery();
 echo "$query\n";
 
 ?>

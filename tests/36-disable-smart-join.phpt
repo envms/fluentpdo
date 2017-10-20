@@ -3,22 +3,22 @@ Disable and enable smart join feature
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
-$query = $fpdo->from('comment')
+$query = $fluent->from('comment')
 		->select('user.name')
 		->orderBy('article.published_at')
 		->getQuery();
 echo "-- Plain:\n$query\n\n";
 
-$query = $fpdo->from('comment')
+$query = $fluent->from('comment')
 		->select('user.name')
 		->disableSmartJoin()
 		->orderBy('article.published_at')
 		->getQuery();
 echo "-- Disable:\n$query\n\n";
 
-$query = $fpdo->from('comment')
+$query = $fluent->from('comment')
 		->disableSmartJoin()
 		->select('user.name')
 		->enableSmartJoin()

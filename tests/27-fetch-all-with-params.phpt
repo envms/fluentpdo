@@ -3,9 +3,9 @@ fetch all with params
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
-$result = $fpdo->from('user')->fetchAll('id', 'type, name');
+$result = $fluent->from('user')->fetchAll('id', 'type, name');
 print_r($result);
 
 ?>

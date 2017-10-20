@@ -3,12 +3,12 @@ fetch
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
-echo $fpdo->from('user', 1)->fetch('name') . "\n";
-print_r($fpdo->from('user', 1)->fetch());
-if ($fpdo->from('user', 3)->fetch() === false) echo "false\n";
-if ($fpdo->from('user', 3)->fetch('name') === false) echo "false\n";
+echo $fluent->from('user', 1)->fetch('name') . "\n";
+print_r($fluent->from('user', 1)->fetch());
+if ($fluent->from('user', 3)->fetch() === false) echo "false\n";
+if ($fluent->from('user', 3)->fetch('name') === false) echo "false\n";
 
 ?>
 --EXPECTF--

@@ -3,9 +3,9 @@ add FROM after DELETE if doesn't set
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
-$query = $fpdo->delete('user', 1)->from('user');
+$query = $fluent->delete('user', 1)->from('user');
 echo $query->getQuery() . "\n";
 print_r($query->getParameters()) . "\n";
 

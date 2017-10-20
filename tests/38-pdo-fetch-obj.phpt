@@ -3,18 +3,18 @@ PDO::FETCH_OBJ option.
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
 
-$query = $fpdo->from('user')->where('id > ?', 0)->orderBy('name');
+$query = $fluent->from('user')->where('id > ?', 0)->orderBy('name');
 $query = $query->where('name = ?', 'Marek');
-$fpdo->getPdo()->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
+$fluent->getPdo()->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
 
 print_r($query->getParameters());
 print_r($query->fetch());
 
 // Set back for other tests.
-$fpdo->getPdo()->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_BOTH);
+$fluent->getPdo()->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_BOTH);
 ?>
 --EXPECTF--
 Array

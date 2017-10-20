@@ -3,9 +3,9 @@ full join
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
-$query = $fpdo->from('article')
+$query = $fluent->from('article')
 		->select('user.name')
 		->leftJoin('user ON user.id = article.user_id')
 		->orderBy('article.title');

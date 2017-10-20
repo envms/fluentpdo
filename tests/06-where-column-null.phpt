@@ -3,9 +3,9 @@ where('column', null)
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
-$query = $fpdo->from('user')->where('type', null);
+$query = $fluent->from('user')->where('type', null);
 
 echo $query->getQuery() . "\n";
 ?>

@@ -3,12 +3,12 @@ insert with literal
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
-$query = $fpdo->insertInto('article',
+$query = $fluent->insertInto('article',
 		array(
 			'user_id' => 1,
-			'updated_at' => new FluentLiteral('NOW()'),
+			'updated_at' => new Envms\FluentPDO\Literal('NOW()'),
 			'title' => 'new title',
 			'content' => 'new content',
 		));

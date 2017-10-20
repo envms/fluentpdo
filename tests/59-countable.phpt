@@ -3,9 +3,9 @@ Countable interface (doesn't break prev query)
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
-$articles = $fpdo
+$articles = $fluent
 	->from('article')
 	->select(NULL)
 	->select('title')

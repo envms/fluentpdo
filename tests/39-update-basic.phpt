@@ -3,19 +3,19 @@ Basic update
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
-$query = $fpdo->update('country')->set('name', 'aikavolS')->where('id', 1);
+$query = $fluent->update('country')->set('name', 'aikavolS')->where('id', 1);
 $query->execute();
 echo $query->getQuery() . "\n";
 print_r($query->getParameters()) . "\n";
 
-$query = $fpdo->from('country')->where('id', 1);
+$query = $fluent->from('country')->where('id', 1);
 print_r($query->fetch());
 
-$fpdo->update('country')->set('name', 'Slovakia')->where('id', 1)->execute();
+$fluent->update('country')->set('name', 'Slovakia')->where('id', 1)->execute();
 
-$query = $fpdo->from('country')->where('id', 1);
+$query = $fluent->from('country')->where('id', 1);
 print_r($query->fetch());
 ?>
 --EXPECTF--

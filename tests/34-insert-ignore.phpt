@@ -3,9 +3,9 @@ insert ignore
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
-$query = $fpdo->insertInto('article',
+$query = $fluent->insertInto('article',
 		array(
 			'user_id' => 1,
 			'title' => 'new title',

@@ -3,9 +3,9 @@ Delete with ORDER BY and LIMIT
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
-$query = $fpdo->deleteFrom('user')
+$query = $fluent->deleteFrom('user')
 	->where('id', 2)
 	->orderBy('name')
 	->limit(1);
