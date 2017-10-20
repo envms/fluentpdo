@@ -1,9 +1,10 @@
 <?php
+namespace Envms\FluentPDO;
 
 /**
  * SQL literal value
  */
-class FluentLiteral
+class Literal
 {
 
     /** @var string */

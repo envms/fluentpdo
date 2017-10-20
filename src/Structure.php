@@ -1,9 +1,10 @@
 <?php
+namespace Envms\FluentPDO;
 
 /**
- * Class FluentStructure
+ * Class Structure
  */
-class FluentStructure
+class Structure
 {
 
     /** @var string */
@@ -12,7 +13,7 @@ class FluentStructure
     private $foreignKey;
 
     /**
-     * FluentStructure constructor.
+     * Structure constructor
      *
      * @param string $primaryKey
      * @param string $foreignKey

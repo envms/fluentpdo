@@ -1,20 +1,23 @@
 <?php
+namespace Envms\FluentPDO\Queries;
+
+use Envms\FluentPDO\{Query,Utilities};
 
 /**
  * SELECT query builder
  *
- * @method SelectQuery  select(string $column) add one or more columns in SELECT to query
- * @method SelectQuery  leftJoin(string $statement) add LEFT JOIN to query
+ * @method Select  select(string $column) add one or more columns in SELECT to query
+ * @method Select  leftJoin(string $statement) add LEFT JOIN to query
  *                        ($statement can be 'table' name only or 'table:' means back reference)
- * @method SelectQuery  innerJoin(string $statement) add INNER JOIN to query
+ * @method Select  innerJoin(string $statement) add INNER JOIN to query
  *                        ($statement can be 'table' name only or 'table:' means back reference)
- * @method SelectQuery  groupBy(string $column) add GROUP BY to query
- * @method SelectQuery  having(string $column) add HAVING query
- * @method SelectQuery  orderBy(string $column) add ORDER BY to query
- * @method SelectQuery  limit(int $limit) add LIMIT to query
- * @method SelectQuery  offset(int $offset) add OFFSET to query
+ * @method Select  groupBy(string $column) add GROUP BY to query
+ * @method Select  having(string $column) add HAVING query
+ * @method Select  orderBy(string $column) add ORDER BY to query
+ * @method Select  limit(int $limit) add LIMIT to query
+ * @method Select  offset(int $offset) add OFFSET to query
  */
-class SelectQuery extends CommonQuery implements Countable
+class Select extends Common implements \Countable
 {
 
     /** @var mixed */
@@ -28,10 +31,10 @@ class SelectQuery extends CommonQuery implements Countable
     /**
      * SelectQuery constructor.
      *
-     * @param FluentPDO $fpdo
+     * @param Query     $fluent
      * @param           $from
      */
-    function __construct(FluentPDO $fpdo, $from) {
+    function __construct(Query $fluent, $from) {
         $clauses = array(
             'SELECT'   => ', ',
             'FROM'     => null,
@@ -44,7 +47,7 @@ class SelectQuery extends CommonQuery implements Countable
             'OFFSET'   => null,
             "\n--"     => "\n--",
         );
-        parent::__construct($fpdo, $clauses);
+        parent::__construct($fluent, $clauses);
 
         // initialize statements
         $fromParts       = explode(' ', $from);
@@ -55,7 +58,7 @@ class SelectQuery extends CommonQuery implements Countable
         $this->statements['SELECT'][] = $this->fromAlias . '.*';
         $this->joins[]                = $this->fromAlias;
 
-        if(isset($fpdo->convertTypes) && $fpdo->convertTypes){
+        if(isset($fluent->convertTypes) && $fluent->convertTypes){
             $this->convertTypes = true;
         }
     }
@@ -106,7 +109,7 @@ class SelectQuery extends CommonQuery implements Countable
         $row = $s->fetch();
 
         if($this->convertTypes){
-            $row = FluentUtils::convertToNativeTypes($s,$row);
+            $row = Utilities::convertToNativeTypes($s,$row);
         }
 
         if ($row && $column != '') {
@@ -131,7 +134,7 @@ class SelectQuery extends CommonQuery implements Countable
      */
     public function fetchPairs($key, $value, $object = false) {
         if (($s = $this->select(null)->select("$key, $value")->asObject($object)->execute()) !== false) {
-            return $s->fetchAll(PDO::FETCH_KEY_PAIR);
+            return $s->fetchAll(\PDO::FETCH_KEY_PAIR);
         }
 
         return $s;
@@ -142,14 +145,14 @@ class SelectQuery extends CommonQuery implements Countable
      * @param string $index      specify index column
      * @param string $selectOnly select columns which could be fetched
      *
-     * @return array of fetched rows
+     * @return \PDOStatement|array of fetched rows
      */
     public function fetchAll($index = '', $selectOnly = '') {
         if ($selectOnly) {
             $this->select(null)->select($index . ', ' . $selectOnly);
         }
         if ($index) {
-            $data = array();
+            $data = [];
             foreach ($this as $row) {
                 if (is_object($row)) {
                     $data[$row->{$index}] = $row;
@@ -162,8 +165,8 @@ class SelectQuery extends CommonQuery implements Countable
         } else {
             if (($s = $this->execute()) !== false) {
                 if($this->convertTypes){
-                    return FluentUtils::convertToNativeTypes($s,$s->fetchAll());
-                }else{
+                    return Utilities::convertToNativeTypes($s, $s->fetchAll());
+                } else {
                     return $s->fetchAll();
                 }
             }
@@ -173,19 +176,23 @@ class SelectQuery extends CommonQuery implements Countable
     }
 
     /**
-     * Countable interface doesn't break current \FluentPDO select query
+     * \Countable interface doesn't break current select query
      *
      * @return int
      */
     public function count() {
-        $fpdo = clone $this;
+        $fluent = clone $this;
 
-        return (int)$fpdo->select(null)->select('COUNT(*)')->fetchColumn();
+        return (int)$fluent->select(null)->select('COUNT(*)')->fetchColumn();
     }
 
+    /**
+     * @return \ArrayIterator|\PDOStatement
+     * @todo look into \Countable implementation
+     */
     public function getIterator() {
         if ($this->convertTypes) {
-            return new ArrayIterator($this->fetchAll());
+            return new \ArrayIterator($this->fetchAll());
         } else {
             return $this->execute();
         }

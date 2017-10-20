@@ -1,9 +1,10 @@
 <?php
+namespace Envms\FluentPDO;
 
 /**
- * Class FluentUtils
+ * Class Utilities
  */
-class FluentUtils
+class Utilities
 {
 
     /**
@@ -43,13 +44,13 @@ class FluentUtils
      * PDOStatement::columnMeta
      * http://stackoverflow.com/a/9952703/3006989
      * 
-     * @param PDOStatement $statement
-     * @param array|Traversable $assoc - provided by PDOStatement::fetch with PDO::FETCH_ASSOC
-     * @return array|Traversable - copy of $assoc with matching type fields
+     * @param \PDOStatement $statement
+     * @param array|\Traversable $rows - provided by PDOStatement::fetch with PDO::FETCH_ASSOC
+     * @return array|\Traversable - copy of $assoc with matching type fields
      */
-    public static function convertToNativeTypes(PDOStatement $statement, $rows)
+    public static function convertToNativeTypes(\PDOStatement $statement, $rows)
     {
-        for ($i = 0; $columnMeta = $statement->getColumnMeta($i); $i++)
+        for ($i = 0; ($columnMeta = $statement->getColumnMeta($i)) !== false; $i++)
         {
             $type = $columnMeta['native_type'];
     
@@ -67,7 +68,7 @@ class FluentUtils
                         if(isset($rows[$columnMeta['name']])){
                             $rows[$columnMeta['name']] = $rows[$columnMeta['name']] + 0;
                         }else{
-                            if(is_array($rows) || $rows instanceof Traversable){
+                            if(is_array($rows) || $rows instanceof \Traversable){
                                 foreach($rows as &$row){
                                     if(isset($row[$columnMeta['name']])){
                                         $row[$columnMeta['name']] = $row[$columnMeta['name']] + 0;
