@@ -4,12 +4,12 @@ Basic operations
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
 
-echo "'" . FluentUtils::toUpperWords('one') . "'\n";
-echo "'" . FluentUtils::toUpperWords(' one ') . "'\n";
-echo "'" . FluentUtils::toUpperWords('oneTwo') . "'\n";
-echo "'" . FluentUtils::toUpperWords('OneTwo') . "'\n";
-echo "'" . FluentUtils::toUpperWords('oneTwoThree') . "'\n";
-echo "'" . FluentUtils::toUpperWords(' oneTwoThree  ') . "'\n";
+echo "'" . Envms\FluentPDO\Utilities::toUpperWords('one') . "'\n";
+echo "'" . Envms\FluentPDO\Utilities::toUpperWords(' one ') . "'\n";
+echo "'" . Envms\FluentPDO\Utilities::toUpperWords('oneTwo') . "'\n";
+echo "'" . Envms\FluentPDO\Utilities::toUpperWords('OneTwo') . "'\n";
+echo "'" . Envms\FluentPDO\Utilities::toUpperWords('oneTwoThree') . "'\n";
+echo "'" . Envms\FluentPDO\Utilities::toUpperWords(' oneTwoThree  ') . "'\n";
 
 ?>
 --EXPECTF--

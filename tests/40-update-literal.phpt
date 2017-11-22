@@ -3,9 +3,9 @@ Basic update
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
-$query = $fpdo->update('article')->set('published_at', new FluentLiteral('NOW()'))->where('user_id', 1);
+$query = $fluent->update('article')->set('published_at', new Envms\FluentPDO\Literal('NOW()'))->where('user_id', 1);
 echo $query->getQuery() . "\n";
 print_r($query->getParameters()) . "\n";
 ?>

@@ -3,9 +3,9 @@ Basic update
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
-$query = $fpdo->update('user')
+$query = $fluent->update('user')
 	->outerJoin('country ON country.id = user.country_id')
 	->set(array('name' => 'keraM', '`type`' => 'author'))
 	->where('id', 1);

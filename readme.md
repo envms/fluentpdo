@@ -13,7 +13,9 @@ FluentPDO is a quick and light PHP library for rapid query building. It features
 
 ## Requirements
 
-The latest release of FluentPDO requires at least PHP 5.4, and supports up to PHP 7.2
+The latest (2.x) release of FluentPDO supports PHP 7.0, 7.1 and 7.2
+
+The legacy (1.x) release of FluentPDO supports PHP 5.4 to 7.1
 
 ## Reference
 
@@ -50,13 +52,13 @@ Create a new PDO instance, and pass the instance to FluentPDO:
 
 ```php
 $pdo = new PDO("mysql:dbname=fluentdb", "root");
-$fpdo = new FluentPDO($pdo);
+$fluent = new FluentPDO($pdo);
 ```
 
 Then, creating queries is quick and easy:
 
 ```php
-$query = $fpdo->from('article')
+$query = $fluent->from('article')
             ->where('published_at > ?', $date)
             ->orderBy('published_at DESC')
             ->limit(5);
@@ -85,7 +87,7 @@ foreach ($query as $row) {
 Let's start with a traditional join, below:
 
 ```php
-$query = $fpdo->from('article')
+$query = $fluent->from('article')
             ->leftJoin('user ON user.id = article.user_id')
             ->select('user.name');
 ```
@@ -93,7 +95,7 @@ $query = $fpdo->from('article')
 That's pretty verbose, and not very smart. If your tables use proper primary and foreign key names, you can shorten the above to:
 
 ```php
-$query = $fpdo->from('article')
+$query = $fluent->from('article')
             ->leftJoin('user')
             ->select('user.name');
 ```
@@ -101,7 +103,7 @@ $query = $fpdo->from('article')
 That's better, but not ideal. However, it would be even easier to **not write any joins**:
 
 ```php
-$query = $fpdo->from('article')
+$query = $fluent->from('article')
             ->select('user.name');
 ```
 
@@ -120,8 +122,8 @@ LEFT JOIN user ON user.id = article.user_id
 ##### SELECT
 
 ```php
-$query = $fpdo->from('article')->where('id', 1);
-$query = $fpdo->from('user', 1); // shorter version if selecting one row by primary key
+$query = $fluent->from('article')->where('id', 1);
+$query = $fluent->from('user', 1); // shorter version if selecting one row by primary key
 ```
 
 ##### INSERT
@@ -129,8 +131,8 @@ $query = $fpdo->from('user', 1); // shorter version if selecting one row by prim
 ```php
 $values = array('title' => 'article 1', 'content' => 'content 1');
 
-$query = $fpdo->insertInto('article')->values($values)->execute();
-$query = $fpdo->insertInto('article', $values)->execute(); // shorter version
+$query = $fluent->insertInto('article')->values($values)->execute();
+$query = $fluent->insertInto('article', $values)->execute(); // shorter version
 ```
 
 ##### UPDATE
@@ -138,15 +140,15 @@ $query = $fpdo->insertInto('article', $values)->execute(); // shorter version
 ```php
 $set = array('published_at' => new FluentLiteral('NOW()'));
 
-$query = $fpdo->update('article')->set($set)->where('id', 1)->execute();
-$query = $fpdo->update('article', $set, 1)->execute(); // shorter version if updating one row by primary key
+$query = $fluent->update('article')->set($set)->where('id', 1)->execute();
+$query = $fluent->update('article', $set, 1)->execute(); // shorter version if updating one row by primary key
 ```
 
 ##### DELETE
 
 ```php
-$query = $fpdo->deleteFrom('article')->where('id', 1)->execute();
-$query = $fpdo->deleteFrom('article', 1)->execute(); // shorter version if deleting one row by primary key
+$query = $fluent->deleteFrom('article')->where('id', 1)->execute();
+$query = $fluent->deleteFrom('article', 1)->execute(); // shorter version if deleting one row by primary key
 ```
 
 ***Note**: INSERT, UPDATE and DELETE queries will only run after you call `->execute()`*

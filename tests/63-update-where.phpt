@@ -3,16 +3,16 @@ update where
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
-$query = $fpdo->update('users')
+$query = $fluent->update('users')
     ->set("`users`.`active`", 1)
     ->where("`country`.`name`", 'Slovakia')
     ->where("`users`.`name`", 'Marek');
 
 echo $query->getQuery() . "\n";
 print_r($query->getParameters());
-$query = $fpdo->update('users')
+$query = $fluent->update('users')
     ->set("[users].[active]", 1)
     ->where("[country].[name]", 'Slovakia')
     ->where("[users].[name]", 'Marek');

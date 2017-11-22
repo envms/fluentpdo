@@ -1,28 +1,31 @@
 <?php
+namespace Envms\FluentPDO\Queries;
+
+use Envms\FluentPDO\Query;
 
 /**
  * DELETE query builder
  *
- * @method DeleteQuery  leftJoin(string $statement) add LEFT JOIN to query
+ * @method Delete  leftJoin(string $statement) add LEFT JOIN to query
  *                        ($statement can be 'table' name only or 'table:' means back reference)
- * @method DeleteQuery  innerJoin(string $statement) add INNER JOIN to query
+ * @method Delete  innerJoin(string $statement) add INNER JOIN to query
  *                        ($statement can be 'table' name only or 'table:' means back reference)
- * @method DeleteQuery  from(string $table) add LIMIT to query
- * @method DeleteQuery  orderBy(string $column) add ORDER BY to query
- * @method DeleteQuery  limit(int $limit) add LIMIT to query
+ * @method Delete  from(string $table) add LIMIT to query
+ * @method Delete  orderBy(string $column) add ORDER BY to query
+ * @method Delete  limit(int $limit) add LIMIT to query
  */
-class DeleteQuery extends CommonQuery
+class Delete extends Common
 {
 
     private $ignore = false;
 
     /**
-     * DeleteQuery constructor.
+     * Delete constructor
      *
-     * @param FluentPDO $fpdo
-     * @param string    $table
+     * @param Query  $fluent
+     * @param string $table
      */
-    public function __construct(FluentPDO $fpdo, $table) {
+    public function __construct(Query $fluent, $table) {
         $clauses = array(
             'DELETE FROM' => array($this, 'getClauseDeleteFrom'),
             'DELETE'      => array($this, 'getClauseDelete'),
@@ -33,7 +36,7 @@ class DeleteQuery extends CommonQuery
             'LIMIT'       => null,
         );
 
-        parent::__construct($fpdo, $clauses);
+        parent::__construct($fluent, $clauses);
 
         $this->statements['DELETE FROM'] = $table;
         $this->statements['DELETE']      = $table;
@@ -42,7 +45,7 @@ class DeleteQuery extends CommonQuery
     /**
      * Forces delete operation to fail silently
      *
-     * @return \DeleteQuery
+     * @return Delete
      */
     public function ignore() {
         $this->ignore = true;

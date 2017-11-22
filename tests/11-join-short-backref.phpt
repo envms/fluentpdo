@@ -3,13 +3,13 @@ short join back reference
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
-$query = $fpdo->from('user')->innerJoin('article:');
+$query = $fluent->from('user')->innerJoin('article:');
 echo $query->getQuery() . "\n";
-$query = $fpdo->from('user')->innerJoin('article: with_articles');
+$query = $fluent->from('user')->innerJoin('article: with_articles');
 echo $query->getQuery() . "\n";
-$query = $fpdo->from('user')->innerJoin('article: AS with_articles');
+$query = $fluent->from('user')->innerJoin('article: AS with_articles');
 echo $query->getQuery() . "\n";
 ?>
 --EXPECTF--

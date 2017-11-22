@@ -3,9 +3,9 @@ join in where
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
-$query = $fpdo->from('article')->groupBy('user.type')
+$query = $fluent->from('article')->groupBy('user.type')
 		->select(null)->select('user.type, count(article.id) as article_count');
 echo $query->getQuery() . "\n";
 $result = $query->fetchAll();

@@ -3,11 +3,11 @@ fetch pairs, fetch all
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
-$result = $fpdo->from('user')->fetchPairs('id', 'name');
+$result = $fluent->from('user')->fetchPairs('id', 'name');
 print_r($result);
-$result = $fpdo->from('user')->fetchAll();
+$result = $fluent->from('user')->fetchAll();
 print_r($result);
 
 ?>

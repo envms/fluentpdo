@@ -1,15 +1,18 @@
 <?php
+namespace Envms\FluentPDO\Queries;
+
+use Envms\FluentPDO\{Query,Literal,Structure,Utilities};
 
 /**
  * Base query builder
  */
-abstract class BaseQuery implements IteratorAggregate
+abstract class Base implements \IteratorAggregate
 {
 
-    /** @var FluentPDO */
-    private $fpdo;
+    /** @var Query */
+    private $fluent;
 
-    /** @var PDOStatement */
+    /** @var \PDOStatement */
     private $result;
 
     /** @var float */
@@ -28,11 +31,11 @@ abstract class BaseQuery implements IteratorAggregate
     /**
      * BaseQuery constructor.
      *
-     * @param FluentPDO $fpdo
-     * @param           $clauses
+     * @param Query $fluent
+     * @param       $clauses
      */
-    protected function __construct(FluentPDO $fpdo, $clauses) {
-        $this->fpdo    = $fpdo;
+    protected function __construct(Query $fluent, $clauses) {
+        $this->fluent  = $fluent;
         $this->clauses = $clauses;
         $this->initClauses();
     }
@@ -127,7 +130,7 @@ abstract class BaseQuery implements IteratorAggregate
         $query      = $this->buildQuery();
         $parameters = $this->buildParameters();
 
-        $result = $this->fpdo->getPdo()->prepare($query);
+        $result = $this->fluent->getPdo()->prepare($query);
 
         // At this point, $result is a PDOStatement instance, or false.
         // PDO::prepare() does not reliably return errors. Some database drivers
@@ -139,12 +142,12 @@ abstract class BaseQuery implements IteratorAggregate
 
         if ($this->object !== false) {
             if (class_exists($this->object)) {
-                $result->setFetchMode(PDO::FETCH_CLASS, $this->object);
+                $result->setFetchMode(\PDO::FETCH_CLASS, $this->object);
             } else {
-                $result->setFetchMode(PDO::FETCH_OBJ);
+                $result->setFetchMode(\PDO::FETCH_OBJ);
             }
-        } elseif ($this->fpdo->getPdo()->getAttribute(PDO::ATTR_DEFAULT_FETCH_MODE) == PDO::FETCH_BOTH) {
-            $result->setFetchMode(PDO::FETCH_ASSOC);
+        } elseif ($this->fluent->getPdo()->getAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE) == \PDO::FETCH_BOTH) {
+            $result->setFetchMode(\PDO::FETCH_ASSOC);
         }
 
         $time = microtime(true);
@@ -164,8 +167,8 @@ abstract class BaseQuery implements IteratorAggregate
      * Echo/pass a debug string
      */
     private function debugger() {
-        if ($this->fpdo->debug) {
-            if (!is_callable($this->fpdo->debug)) {
+        if ($this->fluent->debug) {
+            if (!is_callable($this->fluent->debug)) {
                 $backtrace  = '';
                 $query      = $this->getQuery();
                 $parameters = $this->getParameters();
@@ -177,7 +180,7 @@ abstract class BaseQuery implements IteratorAggregate
                 $pattern = '(^' . preg_quote(__DIR__) . '(\\.php$|[/\\\\]))'; // can be static
                 foreach (debug_backtrace() as $backtrace) {
                     if (isset($backtrace['file']) && !preg_match($pattern, $backtrace['file'])) {
-                        // stop on first file outside FluentPDO source codes
+                        // stop on first file outside Query source codes
                         break;
                     }
                 }
@@ -196,7 +199,7 @@ abstract class BaseQuery implements IteratorAggregate
                     echo $finalString;
                 }
             } else {
-                call_user_func($this->fpdo->debug, $this);
+                call_user_func($this->fluent->debug, $this);
             }
         }
     }
@@ -205,14 +208,14 @@ abstract class BaseQuery implements IteratorAggregate
      * @return \PDO
      */
     protected function getPDO() {
-        return $this->fpdo->getPdo();
+        return $this->fluent->getPdo();
     }
 
     /**
-     * @return \FluentStructure
+     * @return Structure
      */
     protected function getStructure() {
-        return $this->fpdo->getStructure();
+        return $this->fluent->getStructure();
     }
 
     /**
@@ -252,7 +255,7 @@ abstract class BaseQuery implements IteratorAggregate
     public function getQuery($formatted = true) {
         $query = $this->buildQuery();
         if ($formatted) {
-            $query = FluentUtils::formatQuery($query);
+            $query = Utilities::formatQuery($query);
         }
 
         return $query;
@@ -262,7 +265,7 @@ abstract class BaseQuery implements IteratorAggregate
      * Generate query
      *
      * @return string
-     * @throws Exception
+     * @throws \Exception
      */
     protected function buildQuery() {
         $query = '';
@@ -275,7 +278,7 @@ abstract class BaseQuery implements IteratorAggregate
                 } elseif (is_callable($separator)) {
                     $query .= call_user_func($separator);
                 } else {
-                    throw new Exception("Clause '$clause' is incorrectly set to '$separator'.");
+                    throw new \Exception("Clause '$clause' is incorrectly set to '$separator'.");
                 }
             }
         }
@@ -289,7 +292,7 @@ abstract class BaseQuery implements IteratorAggregate
      * @return bool
      */
     private function clauseNotEmpty($clause) {
-        if ($this->clauses[$clause]) {
+        if ((Utilities::isCountable($this->statements[$clause])) && $this->clauses[$clause]) {
             return (boolean)count($this->statements[$clause]);
         } else {
             return (boolean)$this->statements[$clause];
@@ -346,11 +349,11 @@ abstract class BaseQuery implements IteratorAggregate
             return "0";
         }
 
-        if (is_int($value) || $value instanceof FluentLiteral) { // number or SQL code - for example "NOW()"
+        if (is_int($value) || $value instanceof Literal) { // number or SQL code - for example "NOW()"
             return (string)$value;
         }
 
-        return $this->fpdo->getPdo()->quote($value);
+        return $this->fluent->getPdo()->quote($value);
     }
 
     /**
@@ -359,7 +362,7 @@ abstract class BaseQuery implements IteratorAggregate
      * @return string
      */
     private function formatValue($val) {
-        if ($val instanceof DateTime) {
+        if ($val instanceof \DateTime) {
             return $val->format("Y-m-d H:i:s"); // may be driver specific
         }
 
@@ -373,7 +376,7 @@ abstract class BaseQuery implements IteratorAggregate
      *                                name can be passed and a new instance of this class is return.
      *                                Can be set to false to return items as an associative array.
      *
-     * @return \BaseQuery
+     * @return Base
      */
     public function asObject($object = true) {
         $this->object = $object;

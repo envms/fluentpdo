@@ -3,9 +3,9 @@ Basic operations
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
-$query = $fpdo->from('user')->where('id > ?', 0)->orderBy('name');
+$query = $fluent->from('user')->where('id > ?', 0)->orderBy('name');
 $query = $query->where('name = ?', 'Marek');
 echo $query->getQuery() . "\n";
 print_r($query->getParameters());

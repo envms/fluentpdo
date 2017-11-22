@@ -3,9 +3,9 @@ Shortcuts for delete
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
-$query = $fpdo->deleteFrom('user', 1);
+$query = $fluent->deleteFrom('user', 1);
 echo $query->getQuery() . "\n";
 print_r($query->getParameters()) . "\n";
 

@@ -3,9 +3,9 @@ Accept array of columns in select (no aliases)
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
-$query = $fpdo
+$query = $fluent
 	->from('user')
 	->select(null)
 	->select(array('id', 'name'))

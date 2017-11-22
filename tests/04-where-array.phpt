@@ -3,9 +3,9 @@ where(array(...))
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
-$query = $fpdo->from('user')->where(array(
+$query = $fluent->from('user')->where(array(
 	'id' => 2,
 	'type' => 'author',
 ));

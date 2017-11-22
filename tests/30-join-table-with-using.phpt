@@ -3,30 +3,30 @@ join using USING
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo2 FluentPDO */
-$fluent_structure2 = new FluentStructure('%s_id', '%s_id');
-$fpdo2 = new FluentPDO($pdo, $fluent_structure2);
+/* @var $fluent2 Envms\FluentPDO\Query */
+$fluent_structure2 = new Envms\FluentPDO\Structure('%s_id', '%s_id');
+$fluent2 = new Envms\FluentPDO\Query($pdo, $fluent_structure2);
 
-$query = $fpdo2->from('article')
+$query = $fluent2->from('article')
 		->innerJoin('user USING (user_id)')
 		->select('user.*')
 		->getQuery();
 echo "$query\n";
 
-$query = $fpdo2->from('article')
+$query = $fluent2->from('article')
 		->innerJoin('user u USING (user_id)')
 		->select('u.*')
 		->getQuery();
 echo "$query\n";
 
-$query = $fpdo2->from('article')
+$query = $fluent2->from('article')
 		->innerJoin('user AS u USING (user_id)')
 		->select('u.*')
 		->getQuery();
 echo "$query\n";
 
 unset($fluent_structure2);
-unset($fpdo2);
+unset($fluent2);
 
 ?>
 --EXPECTF--

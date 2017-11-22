@@ -1,10 +1,14 @@
 <?php
+namespace Envms\FluentPDO\Queries;
+
+use Envms\FluentPDO\{Literal,Utilities};
 
 /**
  * CommonQuery add JOIN and WHERE clauses for (SELECT, UPDATE, DELETE)
  */
-abstract class CommonQuery extends BaseQuery
+abstract class Common extends Base
 {
+
     /** @var array - methods which are allowed to be call by the magic method __call() */
     private $validMethods = ['from', 'fullJoin', 'group', 'groupBy', 'having', 'innerJoin', 'join', 'leftJoin',
         'limit', 'offset', 'order', 'orderBy', 'outerJoin', 'rightJoin', 'select'];
@@ -46,7 +50,7 @@ abstract class CommonQuery extends BaseQuery
      * @param string $condition  possibly containing ? or :name (PDO syntax)
      * @param mixed  $parameters array or a scalar value
      *
-     * @return CommonQuery
+     * @return Common
      */
     public function where($condition, $parameters = array()) {
         if ($condition === null) {
@@ -88,8 +92,8 @@ abstract class CommonQuery extends BaseQuery
                 return $this->addStatement('WHERE', "$condition IN $in");
             }
 
-            // don't parameterize the value if it's an instance of FluentLiteral
-            if ($parameters instanceof FluentLiteral) {
+            // don't parameterize the value if it's an instance of Literal
+            if ($parameters instanceof Literal) {
                 $condition = "{$condition} = {$parameters}";
 
                 return $this->addStatement('WHERE', $condition);
@@ -108,14 +112,14 @@ abstract class CommonQuery extends BaseQuery
      * @param string $name
      * @param array  $parameters - first is $statement followed by $parameters
      *
-     * @return $this|SelectQuery
+     * @return $this|Select
      */
     public function __call($name, $parameters = array()) {
         if (!in_array($name, $this->validMethods)) {
             trigger_error("Call to invalid method " . get_class($this) . "::{$name}()", E_USER_ERROR);
         }
 
-        $clause = FluentUtils::toUpperWords($name);
+        $clause = Utilities::toUpperWords($name);
 
         if ($clause == 'GROUP') {
             $clause = 'GROUP BY';
@@ -150,7 +154,7 @@ abstract class CommonQuery extends BaseQuery
      * @param       $statement
      * @param array $parameters
      *
-     * @return $this|\SelectQuery
+     * @return $this|Select
      */
     private function addJoinStatements($clause, $statement, $parameters = array()) {
         if ($statement === null) {

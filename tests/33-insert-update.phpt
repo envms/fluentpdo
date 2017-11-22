@@ -3,26 +3,26 @@ INSERT with ON DUPLICATE KEY UPDATE
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/** @var $fpdo FluentPDO */
+/** @var Envms\FluentPDO\Query */
 
-$query = $fpdo->insertInto('article', array('id' => 1))
+$query = $fluent->insertInto('article', array('id' => 1))
 		->onDuplicateKeyUpdate(array(
 			'title' => 'article 1b',
-			'content' => new FluentLiteral('abs(-1)') // let's update with a literal and a parameter value
+			'content' => new Envms\FluentPDO\Literal('abs(-1)') // let's update with a literal and a parameter value
 		));
 
 echo $query->getQuery() . "\n";
 print_r($query->getParameters());
 echo 'last_inserted_id = ' . $query->execute() . "\n";
-$q = $fpdo->from('article', 1)->fetch();
+$q = $fluent->from('article', 1)->fetch();
 print_r($q);
-$query = $fpdo->insertInto('article', array('id' => 1))
+$query = $fluent->insertInto('article', array('id' => 1))
 		->onDuplicateKeyUpdate(array(
 			'title' => 'article 1',
 			'content' => 'content 1',
 		))->execute();
 echo "last_inserted_id = $query\n";
-$q = $fpdo->from('article', 1)->fetch();
+$q = $fluent->from('article', 1)->fetch();
 print_r($q);
 ?>
 --EXPECTF--

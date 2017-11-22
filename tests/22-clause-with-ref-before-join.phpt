@@ -3,13 +3,13 @@ clause with referenced table before join
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
-$query = $fpdo->from('article')->select('user.name')->innerJoin('user');
+$query = $fluent->from('article')->select('user.name')->innerJoin('user');
 echo $query->getQuery() . "\n";
-$query = $fpdo->from('article')->select('author.name')->innerJoin('user as author');
+$query = $fluent->from('article')->select('author.name')->innerJoin('user as author');
 echo $query->getQuery() . "\n";
-$query = $fpdo->from('user')->select('article:title')->innerJoin('article:');
+$query = $fluent->from('user')->select('article:title')->innerJoin('article:');
 echo $query->getQuery() . "\n";
 ?>
 --EXPECTF--

@@ -3,9 +3,9 @@ Basic delete
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
-$query = $fpdo->deleteFrom('user')
+$query = $fluent->deleteFrom('user')
 	->where('id', 1);
 
 echo $query->getQuery() . "\n";

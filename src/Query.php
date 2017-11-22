@@ -1,35 +1,29 @@
 <?php
+namespace Envms\FluentPDO;
+
+use Envms\FluentPDO\Queries\{Insert,Select,Update,Delete};
+
 /**
- * FluentPDO is simple and smart SQL query builder for PDO
+ * FluentPDO is a quick and light PHP library for rapid query building. It features a smart join builder, which automatically creates table joins.
  *
- * For more information @see readme.md
+ * For more information see readme.md
  *
- * @link      http://github.com/lichtner/fluentpdo
- * @author    Marek Lichtner, marek@licht.sk
- * @copyright 2012 Marek Lichtner
+ * @link      http://github.com/envms/fluentpdo
+ * @author    envms, start@env.ms
+ * @copyright 2012-2017 env.ms - Chris Bornhoft, Aldo Matelli, Stefan Yohansson, Kevin Sanabria, Carol Zhang, Marek Lichtner
  * @license   http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  * @license   http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License, version 2 (one or other)
  */
 
-include_once 'FluentStructure.php';
-include_once 'FluentUtils.php';
-include_once 'FluentLiteral.php';
-include_once 'BaseQuery.php';
-include_once 'CommonQuery.php';
-include_once 'SelectQuery.php';
-include_once 'InsertQuery.php';
-include_once 'UpdateQuery.php';
-include_once 'DeleteQuery.php';
-
 /**
- * Class FluentPDO
+ * Class Query
  */
-class FluentPDO
+class Query
 {
 
     /** @var \PDO */
     protected $pdo;
-    /** @var \FluentStructure|null */
+    /** @var Structure|null */
     protected $structure;
 
     /** @var bool|callback */
@@ -39,15 +33,15 @@ class FluentPDO
     public $convertTypes = false;
 
     /**
-     * FluentPDO constructor.
+     * Query constructor
      *
-     * @param \PDO                  $pdo
-     * @param \FluentStructure|null $structure
+     * @param \PDO           $pdo
+     * @param Structure|null $structure
      */
-    function __construct(PDO $pdo, FluentStructure $structure = null) {
+    function __construct(\PDO $pdo, Structure $structure = null) {
         $this->pdo = $pdo;
         if (!$structure) {
-            $structure = new FluentStructure();
+            $structure = new Structure();
         }
         $this->structure = $structure;
     }
@@ -58,10 +52,10 @@ class FluentPDO
      * @param string  $table      - db table name
      * @param integer $primaryKey - return one row by primary key
      *
-     * @return \SelectQuery
+     * @return Select
      */
     public function from($table, $primaryKey = null) {
-        $query = new SelectQuery($this, $table);
+        $query = new Select($this, $table);
         if ($primaryKey !== null) {
             $tableTable     = $query->getFromTable();
             $tableAlias     = $query->getFromAlias();
@@ -78,10 +72,10 @@ class FluentPDO
      * @param string $table
      * @param array  $values - accepts one or multiple rows, @see docs
      *
-     * @return \InsertQuery
+     * @return Insert
      */
     public function insertInto($table, $values = array()) {
-        $query = new InsertQuery($this, $table, $values);
+        $query = new Insert($this, $table, $values);
 
         return $query;
     }
@@ -93,10 +87,10 @@ class FluentPDO
      * @param array|string $set
      * @param string       $primaryKey
      *
-     * @return \UpdateQuery
+     * @return Update
      */
     public function update($table, $set = array(), $primaryKey = null) {
-        $query = new UpdateQuery($this, $table);
+        $query = new Update($this, $table);
         $query->set($set);
         if ($primaryKey) {
             $primaryKeyName = $this->getStructure()->getPrimaryKey($table);
@@ -112,10 +106,10 @@ class FluentPDO
      * @param string $table
      * @param string $primaryKey delete only row by primary key
      *
-     * @return \DeleteQuery
+     * @return Delete
      */
     public function delete($table, $primaryKey = null) {
-        $query = new DeleteQuery($this, $table);
+        $query = new Delete($this, $table);
         if ($primaryKey) {
             $primaryKeyName = $this->getStructure()->getPrimaryKey($table);
             $query          = $query->where($primaryKeyName, $primaryKey);
@@ -130,7 +124,7 @@ class FluentPDO
      * @param string $table
      * @param string $primaryKey
      *
-     * @return \DeleteQuery
+     * @return Delete
      */
     public function deleteFrom($table, $primaryKey = null) {
         $args = func_get_args();
@@ -146,7 +140,7 @@ class FluentPDO
     }
 
     /**
-     * @return \FluentStructure
+     * @return Structure
      */
     public function getStructure() {
         return $this->structure;

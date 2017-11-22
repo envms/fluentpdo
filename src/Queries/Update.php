@@ -1,24 +1,28 @@
 <?php
+namespace Envms\FluentPDO\Queries;
 
-/** UPDATE query builder
+use Envms\FluentPDO\{Query,Literal};
+
+/**
+ * UPDATE query builder
  *
- * @method UpdateQuery  leftJoin(string $statement) add LEFT JOIN to query
+ * @method Update  leftJoin(string $statement) add LEFT JOIN to query
  *                        ($statement can be 'table' name only or 'table:' means back reference)
- * @method UpdateQuery  innerJoin(string $statement) add INNER JOIN to query
+ * @method Update  innerJoin(string $statement) add INNER JOIN to query
  *                        ($statement can be 'table' name only or 'table:' means back reference)
- * @method UpdateQuery  orderBy(string $column) add ORDER BY to query
- * @method UpdateQuery  limit(int $limit) add LIMIT to query
+ * @method Update  orderBy(string $column) add ORDER BY to query
+ * @method Update  limit(int $limit) add LIMIT to query
  */
-class UpdateQuery extends CommonQuery
+class Update extends Common
 {
 
     /**
-     * UpdateQuery constructor.
+     * UpdateQuery constructor
      *
-     * @param FluentPDO $fpdo
+     * @param Query     $fluent
      * @param           $table
      */
-    public function __construct(FluentPDO $fpdo, $table) {
+    public function __construct(Query $fluent, $table) {
         $clauses = array(
             'UPDATE'   => array($this, 'getClauseUpdate'),
             'JOIN'     => array($this, 'getClauseJoin'),
@@ -27,7 +31,7 @@ class UpdateQuery extends CommonQuery
             'ORDER BY' => ', ',
             'LIMIT'    => null,
         );
-        parent::__construct($fpdo, $clauses);
+        parent::__construct($fluent, $clauses);
 
         $this->statements['UPDATE'] = $table;
 
@@ -40,7 +44,7 @@ class UpdateQuery extends CommonQuery
      * @param bool|string  $value
      *
      * @return $this
-     * @throws Exception
+     * @throws \Exception
      */
     public function set($fieldOrArray, $value = false) {
         if (!$fieldOrArray) {
@@ -50,7 +54,7 @@ class UpdateQuery extends CommonQuery
             $this->statements['SET'][$fieldOrArray] = $value;
         } else {
             if (!is_array($fieldOrArray)) {
-                throw new Exception('You must pass a value, or provide the SET list as an associative array. column => value');
+                throw new \Exception('You must pass a value, or provide the SET list as an associative array. column => value');
             } else {
                 foreach ($fieldOrArray as $field => $value) {
                     $this->statements['SET'][$field] = $value;
@@ -93,7 +97,7 @@ class UpdateQuery extends CommonQuery
     protected function getClauseSet() {
         $setArray = array();
         foreach ($this->statements['SET'] as $field => $value) {
-            if ($value instanceof FluentLiteral) {
+            if ($value instanceof Literal) {
                 $setArray[] = $field . ' = ' . $value;
             } else {
                 $setArray[]                      = $field . ' = ?';

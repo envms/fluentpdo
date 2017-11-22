@@ -3,9 +3,9 @@ join in where
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
-$query = $fpdo->from('article')->orderBy('user.name, article.title');
+$query = $fluent->from('article')->orderBy('user.name, article.title');
 echo $query->getQuery() . "\n";
 
 ?>

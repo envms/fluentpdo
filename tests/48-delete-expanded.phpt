@@ -3,9 +3,9 @@ Expanded delete
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
-$query = $fpdo->delete('t1, t2')
+$query = $fluent->delete('t1, t2')
 	->from('t1')
 	->innerJoin('t2 ON t1.id = t2.id')
 	->innerJoin('t3 ON t2.id = t3.id')

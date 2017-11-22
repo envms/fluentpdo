@@ -3,9 +3,9 @@ where('NOT col', array)
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
-$query = $fpdo->from('article')->where('NOT id', array(1,2));
+$query = $fluent->from('article')->where('NOT id', array(1,2));
 
 echo $query->getQuery() . "\n";
 ?>

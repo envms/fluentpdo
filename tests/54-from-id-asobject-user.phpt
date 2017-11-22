@@ -3,10 +3,10 @@ from($table, $id) as User class
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
 class User { public $id, $country_id, $type, $name; }
-$query = $fpdo->from('user', 2)->asObject('User');
+$query = $fluent->from('user', 2)->asObject('User');
 
 echo $query->getQuery() . "\n";
 print_r($query->fetch());

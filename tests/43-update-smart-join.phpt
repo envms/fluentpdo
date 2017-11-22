@@ -3,9 +3,9 @@ Update with smart join
 --FILE--
 <?php
 include_once dirname(__FILE__) . "/connect.inc.php";
-/* @var $fpdo FluentPDO */
+/* @var Envms\FluentPDO\Query */
 
-$query = $fpdo->update('user')
+$query = $fluent->update('user')
 	->set(array('type' => 'author'))
 	->where('country.id', 1);
 
