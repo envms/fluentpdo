@@ -292,7 +292,7 @@ abstract class Base implements \IteratorAggregate
      * @return bool
      */
     private function clauseNotEmpty($clause) {
-        if (($this->statements[$clause] !== null) && $this->clauses[$clause]) {
+        if ((Utilities::isCountable($this->statements[$clause])) && $this->clauses[$clause]) {
             return (boolean)count($this->statements[$clause]);
         } else {
             return (boolean)$this->statements[$clause];

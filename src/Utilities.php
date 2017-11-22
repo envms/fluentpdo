@@ -88,4 +88,13 @@ class Utilities
         return $rows;
     }
 
+    /**
+     * @param $subject
+     *
+     * @return bool
+     */
+    public static function isCountable($subject) {
+        return (is_array($subject) || ($subject instanceof \Countable));
+    }
+
 }
