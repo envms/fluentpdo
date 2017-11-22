@@ -13,7 +13,9 @@ FluentPDO is a quick and light PHP library for rapid query building. It features
 
 ## Requirements
 
-The latest release of FluentPDO requires at least PHP 5.4, and supports up to PHP 7.2
+The latest (2.x) release of FluentPDO supports PHP 7.0, 7.1 and 7.2
+
+The legacy (1.x) release of FluentPDO supports PHP 5.4 to 7.1
 
 ## Reference
 
