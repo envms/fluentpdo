@@ -1,4 +1,4 @@
-# FluentPDO [![Build Status](https://secure.travis-ci.org/envms/fluentpdo.png?branch=master)](http://travis-ci.org/envms/fluentpdo) [![Code Climate](https://api.codeclimate.com/v1/badges/19210ca91c7055b89705/maintainability.svg)](https://codeclimate.com/github/fpdo/fluentpdo)
+# FluentPDO [![Build Status](https://secure.travis-ci.org/envms/fluentpdo.png?branch=master)](http://travis-ci.org/envms/fluentpdo) [![Maintainability](https://api.codeclimate.com/v1/badges/19210ca91c7055b89705/maintainability)](https://codeclimate.com/github/fpdo/fluentpdo/maintainability)
 
 FluentPDO is a quick and light PHP library for rapid query building. It features a smart join builder, which automatically creates table joins.
 
