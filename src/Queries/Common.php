@@ -50,7 +50,7 @@ abstract class Common extends Base
      * @param string $condition  possibly containing ? or :name (PDO syntax)
      * @param mixed  $parameters array or a scalar value
      *
-     * @return Common
+     * @return $this
      */
     public function where($condition, $parameters = array()) {
         if ($condition === null) {
