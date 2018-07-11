@@ -5,7 +5,7 @@ php:
   - 7.2
   - hhvm
 
-script: php tests/run-tests.php
+script: phpunit --configuration phpunit.xml
 before_script:
   - mysql -u root < tests/fluentdb.sql
 
