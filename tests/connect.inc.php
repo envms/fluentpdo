@@ -14,10 +14,13 @@ include dirname(__FILE__) . "/../src/Query.php";
 
 use Envms\FluentPDO\Query;
 
-//$pdo = new PDO("mysql:dbname=fluentdb", "root");
-$pdo = new PDO("mysql:dbname=fluentdb;host=localhost", "root", "");
 
-$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
-$pdo->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
-$fluent = new Query($pdo);
-//$fluent->debug = true;
+function initiateFluent() {
+
+    $pdo = new PDO("mysql:dbname=fluentdb;host=localhost", "vagrant","vagrant");
+
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
+    $pdo->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
+    return $fluent = new Query($pdo);
+}
+
