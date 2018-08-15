@@ -177,29 +177,26 @@ class QueryTest extends TestCase {
         self::assertEquals('SELECT article.* FROM article LEFT JOIN user ON user.id = article.user_id', $query->getQuery(false));
     }
 
-/*    public function testJoinShortTwoTables() {
+    public function testJoinShortTwoTables()
+    {
         $query = $this->fluent->from('comment')
             ->where('comment.id', 1)
             ->leftJoin('user comment_author')->select('comment_author.name AS comment_name')
             ->leftJoin('article.user AS article_author')->select('article_author.name AS author_name');
 
-        $queryPrint = $query->getQuery() . "\n";
-        $result = $query->fetch();
-
-        self::assertEquals('SELECT comment.*, comment_author.name AS comment_name, article_author.name AS author_name
-                                    FROM comment LEFT JOIN user AS comment_author ON comment_author.id = comment.user_id LEFT JOIN article ON article.id = comment.article_id
-                                    LEFT JOIN user AS article_author ON article_author.id = article.user_id WHERE comment.id = ?', $queryPrint);
-        self::assertEquals('[[id => 1],[article_id => 1], [user_id => 2], [content => comment 1.1], [comment_name => Robert],[author_name] => Marek]]', $result);
+        self::assertEquals('SELECT comment.*, comment_author.name AS comment_name, article_author.name AS author_name FROM comment LEFT JOIN user AS comment_author ON comment_author.id = comment.user_id  LEFT JOIN article ON article.id = comment.article_id  LEFT JOIN user AS article_author ON article_author.id = article.user_id WHERE comment.id = ?', $query->getQuery(false) );
+        self::assertEquals(['id' => '1', 'article_id' => '1', 'user_id' => '2', 'content' => 'comment 1.1', 'comment_name' => 'Robert', 'author_name' => 'Marek'], $query->fetch());
     }
 
-    public function testFluentUtil() {
+    public function testFluentUtil()
+    {
 
-        $value =  "'". Envms\FluentPDO\Utilities::toUpperWords('one') . "'";
-        $value2 =  "'". Envms\FluentPDO\Utilities::toUpperWords(' one ') . "'";
-        $value3 =  "'". Envms\FluentPDO\Utilities::toUpperWords('oneTwo') . "'";
-        $value4 =  "'". Envms\FluentPDO\Utilities::toUpperWords('OneTwo') . "'";
-        $value5 =  "'". Envms\FluentPDO\Utilities::toUpperWords('oneTwoThree') . "'";
-        $value6 =  "'". Envms\FluentPDO\Utilities::toUpperWords(' oneTwoThree ') . "'";
+        $value  =  Envms\FluentPDO\Utilities::toUpperWords('one');
+        $value2 =  Envms\FluentPDO\Utilities::toUpperWords(' one ');
+        $value3 =  Envms\FluentPDO\Utilities::toUpperWords('oneTwo');
+        $value4 =  Envms\FluentPDO\Utilities::toUpperWords('OneTwo');
+        $value5 =  Envms\FluentPDO\Utilities::toUpperWords('oneTwoThree');
+        $value6 =  Envms\FluentPDO\Utilities::toUpperWords(' oneTwoThree ');
 
         self::assertEquals('ONE', $value);
         self::assertEquals('ONE', $value2);
@@ -210,40 +207,38 @@ class QueryTest extends TestCase {
 
     }
 
-    public function testJoinInWhere() {
+    public function testJoinInWhere()
+    {
         $query = $this->fluent->from('article')->where('comment:content <> "" AND user.country.id = ?', 1);
-        $queryPrint= $query->getQuery();
 
-        self::assertEquals('SELECT article.* FROM article LEFT JOIN comment ON comment.article_id = article.id LEFT JOIN user ON user.id = article.user_id
-                                    LEFT JOIN country ON country.id = user.country_id WHERE comment.content <> "" AND country.id = ?', $queryPrint);
+        self::assertEquals('SELECT article.* FROM article LEFT JOIN comment ON comment.article_id = article.id  LEFT JOIN user ON user.id = article.user_id  LEFT JOIN country ON country.id = user.country_id WHERE comment.content <> "" AND country.id = ?', $query->getQuery(false));
     }
 
-    public function testJoinInSelect() {
+    public function testJoinInSelect()
+    {
         $query = $this->fluent->from('article')->select('user.name as author');
-        $queryPrint = $query->getQuery();
 
-        self::assertEquals('SELECT article.*, user.name as author FROM article LEFT JOIN user ON user.id = article.user_id', $queryPrint);
+        self::assertEquals('SELECT article.*, user.name as author FROM article LEFT JOIN user ON user.id = article.user_id', $query->getQuery(false));
     }
 
-    public function testJoinInOrderBy() {
+    public function testJoinInOrderBy()
+    {
         $query = $this->fluent->from('article')->orderBy('user.name, article.title');
-        $queryPrint = $query->getQuery();
 
-        self::assertEquals('SELECT article.* FROM article LEFT JOIN user ON user.id = article.user_id ORDER BY user.name, article.title', $queryPrint);
+        self::assertEquals('SELECT article.* FROM article LEFT JOIN user ON user.id = article.user_id ORDER BY user.name, article.title', $query->getQuery(false));
     }
 
-    public function testJoinInGroupBy() {
+    public function testJoinInGroupBy()
+    {
         $query = $this->fluent->from('article')->groupBy('user.type')
             ->select(null)->select('user.type, count(article.id) as article_count');
-        $printQuery = $query->getQuery();
-        $result = $query->fetchAll();
 
-        self::assertEquals('SELECT user.type, count(article.id) as article_count FROM article
-                                    LEFT JOIN user ON user.id = article.user_id GROUP BY user.type', $printQuery);
-        self::assertEquals('[[0] => Array ([type] => admin, [article_count] => 2)),[1] => Array ([type] => author, [article_count] => 1)]', $result);
+        self::assertEquals('SELECT user.type, count(article.id) as article_count FROM article LEFT JOIN user ON user.id = article.user_id GROUP BY user.type', $query->getQuery(false));
+        self::assertEquals( ['0' => ['type' => 'admin', 'article_count' => '2'], '1' => ['type' => 'author', 'article_count' => '1']], $query->fetchAll());
     }
 
-    public function testDontCreateDuplicateJoins() {
+    public function testDontCreateDuplicateJoins()
+    {
         $query = $this->fluent->from('article')->innerJoin('user AS author ON article.user_id = author.id')
             ->select('author.name');
         $query2 = $this->fluent->from('article')->innerJoin('user ON article.user_id = user.id')
@@ -253,98 +248,93 @@ class QueryTest extends TestCase {
         $query4 = $this->fluent->from('article')->innerJoin('user ON article.user_id = user.id')
             ->select('user.country.name');
 
-        $queryPrint =  $query->getQuery();
-        $queryPrint2 = $query2->getQuery();
-        $queryPrint3 = $query3->getQuery();
-        $queryPrint4 = $query4->getQuery();
-
-        self::assertEquals('SELECT article.*, author.name FROM article INNER JOIN user AS author ON article.user_id = author.id', $queryPrint);
-        self::assertEquals('SELECT article.*, user.name FROM articleINNER JOIN user ON article.user_id = user.id', $queryPrint2);
-        self::assertEquals('SELECT article.*, country.name FROM article INNER JOIN user AS author ON article.user_id = author.id LEFT JOIN country ON country.id = author.country_id', $queryPrint3);
-        self::assertEquals('SELECT article.*, country.name FROM article INNER JOIN user ON article.user_id = user.id LEFT JOIN country ON country.id = user.country_id', $queryPrint4);
+        self::assertEquals('SELECT article.*, author.name FROM article INNER JOIN user AS author ON article.user_id = author.id', $query->getQuery(false));
+        self::assertEquals('SELECT article.*, user.name FROM article INNER JOIN user ON article.user_id = user.id', $query2->getQuery(false));
+        self::assertEquals('SELECT article.*, country.name FROM article INNER JOIN user AS author ON article.user_id = author.id  LEFT JOIN country ON country.id = author.country_id', $query3->getQuery(false));
+        self::assertEquals('SELECT article.*, country.name FROM article INNER JOIN user ON article.user_id = user.id  LEFT JOIN country ON country.id = user.country_id', $query4->getQuery(false));
     }
 
-    public function testClauseWithRefBeforeJoin() {
+    public function testClauseWithRefBeforeJoin()
+    {
         $query = $this->fluent->from('article')->select('user.name')->innerJoin('user');
         $query2 = $this->fluent->from('article')->select('author.name')->innerJoin('user as author');
         $query3 = $this->fluent->from('user')->select('article:title')->innerJoin('article:');
 
-        $printQuery = $query->getQuery();
-        $printQuery2 = $query2->getQuery();
-        $printQuery3 = $query3->getQuery();
-
-        self::assertEquals('SELECT article.*, user.name FROM article INNER JOIN user ON user.id = article.user_id', $printQuery);
-        self::assertEquals('SELECT article.*, author.name FROM article INNER JOIN user AS author ON author.id = article.user_id', $printQuery2);
-        self::assertEquals('SELECT user.*, article.title FROM user INNER JOIN article ON article.user_id = user.id', $printQuery3);
+        self::assertEquals('SELECT article.*, user.name FROM article INNER JOIN user ON user.id = article.user_id', $query->getQuery(false));
+        self::assertEquals('SELECT article.*, author.name FROM article INNER JOIN user AS author ON author.id = article.user_id', $query2->getQuery(false));
+        self::assertEquals('SELECT user.*, article.title FROM user INNER JOIN article ON article.user_id = user.id', $query3->getQuery(false));
     }
 
-    public function testAliasesForClausesGroupbyOrderBy() {
+    public function testAliasesForClausesGroupbyOrderBy()
+    {
         $query = $this->fluent->from('article')->group('user_id')->order('id');
-        $printQuery = $query->getQuery();
 
-        self::assertEquals('SELECT article.* FROM article GROUP BY user_id ORDER BY id', $printQuery);
+        self::assertEquals('SELECT article.* FROM article GROUP BY user_id ORDER BY id', $query->getQuery(false));
     }
 
-    public function testFetch() {
+    public function testFetch()
+    {
         $queryPrint = $this->fluent->from('user', 1)->fetch('name');
         $queryPrint2 = $this->fluent->from('user', 1)->fetch();
         $statement = $this->fluent->from('user', 3)->fetch();
         $statement2 = $this->fluent->from('user', 3)->fetch('name');
 
         self::assertEquals('Marek', $queryPrint);
-        self::assertEquals('[id => 1], [country_id => 1], [type => admin], [name => Marek]', $queryPrint2);
+        self::assertEquals(['id' => '1', 'country_id' => '1', 'type' => 'admin', 'name' => 'Marek'], $queryPrint2);
         self::assertEquals(false, $statement);
         self::assertEquals(false, $statement2);
     }
 
-    public function testFetchPairsFetchAll() {
+    public function testFetchPairsFetchAll()
+    {
         $result = $this->fluent->from('user')->fetchPairs('id', 'name');
         $result2 = $this->fluent->from('user')->fetchAll();
 
-        self::assertEquals('([1] => Marek, [2] => Robert)', $result);
-        self::assertEquals('([0] => Array ([id] => 1, [country_id] => 1, [type] => admin, [name] => Marek)
-                                    [1] => Array ([id] => 2, [country_id] => 1, [type] => author, [name] => Robert))', $result2);
+        self::assertEquals(['1' => 'Marek', '2' => 'Robert'], $result);
+        self::assertEquals(['0' => ['id' => '1', 'country_id' => '1', 'type' => 'admin', 'name' => 'Marek'], '1' => ['id' => '2', 'country_id' => '1', 'type' => 'author', 'name' => 'Robert']], $result2);
     }
 
-    public function testFetchAllWithParams() {
+    public function testFetchAllWithParams()
+    {
         $result = $this->fluent->from('user')->fetchAll('id', 'type, name');
 
-        self::assertEquals('[1] => Array ([id] => 1, [type] => admin, [name] => Marek)
-                                    [2] => Array ([id] => 2, [type] => author, [name] => Robert)', $result);
+        self::assertEquals(['1' => ['id' => '1', 'type' => 'admin', 'name' => 'Marek'], '2' => ['id' => '2', 'type' => 'author', 'name' => 'Robert']], $result);
     }
 
     public function testFromOtherDB() {
-        $queryPrint = $this->fluent->from('db2.user')->order('db2.user.name')->getQuery();
+        $queryPrint = $this->fluent->from('db2.user')->order('db2.user.name')->getQuery(false);
 
         self::assertEquals('SELECT db2.user.* FROM db2.user ORDER BY db2.user.name', $queryPrint);
     }
 
-    public function testJoinTableWithUsing() {
-        $query = $this->fluent2->from('article')
+    public function testJoinTableWithUsing()
+    {
+        $query = $this->fluent->from('article')
                 ->innerJoin('user USING (user_id)')
                 ->select('user.*')
-                ->getQuery();
+                ->getQuery(false);
 
-        $query2 = $this->fluent2->from('article')
+        $query2 = $this->fluent->from('article')
                 ->innerJoin('user u USING (user_id)')
                 ->select('u.*')
-                ->getQuery();
+                ->getQuery(false);
 
-        $query3 = $this->fluent2->from('article')
+        $query3 = $this->fluent->from('article')
                 ->innerJoin('user AS u USING (user_id)')
                 ->select('u.*')
-                ->getQuery();
+                ->getQuery(false);
 
         self::assertEquals('SELECT article.*, user.* FROM article INNER JOIN user USING (user_id)', $query);
         self::assertEquals('SELECT article.*, u.* FROM article INNER JOIN user u USING (user_id)', $query2);
         self::assertEquals('SELECT article.*, u.* FROM article INNER JOIN user AS u USING (user_id)', $query3);
     }
 
-    public function testFromWithAlias() {
-        $query = $this->fluent->from('user author')->getQuery();
-        $query2 = $this->fluent->from('user AS author')->getQuery();
-        $query3 = $this->fluent->from('user AS author', 1)->getQuery();
-        $query4 = $this->fluent->from('user AS author')->select('country.name')->getQuery();
+    public function testFromWithAlias()
+    {
+        $query = $this->fluent->from('user author')->getQuery(false);
+        $query2 = $this->fluent->from('user AS author')->getQuery(false);
+        $query3 = $this->fluent->from('user AS author', 1)->getQuery(false);
+        $query4 = $this->fluent->from('user AS author')->select('country.name')->getQuery(false);
 
         self::assertEquals('SELECT author.* FROM user author', $query);
         self::assertEquals('SELECT author.* FROM user AS author', $query2);
@@ -352,25 +342,23 @@ class QueryTest extends TestCase {
         self::assertEquals('SELECT author.*, country.name FROM user AS author LEFT JOIN country ON country.id = user AS author.country_id', $query4);
     }
 
-    public function testInsertStatement() {
+    public function testInsertStatement()
+    {
         $query = $this->fluent->insertInto('article', array(
                 'user_id' => 1,
                 'title' => 'new title',
                 'content' => 'new content'
             ));
 
-        $printQuery = $query->getQuery();
-        $parameters = print_r($query->getParameters());
-        $lastInsert = $query->execute();
+     //   $executeReturn = $pdo->query('DELETE FROM article WHERE id > 3')->execute();
 
-        $executeReturn = $pdo->query('DELETE FROM article WHERE id > 3')->execute();
-
-        self::assertEquals('INSERT INTO article (user_id, title, content', $printQuery);
-        self::assertEquals('VALUES (?, ?, ?)', $parameters);
-        self::assertEquals('Array([0] => 1, [1] => new title, [2] => new content', $executeReturn);
+        self::assertEquals('INSERT INTO article (user_id, title, content) VALUES (?, ?, ?)', $query->getQuery(false));
+        self::assertEquals(['0' => '1', '1' => 'new title', '2' => 'new content'], $query->getParameters());
+        //  self::assertEquals('Array([0] => 1, [1] => new title, [2] => new content', $query->getParameters());
     }
 
-    public function testInsertUpdate() {
+ /*   public function testInsertUpdate()
+    {
         $query = $this->fluent->insertInto('article', array('id' => 1))
             ->onDuplicateKeyUpdate(array(
                 'title' => 'article 1b',
@@ -387,22 +375,22 @@ class QueryTest extends TestCase {
 
         $q2 = $this->fluent->from('article', 1)->fetch();
 
-        $printQuery = $query->getQuery();
         $parameters = print_r($query->getParameters());
         $insertStatement = 'last_inserted_id = ' . $query->execute();
         $printParameters = print_r($q);
         $insertStatement2 = "last_inserted_id =". $query2;
         $printParameters2 = print_r($q2);
 
-        self::assertEquals('INSERT INTO article (id) VALUES (?) ON DUPLICATE KEY UPDATE title = ?, content = abs(-1)', $printQuery);
-        self::assertEquals('Array([0] => 1,[1] => article 1b)', $parameters);
-        self::assertEquals('last_inserted_id = 1', $insertStatement);
-        self::assertEquals('Array([id] => 1,[user_id] => 1,[published_at] => 2011-12-10 12:10:00,[title] => article 1b,[content] => 1)', $printParameters);
-        self::assertEquals('last_inserted_id = 1', $insertStatement2);
-        self::assertEquals('Array([id] => 1,[user_id] => 1,[published_at] => 2011-12-10 12:10:00,[title] => article 1,[content] => content 1)', $printParameters2);
-    }
+        self::assertEquals('INSERT INTO article (id) VALUES (?) ON DUPLICATE KEY UPDATE title = ?, content = abs(-1)', $query->getQuery(false));
+       // self::assertEquals('Array([0] => 1,[1] => article 1b)', $parameters);
+      //  self::assertEquals('last_inserted_id = 1', $insertStatement);
+      //  self::assertEquals('Array([id] => 1,[user_id] => 1,[published_at] => 2011-12-10 12:10:00,[title] => article 1b,[content] => 1)', $printParameters);
+      //  self::assertEquals('last_inserted_id = 1', $insertStatement2);
+      //  self::assertEquals('Array([id] => 1,[user_id] => 1,[published_at] => 2011-12-10 12:10:00,[title] => article 1,[content] => content 1)', $printParameters2);
+    }*/
 
-    public function testInsertIgnore() {
+     public function testInsertIgnore()
+     {
         $query = $this->fluent->insertInto('article',
             array(
                 'user_id' => 1,
@@ -410,14 +398,12 @@ class QueryTest extends TestCase {
                 'content' => 'new content',
             ))->ignore();
 
-        $printQuery = $query->getQuery();
-        $parameters = print_r($query->getParameters());
-
-        self::assertEquals('INSERT IGNORE INTO article (user_id, title, content) VALUES (?, ?, ?)', $printQuery);
-        self::assertEquals('Array([0] => 1,[1] => new title,[2] => new content)', $parameters);
+        self::assertEquals('INSERT IGNORE INTO article (user_id, title, content) VALUES (?, ?, ?)', $query->getQuery(false));
+        self::assertEquals(['0' => '1', '1' => 'new title', '2' => 'new content'], $query->getParameters());
     }
 
-    public function testInsertWithLiteral() {
+    public function testInsertWithLiteral()
+    {
         $query = $this->fluent->insertInto('article',
             array(
                 'user_id' => 1,
@@ -426,42 +412,41 @@ class QueryTest extends TestCase {
                 'content' => 'new content',
             ));
 
-        $printQuery = $query->getQuery();
-        $printParameters = print_r($query->getParameters());
-
-        self::assertEquals('INSERT INTO article (user_id, updated_at, title, content) VALUES (?, NOW(), ?, ?)', $printQuery);
-        self::assertEquals('Array([0] => 1,[1] => new title,[2] => new content)', $printParameters);
+        self::assertEquals('INSERT INTO article (user_id, updated_at, title, content) VALUES (?, NOW(), ?, ?)', $query->getQuery(false));
+        self::assertEquals(['0' => '1','1' => 'new title', '2' => 'new content'], $query->getParameters());
     }
 
-    public function testDisableSmartJoin() {
+    public function testDisableSmartJoin()
+    {
         $query = $this->fluent->from('comment')
             ->select('user.name')
             ->orderBy('article.published_at')
-            ->getQuery();
-        $printQuery = "-- Plain:\n$query\n\n";
+            ->getQuery(false);
+        $printQuery = "-- Plain: $query";
 
         $query2 = $this->fluent->from('comment')
             ->select('user.name')
             ->disableSmartJoin()
             ->orderBy('article.published_at')
-            ->getQuery();
+            ->getQuery(false);
 
-        $printQuery2 = "-- Disable:\n$query2\n\n";
+        $printQuery2 = "-- Disable: $query2";
 
-        $query2 = $this->fluent->from('comment')
+        $query3 = $this->fluent->from('comment')
             ->disableSmartJoin()
             ->select('user.name')
             ->enableSmartJoin()
             ->orderBy('article.published_at')
-            ->getQuery();
-        $printQuery3 = "-- Disable and enable:\n$query3\n\n";
+            ->getQuery(false);
+        $printQuery3 = "-- Disable and enable: $query3";
 
-        self::assertEquals('-- Plain: SELECT comment.*, user.name FROM comment LEFT JOIN user ON user.id = comment.user_id LEFT JOIN article ON article.id = comment.article_id ORDER BY article.published_at', $printQuery);
+        self::assertEquals('-- Plain: SELECT comment.*, user.name FROM comment LEFT JOIN user ON user.id = comment.user_id  LEFT JOIN article ON article.id = comment.article_id ORDER BY article.published_at', $printQuery);
         self::assertEquals('-- Disable: SELECT comment.*, user.name FROM comment ORDER BY article.published_at', $printQuery2);
-        self::assertEquals('-- Disable and enable: SELECT comment.*, user.name FROM comment LEFT JOIN user ON user.id = comment.user_id LEFT JOIN article ON article.id = comment.article_id ORDER BY article.published_at', $printQuery2);
+        self::assertEquals('-- Disable and enable: SELECT comment.*, user.name FROM comment LEFT JOIN user ON user.id = comment.user_id  LEFT JOIN article ON article.id = comment.article_id ORDER BY article.published_at', $printQuery3);
     }
 
-    public function testFetchColumn() {
+    public function testFetchColumn()
+    {
         $printColumn = $this->fluent->from('user', 1)->fetchColumn();
         $printColumn2 = $this->fluent->from('user', 1)->fetchColumn(3);
         $statement = $this->fluent->from('user', 3)->fetchColumn();
@@ -473,190 +458,161 @@ class QueryTest extends TestCase {
         self::assertEquals(false, $statement2);
     }
 
-    public function testPDOFetchObj(){
+    public function testPDOFetchObj()
+    {
         $query = $this->fluent->from('user')->where('id > ?', 0)->orderBy('name');
         $query = $query->where('name = ?', 'Marek');
         $this->fluent->getPdo()->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
 
-        $parameters = print_r($query->getParameters());
-        $result = print_r($query->fetch());
+        self::assertEquals(['0' => '0', '1' => 'Marek'], $query->getParameters());
 
-        self::assertEquals('Array([0] => 0,[1] => Marek)', $parameters);
-        self::assertEquals('stdClass Object([id] => 1,[country_id] => 1,[type] => admin,[name] => Marek)', $result);
+       // self::assertEquals(['id' => '1', 'country_id' => '1', 'type' => 'admin' , 'name' => 'Marek'}, $query->fetch()];
     }
 
-    public function testUpdate(){
+/*    public function testUpdate()
+    {
         $query = $this->fluent->update('country')->set('name', 'aikavolS')->where('id', 1);
         $query->execute();
 
-        $printQuery = $query->getQuery();
-        $parameters = print_r($query->getParameters());
-
         $query2 = $this->fluent->from('country')->where('id', 1);
-        $results = print_r($query2->fetch());
 
         $this->fluent->update('country')->set('name', 'Slovakia')->where('id', 1)->execute();
 
         $query3 = $this->fluent->from('country')->where('id', 1);
-        $printQuery3 = print_r($query3->fetch());
 
-        self::assertEquals('UPDATE country SET name = ? WHERE id = ?', $printQuery);
-        self::assertEquals('Array([0] => aikavolS,[1] => 1)', $parameters);
-        self::assertEquals('Array([0] => aikavolS,[1] => 1)', $results);
-        self::assertEquals('Array([id] => 1, [name] => Slovakia)', $printQuery3);
-    }
 
-    public function testUpdateLiteral() {
+        self::assertEquals('UPDATE country SET name = ? WHERE id = ?', $query->getQuery(false));
+      //  self::assertEquals(['0' => 'aikavolS','1' => '1'], $query->getParameters());
+      //  self::assertEquals(['id' => '1', 'name' => 'Slovakia'], $query2->fetch());
+      //  self::assertEquals(['id' => '1', 'name' => 'Slovakia'], $query3->fetch());
+    }*/
+
+    public function testUpdateLiteral()
+    {
         $query = $this->fluent->update('article')->set('published_at', new Envms\FluentPDO\Literal('NOW()'))->where('user_id', 1);
 
-        $printQuery = $query->getQuery();
-        $parameters = print_r($query->getParameters());
-
-        self::assertEquals('UPDATE article SET published_at = NOW() WHERE user_id = ?', $printQuery);
-        self::assertEquals('Array([0] => 1)', $parameters);
+        self::assertEquals('UPDATE article SET published_at = NOW() WHERE user_id = ?',  $query->getQuery(false));
+        self::assertEquals(['0' => '1'], $query->getParameters());
     }
 
-    public function testUpdateFromArray() {
+    public function testUpdateFromArray()
+    {
         $query = $this->fluent->update('user')->set(array('name' => 'keraM', '`type`' => 'author'))->where('id', 1);
         $query->execute();
 
-        $printQuery = $query->getQuery();
-        $parameters = print_r($query->getParameters());
-
-        self::assertEquals('UPDATE user SET name = ?, `type` = ? WHERE id = ?', $printQuery);
-        self::assertEquals('Array([0] => keraM, [1] => author, [2] => 1)', $parameters);
+        self::assertEquals('UPDATE user SET name = ?, `type` = ? WHERE id = ?', $query->getQuery(false));
+        self::assertEquals(['0' => 'keraM', '1' => 'author', '2' => '1'], $query->getParameters());
     }
 
-    public function testUpdateLeftJoin() {
+    public function testUpdateLeftJoin()
+    {
         $query = $this->fluent->update('user')
             ->outerJoin('country ON country.id = user.country_id')
             ->set(array('name' => 'keraM', '`type`' => 'author'))
             ->where('id', 1);
 
-        $printQuery = $query->getQuery();
-        $parameters = print_r($query->getParameters());
-
-        self::assertEquals('UPDATE user OUTER JOIN country ON country.id = user.country_id SET name = ?, `type` = ? WHERE id = ?', $printQuery);
-        self::assertEquals('Array([0] => keraM,[1] => author,[2] => 1)', $parameters);
+        self::assertEquals('UPDATE user OUTER JOIN country ON country.id = user.country_id SET name = ?, `type` = ? WHERE id = ?', $query->getQuery(false));
+        self::assertEquals(['0' => 'keraM' , '1' => 'author', '2' => '1'], $query->getParameters());
     }
 
-    public function testUpdateSmartJoin() {
+    public function testUpdateSmartJoin()
+    {
         $query = $this->fluent->update('user')
             ->set(array('type' => 'author'))
             ->where('country.id', 1);
 
-        $printQuery = $query->getQuery();
-        $parameters = print_r($query->getParameters());
-
-        self::assertEquals('UPDATE user LEFT JOIN country ON country.id = user.country_id SET type = ? WHERE country.id = ?', $printQuery);
-        self::assertEquals('Array([0] => author,[1] => 1)', $parameters);
+        self::assertEquals('UPDATE user LEFT JOIN country ON country.id = user.country_id SET type = ? WHERE country.id = ?', $query->getQuery(false));
+        self::assertEquals(['0' => 'author', '1' => '1'], $query->getParameters());
     }
 
-    public function testUpdateOrderLimit(){
+    public function testUpdateOrderLimit()
+    {
         $query = $this->fluent->update('user')
             ->set(array('type' => 'author'))
             ->where('id', 2)
             ->orderBy('name')
             ->limit(1);
 
-        $printQuery = $query->getQuery();
-        $parameters = print_r($query->getParameters());
-
-        self::assertEquals('UPDATE user SET type = ? WHERE id = ? ORDER BY name LIMIT 1', $printQuery);
-        self::assertEquals('Array([0] => author,[1] => 2)', $parameters);
+        self::assertEquals('UPDATE user SET type = ? WHERE id = ? ORDER BY name LIMIT 1',  $query->getQuery(false));
+        self::assertEquals(['0' => 'author' ,'1' => '2'], $query->getParameters());
     }
 
-    public function testDelete(){
+    public function testDelete()
+    {
         $query = $this->fluent->deleteFrom('user')
             ->where('id', 1);
 
-        $printQuery = $query->getQuery();
-        $parameters = print_r($query->getParameters());
-
-        self::assertEquals('DELETE FROM user WHERE id = ?', $printQuery);
-        self::assertEquals('Array([0] => 1)', $parameters);
+        self::assertEquals('DELETE FROM user WHERE id = ?',  $query->getQuery(false));
+        self::assertEquals(['0' => '1'], $query->getParameters());
     }
 
-    public function testDeleteIgnore(){
+    public function testDeleteIgnore()
+    {
         $query = $this->fluent->deleteFrom('user')
             ->ignore()
             ->where('id', 1);
 
-        $printQuery = $query->getQuery();
-        $parameters = print_r($query->getParameters());
-
-        self::assertEquals('DELETE IGNORE FROM user WHERE id = ?', $printQuery);
-        self::assertEquals('Array([0] => 1)', $parameters);
+        self::assertEquals('DELETE IGNORE FROM user WHERE id = ?', $query->getQuery(false));
+        self::assertEquals(['0' => '1'], $query->getParameters());
     }
 
-    public function testDeleteOrderLimit() {
+    public function testDeleteOrderLimit()
+    {
         $query = $this->fluent->deleteFrom('user')
             ->where('id', 2)
             ->orderBy('name')
             ->limit(1);
 
-        $printQuery = $query->getQuery();
-        $parameters = print_r($query->getParameters());
-
-        self::assertEquals('DELETE FROM user WHERE id = ? ORDER BY name LIMIT 1', $printQuery);
-        self::assertEquals('Array([0] => 2)', $parameters);
+        self::assertEquals('DELETE FROM user WHERE id = ? ORDER BY name LIMIT 1', $query->getQuery(false));
+        self::assertEquals(['0' => '2'], $query->getParameters());
     }
 
-    public function testDeleteExpanded(){
+    public function testDeleteExpanded()
+    {
         $query = $this->fluent->delete('t1, t2')
             ->from('t1')
             ->innerJoin('t2 ON t1.id = t2.id')
             ->innerJoin('t3 ON t2.id = t3.id')
             ->where('t1.id', 1);
 
-        $printQuery = $query->getQuery();
-        $parameters = print_r($query->getParameters());
-
-        self::assertEquals('DELETE t1, t2 FROM t1 INNER JOIN t2 ON t1.id = t2.id INNER JOIN t3 ON t2.id = t3.id WHERE t1.id = ?', $printQuery);
-        self::assertEquals('Array([0] => 1)', $parameters);
+        self::assertEquals('DELETE t1, t2 FROM t1 INNER JOIN t2 ON t1.id = t2.id INNER JOIN t3 ON t2.id = t3.id WHERE t1.id = ?', $query->getQuery(false));
+        self::assertEquals(['0' => '1'], $query->getParameters());
     }
 
-    public function testUpdateShortCut() {
+    public function testUpdateShortCut()
+    {
         $query = $this->fluent->update('user', array('type' => 'admin'), 1);
 
-        $printQuery = $query->getQuery();
-        $parameters = print_r($query->getParameters());
-
-        self::assertEquals('UPDATE user SET type = ? WHERE id = ?', $printQuery);
-        self::assertEquals('Array([0] => admin,[1] => 1)', $parameters);
+        self::assertEquals('UPDATE user SET type = ? WHERE id = ?', $query->getQuery(false));
+        self::assertEquals(['0' => 'admin', '1' => '1'], $query->getParameters());
     }
 
-    public function testDeleteShortcut() {
+    public function testDeleteShortcut()
+    {
         $query = $this->fluent->deleteFrom('user', 1);
 
-        $printQuery = $query->getQuery();
-        $parameters = print_r($query->getParameters());
-
-        self::assertEquals('DELETE FROM user WHERE id = ?', $printQuery);
-        self::assertEquals('Array([0] => 1)', $parameters);
+        self::assertEquals('DELETE FROM user WHERE id = ?', $query->getQuery(false));
+        self::assertEquals(['0' => '1'], $query->getParameters());
     }
 
-    public function testAddFromAfterDelete(){
+    public function testAddFromAfterDelete()
+    {
         $query = $this->fluent->delete('user', 1)->from('user');
 
-        $printQuery = $query->getQuery();
-        $parameters = print_r($query->getParameters());
-
-        self::assertEquals('DELETE user FROM user WHERE id = ?', $printQuery);
-        self::assertEquals('Array([0] => 1)', $parameters);
+        self::assertEquals('DELETE user FROM user WHERE id = ?', $query->getQuery(false));
+        self::assertEquals(['0' => '1'], $query->getParameters());
     }
 
-    public function testFromIdAsObject() {
+    public function testFromIdAsObject()
+    {
         $query = $this->fluent->from('user', 2)->asObject();
 
-        $printQuery = $query->getQuery();
-        $result = print_r($query->fetch());
-
-        self::assertEquals('SELECT user.* FROM user WHERE user.id = ?',$printQuery);
-        self::assertEquals('stdClass Object([id] => 2,[country_id] => 1,[type] => author,[name] => Robert)', $result);
+        self::assertEquals('SELECT user.* FROM user WHERE user.id = ?', $query->getQuery(false));
+     //   self::assertEquals('stdClass Object([id] => 2,[country_id] => 1,[type] => author,[name] => Robert)', $query->fetch());
     }
 
-/*    public function testFromIdAsObjectUser(){
+/*    public function testFromIdAsObjectUser()
+    {
         class User { public $id, $country_id, $type, $name; }
         $query = $this->fluent->from('user', 2)->asObject('User');
 
@@ -665,22 +621,20 @@ class QueryTest extends TestCase {
 
         self::assertEquals('SELECT user.* FROM user WHERE user.id = ?', $printQuery);
         self::assertEquals('User Object([id] => 2,[country_id] => 1,[type] => author,[name] => Robert)', $parameters);
-    }
+    }*/
 
-    public function testWhereReset() {
+    public function testWhereReset()
+    {
         $query = $this->fluent->from('user')->where('id > ?', 0)->orderBy('name');
         $query = $query->where(null)->where('name = ?', 'Marek');
 
-        $printQuery = $query->getQuery();
-        $parameters = print_r($query->getParameters());
-        $result = print_r($query->fetch());
-
-        self::assertEquals('SELECT user.* FROM user WHERE name = ? ORDER BY name', $printQuery);
-        self::assertEquals('Array([0] => Marek)', $parameters);
-        self::assertEquals('Array([id] => 1,[country_id] => 1,[type] => admin,[name] => Marek)', $result);
+        self::assertEquals('SELECT user.* FROM user WHERE name = ? ORDER BY name', $query->getQuery(false));
+        self::assertEquals('Array([0] => Marek)', $query->getParameters());
+        self::assertEquals(['id' => '1','country_id' => '1','type' => 'admin','name' => 'Marek'], $query->fetch());
     }
 
-    public function testUpdateZero(){
+    public function testUpdateZero()
+    {
         $this->fluent->update('article')->set('content', '')->where('id', 1)->execute();
         $user = $this->fluent->from('article')->where('id', 1)->fetch();
 
@@ -696,37 +650,33 @@ class QueryTest extends TestCase {
         self::assertEquals('ID: 1 - content: content 1', $printQuery2);
     }
 
-    public function testSelectArrayParam() {
+    public function testSelectArrayParam()
+    {
         $query = $this->fluent
             ->from('user')
             ->select(null)
             ->select(array('id', 'name'))
             ->where('id < ?', 2);
 
-        $printQuery = $query->getQuery();
-        $parameters = print_r($query->getParameters());
-        $result = print_r($query->fetch());
-
-        self::assertEquals('SELECT id, name FROM user WHERE id < ?', $printQuery);
-        self::assertEquals('Array([0] => 2)', $parameters);
-        self::assertEquals('Array([id] => 1, [name] => Marek)', $result);
+        self::assertEquals('SELECT id, name FROM user WHERE id < ?', $query->getQuery(false));
+        self::assertEquals(['0' => '2'], $query->getParameters());
+        self::assertEquals(['id' => '1', 'name' => 'Marek'], $query->fetch());
     }
 
-    public function testGroupByArrayParam() {
+    public function testGroupByArrayParam()
+    {
         $query = $this->fluent
             ->from('user')
             ->select(null)
             ->select('count(*) AS total_count')
             ->groupBy(array('id', 'name'));
 
-        $printQuery = $query->getQuery();
-        $result = print_r($query->fetch());
-
-        self::assertEquals('SELECT count(*) AS total_count FROM user GROUP BY id,name', $printQuery);
-        self::assertEquals('Array([total_count] => 1)', $result);
+        self::assertEquals('SELECT count(*) AS total_count FROM user GROUP BY id,name', $query->getQuery(false));
+        self::assertEquals(['total_count' => '1'], $query->fetch());
     }
 
-    public function testCountable() {
+    public function testCountable()
+    {
         $articles = $this->fluent
             ->from('article')
             ->select(NULL)
@@ -734,58 +684,49 @@ class QueryTest extends TestCase {
             ->where('id > 1');
 
         $count = count($articles);
-        $result = print_r($articles->fetchAll());
 
         self::assertEquals(2, $count);
-        self::assertEquals('Array ([0] => Array ([title] => article 2)
-                                            [1] => Array ([title] => article 3))', $result);
+        self::assertEquals(['0' => ['title' => 'article 2'], '1' =>['title' => 'article 3']], $articles->fetchAll());
     }
 
-    public function testWhereNotArray() {
+    public function testWhereNotArray()
+    {
         $query = $this->fluent->from('article')->where('NOT id', array(1,2));
 
-        $printQuery = $query->getQuery();
-
-        self::assertEquals('SELECT article.* FROM article WHERE NOT id IN (1, 2)', $printQuery);
+        self::assertEquals('SELECT article.* FROM article WHERE NOT id IN (1, 2)',  $query->getQuery(false));
     }
 
-    public function testWhereColNameEscaped() {
+    public function testWhereColNameEscaped()
+    {
         $query = $this->fluent->from('user')
             ->where('`type` = :type', array(':type' => 'author'))
             ->where('`id` > :id AND `name` <> :name', array(':id' => 1, ':name' => 'Marek'));
 
-        $printQuery = $query->getQuery();
-        $parameters = print_r($query->getParameters());
         $rowDisplay = '';
         foreach ($query as $row) {
             $rowDisplay = $row['name'];
         }
 
-        self::assertEquals('SELECT user.* FROM user WHERE `type` = :type AND `id` > :id AND `name` <> :name', $printQuery);
-        self::assertEquals('Array([:type] => author,[:id] => 1,[:name] => Marek)', $parameters);
+        self::assertEquals('SELECT user.* FROM user WHERE `type` = :type AND `id` > :id AND `name` <> :name', $query->getQuery(false));
+        self::assertEquals([':type' => 'author', ':id' => '1', ':name' => 'Marek'], $query->getParameters());
         self::assertEquals('Robert', $rowDisplay);
     }
 
-    public function testUpdateWhere() {
+    public function testUpdateWhere()
+    {
         $query = $this->fluent->update('users')
             ->set("`users`.`active`", 1)
             ->where("`country`.`name`", 'Slovakia')
             ->where("`users`.`name`", 'Marek');
-
-        $printQuery = $query->getQuery() . "\n";
-        $parameters = print_r($query->getParameters());
 
         $query2 = $this->fluent->update('users')
             ->set("[users].[active]", 1)
             ->where("[country].[name]", 'Slovakia')
             ->where("[users].[name]", 'Marek');
 
-        $printQuery2 = $query2->getQuery() . "\n";
-        $parameters2 = print_r($query2->getParameters());
-
-        self::assertEquals('UPDATE users LEFT JOIN country ON country.id = users.country_id SET `users`.`active` = ? WHERE `country`.`name` = ? AND `users`.`name` = ?', $printQuery);
-        self::assertEquals('Array([0] => 1,[1] => Slovakia,[2] => Marek)', $parameters);
-        self::assertEquals('UPDATE users LEFT JOIN country ON country.id = users.country_id SET [users].[active] = ? WHERE [country].[name] = ? AND [users].[name] = ?', $printQuery2);
-        self::assertEquals('Array([0] => 1,[1] => Slovakia,[2] => Marek)', $parameters2);
-    }*/
+        self::assertEquals('UPDATE users LEFT JOIN country ON country.id = users.country_id SET `users`.`active` = ? WHERE `country`.`name` = ? AND `users`.`name` = ?', $query->getQuery(false));
+        self::assertEquals(['0' => '1','1' => 'Slovakia','2' => 'Marek'], $query->getParameters());
+        self::assertEquals('UPDATE users LEFT JOIN country ON country.id = users.country_id SET [users].[active] = ? WHERE [country].[name] = ? AND [users].[name] = ?', $query2->getQuery(false));
+        self::assertEquals(['0' => '1', '1' => 'Slovakia', '2' => 'Marek'], $query2->getParameters());
+    }
 }
