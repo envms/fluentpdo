@@ -127,7 +127,4 @@ class UpdateTest extends TestCase
         self::assertEquals('UPDATE users LEFT JOIN country ON country.id = users.country_id SET [users].[active] = ? WHERE [country].[name] = ? AND [users].[name] = ?', $query2->getQuery(false));
         self::assertEquals(['0' => '1', '1' => 'Slovakia', '2' => 'Marek'], $query2->getParameters());
     }
-
-
-
 }

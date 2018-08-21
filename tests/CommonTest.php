@@ -234,8 +234,6 @@ class CommonTest extends TestCase {
         self::assertEquals('SELECT article.*, u.* FROM article INNER JOIN user AS u USING (user_id)', $query3);
     }
 
-
-
     public function testDisableSmartJoin()
     {
         $query = $this->fluent->from('comment')
@@ -284,24 +282,33 @@ class CommonTest extends TestCase {
         $query = $query->where('name = ?', 'Marek');
         $this->fluent->getPdo()->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
 
+        $expectObj = new stdClass();
+        $expectObj->id = 1;
+        $expectObj->country_id = 1;
+        $expectObj->type = 'admin';
+        $expectObj->name = 'Marek';
+
         self::assertEquals(['0' => '0', '1' => 'Marek'], $query->getParameters());
-
-       // self::assertEquals(['id' => '1', 'country_id' => '1', 'type' => 'admin' , 'name' => 'Marek'}, $query->fetch()];
+        self::assertEquals($expectObj, $query->fetch());
     }
-
-/*
 
     public function testFromIdAsObject()
     {
         $query = $this->fluent->from('user', 2)->asObject();
 
+        $expectObj = new stdClass();
+        $expectObj->id = 2;
+        $expectObj->country_id = 1;
+        $expectObj->type = 'author';
+        $expectObj->name = 'Robert';
+
         self::assertEquals('SELECT user.* FROM user WHERE user.id = ?', $query->getQuery(false));
-     //   self::assertEquals('stdClass Object([id] => 2,[country_id] => 1,[type] => author,[name] => Robert)', $query->fetch());
+        self::assertEquals($expectObj, $query->fetch());
     }
 
-/*    public function testFromIdAsObjectUser()
+  /*  public function testFromIdAsObjectUser()
     {
-        class User { public $id, $country_id, $type, $name; }
+      //  $User = [ 1, $country_id, $type, $name ]
         $query = $this->fluent->from('user', 2)->asObject('User');
 
         $printQuery = $query->getQuery();
@@ -310,8 +317,4 @@ class CommonTest extends TestCase {
         self::assertEquals('SELECT user.* FROM user WHERE user.id = ?', $printQuery);
         self::assertEquals('User Object([id] => 2,[country_id] => 1,[type] => author,[name] => Robert)', $parameters);
     }*/
-
-
-
-
 }
