@@ -26,7 +26,7 @@ class StructureTest extends TestCase
     }
 
     public function testMethodKey() {
-        $structure = new Structure('id', 'self');
+        $structure = new Structure('id', ['StructureTest', 'suffix']);
 
         self::assertEquals('id', $structure->getPrimaryKey('user'));
         self::assertEquals('user_id', $structure->getForeignKey('user'));
