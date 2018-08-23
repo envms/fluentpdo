@@ -1,10 +1,15 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
+use Envms\FluentTest\Model\User;
 use Envms\FluentPDO\Query;
 
+/**
+ * Class CommonTest
+ */
 class CommonTest extends TestCase {
 
+    /** @var Envms\FluentPDO\Query */
     protected $fluent;
 
     public function setUp()
@@ -215,19 +220,19 @@ class CommonTest extends TestCase {
     public function testJoinTableWithUsing()
     {
         $query = $this->fluent->from('article')
-                ->innerJoin('user USING (user_id)')
-                ->select('user.*')
-                ->getQuery(false);
+            ->innerJoin('user USING (user_id)')
+            ->select('user.*')
+            ->getQuery(false);
 
         $query2 = $this->fluent->from('article')
-                ->innerJoin('user u USING (user_id)')
-                ->select('u.*')
-                ->getQuery(false);
+            ->innerJoin('user u USING (user_id)')
+            ->select('u.*')
+            ->getQuery(false);
 
         $query3 = $this->fluent->from('article')
-                ->innerJoin('user AS u USING (user_id)')
-                ->select('u.*')
-                ->getQuery(false);
+            ->innerJoin('user AS u USING (user_id)')
+            ->select('u.*')
+            ->getQuery(false);
 
         self::assertEquals('SELECT article.*, user.* FROM article INNER JOIN user USING (user_id)', $query);
         self::assertEquals('SELECT article.*, u.* FROM article INNER JOIN user u USING (user_id)', $query2);
@@ -306,15 +311,19 @@ class CommonTest extends TestCase {
         self::assertEquals($expectObj, $query->fetch());
     }
 
-  /*  public function testFromIdAsObjectUser()
+    public function testFromIdAsObjectUser()
     {
-      //  $User = [ 1, $country_id, $type, $name ]
-        $query = $this->fluent->from('user', 2)->asObject('User');
+        $expectedUser = new User();
+        $expectedUser->id = 2;
+        $expectedUser->country_id = 1;
+        $expectedUser->type = 'author';
+        $expectedUser->name = 'Robert';
 
-        $printQuery = $query->getQuery();
-        $parameters = print_r($query->fetch());
+        $query = $this->fluent->from('user', 2)->asObject(User::class);
+        $user = $query->fetch();
 
-        self::assertEquals('SELECT user.* FROM user WHERE user.id = ?', $printQuery);
-        self::assertEquals('User Object([id] => 2,[country_id] => 1,[type] => author,[name] => Robert)', $parameters);
-    }*/
+        self::assertEquals('SELECT user.* FROM user WHERE user.id = ?', $query->getQuery(false));
+        self::assertEquals($expectedUser, $user);
+    }
+
 }
