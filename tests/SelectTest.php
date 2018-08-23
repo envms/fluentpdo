@@ -124,13 +124,14 @@ class SelectTest extends TestCase
         self::assertEquals([':type' => 'author', ':id' => 1 ,':name' => 'Marek'], $query->getParameters());
         self::assertEquals('Robert', $returnValue);
     }
+
     public function testWhereReset()
     {
         $query = $this->fluent->from('user')->where('id > ?', 0)->orderBy('name');
         $query = $query->where(null)->where('name = ?', 'Marek');
 
         self::assertEquals('SELECT user.* FROM user WHERE name = ? ORDER BY name', $query->getQuery(false));
-        self::assertEquals('Array([0] => Marek)', $query->getParameters());
+        self::assertEquals(['0' => 'Marek'], $query->getParameters());
         self::assertEquals(['id' => '1','country_id' => '1','type' => 'admin','name' => 'Marek'], $query->fetch());
     }
 
