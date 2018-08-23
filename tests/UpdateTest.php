@@ -5,6 +5,7 @@ use Envms\FluentPDO\Query;
 
 class UpdateTest extends TestCase
 {
+    /** @var Query */
     protected $fluent;
 
     public function setUp()
@@ -24,14 +25,13 @@ class UpdateTest extends TestCase
 
         $query2 = $this->fluent->from('country')->where('id', 1);
 
-        $this->fluent->update('country')->set('name', 'Slovakia')->where('id', 1)->execute();
-
-        $query3 = $this->fluent->from('country')->where('id', 1);
-
-
         self::assertEquals('UPDATE country SET name = ? WHERE id = ?', $query->getQuery(false));
         self::assertEquals(['0' => 'aikavolS','1' => '1'], $query->getParameters());
         self::assertEquals(['id' => '1', 'name' => 'aikavolS'], $query2->fetch());
+
+        $this->fluent->update('country')->set('name', 'Slovakia')->where('id', 1)->execute();
+        $query3 = $this->fluent->from('country')->where('id', 1);
+
         self::assertEquals(['id' => '1', 'name' => 'Slovakia'], $query3->fetch());
     }
 
@@ -46,7 +46,6 @@ class UpdateTest extends TestCase
     public function testUpdateFromArray()
     {
         $query = $this->fluent->update('user')->set(array('name' => 'keraM', '`type`' => 'author'))->where('id', 1);
-        $query->execute();
 
         self::assertEquals('UPDATE user SET name = ?, `type` = ? WHERE id = ?', $query->getQuery(false));
         self::assertEquals(['0' => 'keraM', '1' => 'author', '2' => '1'], $query->getParameters());
@@ -98,7 +97,7 @@ class UpdateTest extends TestCase
         $this->fluent->update('article')->set('content', '')->where('id', 1)->execute();
         $user = $this->fluent->from('article')->where('id', 1)->fetch();
 
-        $printQuery = 'ID: ' . $user['id'] . ' - content: ' . $user['content'] ;
+        $printQuery = 'ID: ' . $user['id'] . ' - content: ' . $user['content'];
 
         $this->fluent->update('article')->set('content', 'content 1')->where('id', 1)->execute();
 
