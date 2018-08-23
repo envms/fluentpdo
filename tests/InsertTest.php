@@ -39,22 +39,22 @@ class InsertTest extends TestCase
                'content' => new Envms\FluentPDO\Literal('abs(-1)') // let's update with a literal and a parameter value
            ));
 
-       $q = $this->fluent->from('article', 1)->fetch();
+       $q = $this->fluent->from('article', 1);
 
        $query2 = $this->fluent->insertInto('article', array('id' => 1))
            ->onDuplicateKeyUpdate(array(
                'title' => 'article 1',
                'content' => 'content 1',
-           ))->execute();
+           ));
 
-       $q2 = $this->fluent->from('article', 1)->fetch();
+       $q2 = $this->fluent->from('article', 1);
 
        self::assertEquals('INSERT INTO article (id) VALUES (?) ON DUPLICATE KEY UPDATE title = ?, content = abs(-1)', $query->getQuery(false));
        self::assertEquals(['0' => '1', '1' => 'article 1b'], $query->getParameters());
        self::assertEquals('last_inserted_id = 1', 'last_inserted_id = ' . $query->execute());
-       self::assertEquals(['id' => '1', 'user_id' => '1', 'published_at' => '2011-12-10 12:10:00', 'title' => 'article 1b', 'content' => '1'], $q);
-       self::assertEquals('last_inserted_id = 1', "last_inserted_id =". $query2);
-       self::assertEquals(['id' => '1', 'user_id' => '1', 'published_at' => '2011-12-10 12:10:00', 'title' => 'article 1', 'content' => 'content 1'], $q2);
+       self::assertEquals(['id' => '1', 'user_id' => '1', 'published_at' => '2011-12-10 12:10:00', 'title' => 'article 1b', 'content' => '1'], $q->fetch());
+       self::assertEquals('last_inserted_id = 1', 'last_inserted_id = '. $query2->execute());
+       self::assertEquals(['id' => '1', 'user_id' => '1', 'published_at' => '2011-12-10 12:10:00', 'title' => 'article 1', 'content' => 'content 1'], $q2->fetch());
    }
 
     public function testInsertWithLiteral()
