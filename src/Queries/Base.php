@@ -372,11 +372,11 @@ abstract class Base implements \IteratorAggregate
     /**
      * Select an item as object
      *
-     * @param  boolean|object $object If set to true, items are returned as stdClass, otherwise a class
-     *                                name can be passed and a new instance of this class is return.
-     *                                Can be set to false to return items as an associative array.
+     * @param  \object|boolean $object If set to true, items are returned as stdClass, otherwise a class
+     *                                 name can be passed and a new instance of this class is returned.
+     *                                 Can be set to false to return items as an associative array.
      *
-     * @return Base
+     * @return $this
      */
     public function asObject($object = true) {
         $this->object = $object;
