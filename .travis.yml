@@ -7,6 +7,7 @@ php:
 
 script: phpunit --configuration phpunit.xml
 before_script:
+  - composer install --dev
   - mysql -u root < tests/fluentdb.sql
 
 notifications:
