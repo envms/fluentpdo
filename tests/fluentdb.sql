@@ -1,4 +1,4 @@
-CREATE DATABASE fluentdb;
+CREATE DATABASE IF NOT EXISTS fluentdb;
 USE fluentdb;
 
 SET NAMES utf8;
@@ -66,4 +66,4 @@ INSERT INTO `user` (`id`, `country_id`, `type`, `name`) VALUES
 (1,	1,	'admin',	'Marek'),
 (2,	1,	'author',	'Robert');
 
--- 2012-01-04 22:00:18
+-- 2018-08-24 14:38:17
