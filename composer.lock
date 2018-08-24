@@ -1,7 +1,7 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
     "content-hash": "feec47f572171836348edb440554c5c3",
@@ -63,16 +63,16 @@
         },
         {
             "name": "envms/fluent-test",
-            "version": "v1.0.0",
+            "version": "v1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/envms/fluent-test.git",
-                "reference": "9772b933995638b5a1258d7643f1a80bc9135b23"
+                "reference": "2db2a96ce65f64b7c6328040b7da5d2240782f23"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/envms/fluent-test/zipball/9772b933995638b5a1258d7643f1a80bc9135b23",
-                "reference": "9772b933995638b5a1258d7643f1a80bc9135b23",
+                "url": "https://api.github.com/repos/envms/fluent-test/zipball/2db2a96ce65f64b7c6328040b7da5d2240782f23",
+                "reference": "2db2a96ce65f64b7c6328040b7da5d2240782f23",
                 "shasum": ""
             },
             "type": "library",
@@ -99,7 +99,7 @@
                 "library",
                 "test"
             ],
-            "time": "2018-08-22T18:40:32+00:00"
+            "time": "2018-08-23T17:42:04+00:00"
         },
         {
             "name": "myclabs/deep-copy",

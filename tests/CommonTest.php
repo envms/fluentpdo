@@ -98,25 +98,6 @@ class CommonTest extends TestCase {
         self::assertEquals(['id' => '1', 'article_id' => '1', 'user_id' => '2', 'content' => 'comment 1.1', 'comment_name' => 'Robert', 'author_name' => 'Marek'], $query->fetch());
     }
 
-    public function testFluentUtil()
-    {
-
-        $value  =  Envms\FluentPDO\Utilities::toUpperWords('one');
-        $value2 =  Envms\FluentPDO\Utilities::toUpperWords(' one ');
-        $value3 =  Envms\FluentPDO\Utilities::toUpperWords('oneTwo');
-        $value4 =  Envms\FluentPDO\Utilities::toUpperWords('OneTwo');
-        $value5 =  Envms\FluentPDO\Utilities::toUpperWords('oneTwoThree');
-        $value6 =  Envms\FluentPDO\Utilities::toUpperWords(' oneTwoThree ');
-
-        self::assertEquals('ONE', $value);
-        self::assertEquals('ONE', $value2);
-        self::assertEquals('ONE TWO', $value3);
-        self::assertEquals('ONE TWO', $value4);
-        self::assertEquals('ONE TWO THREE', $value5);
-        self::assertEquals('ONE TWO THREE', $value6);
-
-    }
-
     public function testJoinInWhere()
     {
         $query = $this->fluent->from('article')->where('comment:content <> "" AND user.country.id = ?', 1);
