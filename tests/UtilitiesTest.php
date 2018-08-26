@@ -1,23 +1,24 @@
 <?php
 
+require 'resources/init.php';
+
 use PHPUnit\Framework\TestCase;
-use Envms\FluentTest\Model\User;
-use Envms\FluentPDO\Query;
+use Envms\FluentPDO\{Query,Utilities};
 
 /**
  * Class UtilitiesTest
  */
-class UtilitiesTest extends TestCase {
+class UtilitiesTest extends TestCase
+{
 
     /** @var Envms\FluentPDO\Query */
     protected $fluent;
 
     public function setUp()
     {
-        $pdo = new PDO("mysql:dbname=fluentdb;host=localhost", "vagrant","vagrant");
+        global $pdo;
 
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
-        $pdo->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
+        $pdo->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_BOTH);
 
         $this->fluent = new Query($pdo);
     }
@@ -25,12 +26,12 @@ class UtilitiesTest extends TestCase {
     public function testFluentUtil()
     {
 
-        $value  =  Envms\FluentPDO\Utilities::toUpperWords('one');
-        $value2 =  Envms\FluentPDO\Utilities::toUpperWords(' one ');
-        $value3 =  Envms\FluentPDO\Utilities::toUpperWords('oneTwo');
-        $value4 =  Envms\FluentPDO\Utilities::toUpperWords('OneTwo');
-        $value5 =  Envms\FluentPDO\Utilities::toUpperWords('oneTwoThree');
-        $value6 =  Envms\FluentPDO\Utilities::toUpperWords(' oneTwoThree ');
+        $value = Utilities::toUpperWords('one');
+        $value2 = Utilities::toUpperWords(' one ');
+        $value3 = Utilities::toUpperWords('oneTwo');
+        $value4 = Utilities::toUpperWords('OneTwo');
+        $value5 = Utilities::toUpperWords('oneTwoThree');
+        $value6 = Utilities::toUpperWords(' oneTwoThree ');
 
         self::assertEquals('ONE', $value);
         self::assertEquals('ONE', $value2);
@@ -38,7 +39,6 @@ class UtilitiesTest extends TestCase {
         self::assertEquals('ONE TWO', $value4);
         self::assertEquals('ONE TWO THREE', $value5);
         self::assertEquals('ONE TWO THREE', $value6);
-
     }
 
     public function testFormatQuery()
@@ -48,43 +48,40 @@ class UtilitiesTest extends TestCase {
             ->where('id > ?', 0)
             ->orderBy('name');
 
-        $formattedQuery = Envms\FluentPDO\Utilities::formatQuery($query);
+        $formattedQuery = Utilities::formatQuery($query);
 
-        self::assertEquals('SELECT user.*
-FROM user
-WHERE id > ?
-ORDER BY name', $formattedQuery);
-
+        self::assertEquals("SELECT user.*\nFROM user\nWHERE id > ?\nORDER BY name", $formattedQuery);
     }
 
-    public function testConvertToNativeType(){
+    public function testConvertToNativeType()
+    {
         $query = $this->fluent
             ->from('user')
             ->select(null)
-            ->select(array('id'))
+            ->select(['id'])
             ->where('name', 'Marek')
             ->execute();
 
         $returnRow = $query->fetch();
-        $forceInt = Envms\FluentPDO\Utilities::convertToNativeTypes($query, $returnRow);
+        $forceInt = Utilities::convertToNativeTypes($query, $returnRow);
 
         self::assertEquals(['id' => '1'], $returnRow);
         self::assertEquals(['id' => 1], $forceInt);
     }
 
-    public function testisCountable(){
+    public function testisCountable()
+    {
         $selectQuery = $this->fluent
             ->from('user')
             ->select(null)
-            ->select(array('id'))
+            ->select(['id'])
             ->where('name', 'Marek');
-
 
         $deleteQuery = $this->fluent
             ->deleteFrom('user')
             ->where('id', 1);
 
-        self::assertEquals(true, Envms\FluentPDO\Utilities::isCountable($selectQuery));
-        self::assertEquals(false, Envms\FluentPDO\Utilities::isCountable($deleteQuery));
+        self::assertEquals(true, Utilities::isCountable($selectQuery));
+        self::assertEquals(false, Utilities::isCountable($deleteQuery));
     }
 }
