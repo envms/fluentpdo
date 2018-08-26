@@ -94,7 +94,7 @@ abstract class Common extends Base
         if (count($args) == 2 && !preg_match('/(\?|:\w+)/i', $condition)) {
             // condition is column only
             if (is_null($parameters)) {
-                return $this->addStatement('WHERE', "$condition is NULL");
+                return $this->addStatement('WHERE', "$condition IS NULL");
             } elseif ($args[1] === array()) {
                 return $this->addStatement('WHERE', 'FALSE');
             } elseif (is_array($args[1])) {
