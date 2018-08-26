@@ -100,17 +100,17 @@ class CommonTest extends TestCase
     public function testJoinShortTwoTables()
     {
         $query = $this->fluent->from('comment')
-            ->where('comment.id', 1)
+            ->where('comment.id', 2)
             ->leftJoin('user comment_author')->select('comment_author.name AS comment_name')
             ->leftJoin('article.user AS article_author')->select('article_author.name AS author_name');
 
         self::assertEquals('SELECT comment.*, comment_author.name AS comment_name, article_author.name AS author_name FROM comment LEFT JOIN user AS comment_author ON comment_author.id = comment.user_id  LEFT JOIN article ON article.id = comment.article_id  LEFT JOIN user AS article_author ON article_author.id = article.user_id WHERE comment.id = ?',
             $query->getQuery(false));
         self::assertEquals([
-            'id'           => '1',
+            'id'           => '2',
             'article_id'   => '1',
             'user_id'      => '2',
-            'content'      => 'comment 1.1',
+            'content'      => 'comment 1.2',
             'comment_name' => 'Robert',
             'author_name'  => 'Marek'
         ], $query->fetch());
