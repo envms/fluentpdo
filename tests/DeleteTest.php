@@ -1,18 +1,26 @@
 <?php
 
+require 'resources/init.php';
+
 use PHPUnit\Framework\TestCase;
 use Envms\FluentPDO\Query;
 
+/**
+ * Class DeleteTest
+ *
+ * @covers \Envms\FluentPDO\Queries\Delete
+ */
 class DeleteTest extends TestCase
 {
+
+    /** @var Query */
     protected $fluent;
 
     public function setUp()
     {
-        $pdo = new PDO("mysql:dbname=fluentdb;host=localhost", "vagrant","vagrant");
+        global $pdo;
 
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
-        $pdo->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
+        $pdo->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_BOTH);
 
         $this->fluent = new Query($pdo);
     }
@@ -22,7 +30,7 @@ class DeleteTest extends TestCase
         $query = $this->fluent->deleteFrom('user')
             ->where('id', 1);
 
-        self::assertEquals('DELETE FROM user WHERE id = ?',  $query->getQuery(false));
+        self::assertEquals('DELETE FROM user WHERE id = ?', $query->getQuery(false));
         self::assertEquals(['0' => '1'], $query->getParameters());
     }
 
@@ -55,7 +63,8 @@ class DeleteTest extends TestCase
             ->innerJoin('t3 ON t2.id = t3.id')
             ->where('t1.id', 1);
 
-        self::assertEquals('DELETE t1, t2 FROM t1 INNER JOIN t2 ON t1.id = t2.id  INNER JOIN t3 ON t2.id = t3.id WHERE t1.id = ?', $query->getQuery(false));
+        self::assertEquals('DELETE t1, t2 FROM t1 INNER JOIN t2 ON t1.id = t2.id  INNER JOIN t3 ON t2.id = t3.id WHERE t1.id = ?',
+            $query->getQuery(false));
         self::assertEquals(['0' => '1'], $query->getParameters());
     }
 

@@ -1,18 +1,26 @@
 <?php
 
+require 'resources/init.php';
+
 use PHPUnit\Framework\TestCase;
 use Envms\FluentPDO\Query;
 
+/**
+ * Class SelectTest
+ *
+ * @covers \Envms\FluentPDO\Queries\Select
+ */
 class SelectTest extends TestCase
 {
+
+    /** @var Query */
     protected $fluent;
 
     public function setUp()
     {
-        $pdo = new PDO("mysql:dbname=fluentdb;host=localhost", "vagrant","vagrant");
+        global $pdo;
 
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
-        $pdo->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
+        $pdo->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_BOTH);
 
         $this->fluent = new Query($pdo);
     }
@@ -27,7 +35,7 @@ class SelectTest extends TestCase
         $query = $query->where('name = ?', 'Marek');
 
         self::assertEquals('SELECT user.* FROM user WHERE id > ? AND name = ? ORDER BY name', $query->getQuery(false));
-        self::assertEquals(['id' => '1', 'country_id'=> '1' , 'type' => 'admin' ,'name' => 'Marek'] , $query->fetch());
+        self::assertEquals(['id' => '1', 'country_id' => '1', 'type' => 'admin', 'name' => 'Marek'], $query->fetch());
         self::assertEquals([0 => 0, 1 => 'Marek'], $query->getParameters());
     }
 
@@ -43,7 +51,8 @@ class SelectTest extends TestCase
             ->having('type_count > ?', 1)
             ->orderBy('name');
 
-        self::assertEquals("SELECT type, count(id) AS type_count FROM user WHERE id > ? GROUP BY type HAVING type_count > ? ORDER BY name", $query->getQuery(false));
+        self::assertEquals("SELECT type, count(id) AS type_count FROM user WHERE id > ? GROUP BY type HAVING type_count > ? ORDER BY name",
+            $query->getQuery(false));
     }
 
     public function testReturnParameterWithId()
@@ -51,7 +60,7 @@ class SelectTest extends TestCase
         $query = $this->fluent
             ->from('user', 2);
 
-        self::assertEquals([0=> 2], $query->getParameters());
+        self::assertEquals([0 => 2], $query->getParameters());
         self::assertEquals('SELECT user.* FROM user WHERE user.id = ?', $query->getQuery(false));
     }
 
@@ -72,12 +81,12 @@ class SelectTest extends TestCase
     {
         $query = $this->fluent
             ->from('user')
-            ->where(array(
-                'id'=> 2,
+            ->where([
+                'id' => 2,
                 'type' => 'author'
-            ));
+            ]);
 
-        self::assertEquals([ 0 => 2, 1 => 'author'], $query->getParameters());
+        self::assertEquals([0 => 2, 1 => 'author'], $query->getParameters());
         self::assertEquals('SELECT user.* FROM user WHERE id = ? AND type = ?', $query->getQuery(false));
     }
 
@@ -96,14 +105,14 @@ class SelectTest extends TestCase
             ->from('user')
             ->where('type', null);
 
-        self::assertEquals('SELECT user.* FROM user WHERE type is NULL', $query->getQuery(false));
+        self::assertEquals('SELECT user.* FROM user WHERE type IS NULL', $query->getQuery(false));
     }
 
     public function testWhereColumnArray()
     {
         $query = $this->fluent
             ->from('user')
-            ->where('id', array(1,2,3));
+            ->where('id', [1, 2, 3]);
 
         self::assertEquals('SELECT user.* FROM user WHERE id IN (1, 2, 3)', $query->getQuery(false));
         self::assertEquals([], $query->getParameters());
@@ -112,16 +121,16 @@ class SelectTest extends TestCase
     public function testWhereColumnName()
     {
         $query = $this->fluent->from('user')
-            ->where('type = :type', array(':type' => 'author'))
-            ->where('id > :id AND name <> :name', array(':id' => 1, ':name' => 'Marek'));
+            ->where('type = :type', [':type' => 'author'])
+            ->where('id > :id AND name <> :name', [':id' => 1, ':name' => 'Marek']);
 
         $returnValue = '';
         foreach ($query as $row) {
-            $returnValue  = $row['name'];
+            $returnValue = $row['name'];
         }
 
         self::assertEquals('SELECT user.* FROM user WHERE type = :type AND id > :id AND name <> :name', $query->getQuery(false));
-        self::assertEquals([':type' => 'author', ':id' => 1 ,':name' => 'Marek'], $query->getParameters());
+        self::assertEquals([':type' => 'author', ':id' => 1, ':name' => 'Marek'], $query->getParameters());
         self::assertEquals('Robert', $returnValue);
     }
 
@@ -132,7 +141,7 @@ class SelectTest extends TestCase
 
         self::assertEquals('SELECT user.* FROM user WHERE name = ? ORDER BY name', $query->getQuery(false));
         self::assertEquals(['0' => 'Marek'], $query->getParameters());
-        self::assertEquals(['id' => '1','country_id' => '1','type' => 'admin','name' => 'Marek'], $query->fetch());
+        self::assertEquals(['id' => '1', 'country_id' => '1', 'type' => 'admin', 'name' => 'Marek'], $query->fetch());
     }
 
     public function testSelectArrayParam()
@@ -140,7 +149,7 @@ class SelectTest extends TestCase
         $query = $this->fluent
             ->from('user')
             ->select(null)
-            ->select(array('id', 'name'))
+            ->select(['id', 'name'])
             ->where('id < ?', 2);
 
         self::assertEquals('SELECT id, name FROM user WHERE id < ?', $query->getQuery(false));
@@ -154,7 +163,7 @@ class SelectTest extends TestCase
             ->from('user')
             ->select(null)
             ->select('count(*) AS total_count')
-            ->groupBy(array('id', 'name'));
+            ->groupBy(['id', 'name']);
 
         self::assertEquals('SELECT count(*) AS total_count FROM user GROUP BY id,name', $query->getQuery(false));
         self::assertEquals(['total_count' => '1'], $query->fetch());
@@ -164,28 +173,28 @@ class SelectTest extends TestCase
     {
         $articles = $this->fluent
             ->from('article')
-            ->select(NULL)
+            ->select(null)
             ->select('title')
             ->where('id > 1');
 
         $count = count($articles);
 
         self::assertEquals(2, $count);
-        self::assertEquals(['0' => ['title' => 'article 2'], '1' =>['title' => 'article 3']], $articles->fetchAll());
+        self::assertEquals(['0' => ['title' => 'article 2'], '1' => ['title' => 'article 3']], $articles->fetchAll());
     }
 
     public function testWhereNotArray()
     {
-        $query = $this->fluent->from('article')->where('NOT id', array(1,2));
+        $query = $this->fluent->from('article')->where('NOT id', [1, 2]);
 
-        self::assertEquals('SELECT article.* FROM article WHERE NOT id IN (1, 2)',  $query->getQuery(false));
+        self::assertEquals('SELECT article.* FROM article WHERE NOT id IN (1, 2)', $query->getQuery(false));
     }
 
     public function testWhereColNameEscaped()
     {
         $query = $this->fluent->from('user')
-            ->where('`type` = :type', array(':type' => 'author'))
-            ->where('`id` > :id AND `name` <> :name', array(':id' => 1, ':name' => 'Marek'));
+            ->where('`type` = :type', [':type' => 'author'])
+            ->where('`id` > :id AND `name` <> :name', [':id' => 1, ':name' => 'Marek']);
 
         $rowDisplay = '';
         foreach ($query as $row) {
@@ -223,14 +232,18 @@ class SelectTest extends TestCase
         $result2 = $this->fluent->from('user')->fetchAll();
 
         self::assertEquals(['1' => 'Marek', '2' => 'Robert'], $result);
-        self::assertEquals(['0' => ['id' => '1', 'country_id' => '1', 'type' => 'admin', 'name' => 'Marek'], '1' => ['id' => '2', 'country_id' => '1', 'type' => 'author', 'name' => 'Robert']], $result2);
+        self::assertEquals([
+            '0' => ['id' => '1', 'country_id' => '1', 'type' => 'admin', 'name' => 'Marek'],
+            '1' => ['id' => '2', 'country_id' => '1', 'type' => 'author', 'name' => 'Robert']
+        ], $result2);
     }
 
     public function testFetchAllWithParams()
     {
         $result = $this->fluent->from('user')->fetchAll('id', 'type, name');
 
-        self::assertEquals(['1' => ['id' => '1', 'type' => 'admin', 'name' => 'Marek'], '2' => ['id' => '2', 'type' => 'author', 'name' => 'Robert']], $result);
+        self::assertEquals(['1' => ['id' => '1', 'type' => 'admin', 'name' => 'Marek'], '2' => ['id' => '2', 'type' => 'author', 'name' => 'Robert']],
+            $result);
     }
 
     public function testFetchColumn()

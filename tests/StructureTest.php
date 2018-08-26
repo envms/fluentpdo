@@ -1,5 +1,7 @@
 <?php
 
+require 'resources/init.php';
+
 use PHPUnit\Framework\TestCase;
 use Envms\FluentPDO\Structure;
 
@@ -11,21 +13,24 @@ use Envms\FluentPDO\Structure;
 class StructureTest extends TestCase
 {
 
-    public function testBasicKey() {
+    public function testBasicKey()
+    {
         $structure = new Structure();
 
         self::assertEquals('id', $structure->getPrimaryKey('user'));
         self::assertEquals('user_id', $structure->getForeignKey('user'));
     }
 
-    public function testCustomKey() {
+    public function testCustomKey()
+    {
         $structure = new Structure('whatAnId', '%s_\xid');
 
         self::assertEquals('whatAnId', $structure->getPrimaryKey('user'));
         self::assertEquals('user_\xid', $structure->getForeignKey('user'));
     }
 
-    public function testMethodKey() {
+    public function testMethodKey()
+    {
         $structure = new Structure('id', ['StructureTest', 'suffix']);
 
         self::assertEquals('id', $structure->getPrimaryKey('user'));
@@ -37,7 +42,8 @@ class StructureTest extends TestCase
      *
      * @return string
      */
-    public static function suffix($table) {
+    public static function suffix($table)
+    {
         return $table . '_id';
     }
 
