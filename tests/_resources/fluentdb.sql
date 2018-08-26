@@ -1,4 +1,4 @@
-CREATE DATABASE fluentdb;
+CREATE DATABASE IF NOT EXISTS fluentdb;
 USE fluentdb;
 
 SET NAMES utf8;
@@ -19,9 +19,9 @@ CREATE TABLE `article` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `article` (`id`, `user_id`, `published_at`, `title`, `content`) VALUES
-(1,	1,	'2011-12-10 12:10:00',	'article 1',	'content 1'),
-(2,	2,	'2011-12-20 16:20:00',	'article 2',	'content 2'),
-(3,	1,	'2012-01-04 22:00:00',	'article 3',	'content 3');
+(1, 1, '2011-12-10 12:10:00', 'article 1', 'content 1'),
+(2, 2, '2011-12-20 16:20:00', 'article 2', 'content 2'),
+(3, 1, '2012-01-04 22:00:00', 'article 3', 'content 3');
 
 DROP TABLE IF EXISTS `comment`;
 CREATE TABLE `comment` (
@@ -37,9 +37,9 @@ CREATE TABLE `comment` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `comment` (`id`, `article_id`, `user_id`, `content`) VALUES
-(1,	1,	2,	'comment 1.1'),
-(2,	1,	1,	'comment 1.2'),
-(3,	2,	1,	'comment 2.1');
+(1, 1, 1, 'comment 1.1'),
+(2, 1, 2, 'comment 1.2'),
+(3, 2, 1, 'comment 2.1');
 
 DROP TABLE IF EXISTS `country`;
 CREATE TABLE `country` (
@@ -49,7 +49,7 @@ CREATE TABLE `country` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `country` (`id`, `name`) VALUES
-(1,	'Slovakia');
+(1, 'Slovakia');
 
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
@@ -63,7 +63,7 @@ CREATE TABLE `user` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `user` (`id`, `country_id`, `type`, `name`) VALUES
-(1,	1,	'admin',	'Marek'),
-(2,	1,	'author',	'Robert');
+(1, 1, 'admin', 'Marek'),
+(2, 1, 'author', 'Robert');
 
--- 2012-01-04 22:00:18
+-- 2018-08-24 14:38:17

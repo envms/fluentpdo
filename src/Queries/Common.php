@@ -5,6 +5,17 @@ use Envms\FluentPDO\{Literal,Utilities};
 
 /**
  * CommonQuery add JOIN and WHERE clauses for (SELECT, UPDATE, DELETE)
+ *
+ * @method select(string $column) add one or more columns in SELECT to query
+ * @method leftJoin(string $statement) add LEFT JOIN to query
+ *                        ($statement can be 'table' name only or 'table:' means back reference)
+ * @method innerJoin(string $statement) add INNER JOIN to query
+ *                        ($statement can be 'table' name only or 'table:' means back reference)
+ * @method groupBy(string $column) add GROUP BY to query
+ * @method having(string $column) add HAVING query
+ * @method orderBy(string $column) add ORDER BY to query
+ * @method limit(int $limit) add LIMIT to query
+ * @method offset(int $offset) add OFFSET to query
  */
 abstract class Common extends Base
 {
@@ -50,7 +61,7 @@ abstract class Common extends Base
      * @param string $condition  possibly containing ? or :name (PDO syntax)
      * @param mixed  $parameters array or a scalar value
      *
-     * @return Common
+     * @return $this
      */
     public function where($condition, $parameters = array()) {
         if ($condition === null) {
@@ -83,7 +94,7 @@ abstract class Common extends Base
         if (count($args) == 2 && !preg_match('/(\?|:\w+)/i', $condition)) {
             // condition is column only
             if (is_null($parameters)) {
-                return $this->addStatement('WHERE', "$condition is NULL");
+                return $this->addStatement('WHERE', "$condition IS NULL");
             } elseif ($args[1] === array()) {
                 return $this->addStatement('WHERE', 'FALSE');
             } elseif (is_array($args[1])) {
@@ -112,7 +123,7 @@ abstract class Common extends Base
      * @param string $name
      * @param array  $parameters - first is $statement followed by $parameters
      *
-     * @return $this|Select
+     * @return $this
      */
     public function __call($name, $parameters = array()) {
         if (!in_array($name, $this->validMethods)) {
@@ -154,7 +165,7 @@ abstract class Common extends Base
      * @param       $statement
      * @param array $parameters
      *
-     * @return $this|Select
+     * @return $this
      */
     private function addJoinStatements($clause, $statement, $parameters = array()) {
         if ($statement === null) {
