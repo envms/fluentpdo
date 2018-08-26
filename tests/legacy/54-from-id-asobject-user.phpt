@@ -5,7 +5,7 @@ from($table, $id) as User class
 include_once dirname(__FILE__) . "/connect.inc.php";
 /* @var Envms\FluentPDO\Query */
 
-class User { public $id, $country_id, $type, $name; }
+//class User { public $id, $country_id, $type, $name; }
 $query = $fluent->from('user', 2)->asObject('User');
 
 echo $query->getQuery() . "\n";
