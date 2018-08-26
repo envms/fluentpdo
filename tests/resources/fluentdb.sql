@@ -37,8 +37,8 @@ CREATE TABLE `comment` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `comment` (`id`, `article_id`, `user_id`, `content`) VALUES
-(1,	1,	2,	'comment 1.1'),
-(2,	1,	1,	'comment 1.2'),
+(1,	1,	1,	'comment 1.1'),
+(2,	1,	2,	'comment 1.2'),
 (3,	2,	1,	'comment 2.1');
 
 DROP TABLE IF EXISTS `country`;
