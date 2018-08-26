@@ -2,7 +2,6 @@ language: php
 php:
   - 7.1
   - 7.2
-  - hhvm
 
 env:
   - DB_USER=root
