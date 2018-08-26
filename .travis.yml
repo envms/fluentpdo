@@ -9,7 +9,7 @@ env:
 script: phpunit --configuration phpunit.xml
 before_script:
   - composer install
-  - mysql -u $DB_USER < tests/resources/fluentdb.sql
+  - mysql -u $DB_USER < tests/_resources/fluentdb.sql
 
 notifications:
   slack:
