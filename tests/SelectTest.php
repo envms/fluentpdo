@@ -196,4 +196,53 @@ class SelectTest extends TestCase
         self::assertEquals([':type' => 'author', ':id' => '1', ':name' => 'Marek'], $query->getParameters());
         self::assertEquals('Robert', $rowDisplay);
     }
+
+    public function testAliasesForClausesGroupbyOrderBy()
+    {
+        $query = $this->fluent->from('article')->group('user_id')->order('id');
+
+        self::assertEquals('SELECT article.* FROM article GROUP BY user_id ORDER BY id', $query->getQuery(false));
+    }
+
+    public function testFetch()
+    {
+        $queryPrint = $this->fluent->from('user', 1)->fetch('name');
+        $queryPrint2 = $this->fluent->from('user', 1)->fetch();
+        $statement = $this->fluent->from('user', 3)->fetch();
+        $statement2 = $this->fluent->from('user', 3)->fetch('name');
+
+        self::assertEquals('Marek', $queryPrint);
+        self::assertEquals(['id' => '1', 'country_id' => '1', 'type' => 'admin', 'name' => 'Marek'], $queryPrint2);
+        self::assertEquals(false, $statement);
+        self::assertEquals(false, $statement2);
+    }
+
+    public function testFetchPairsFetchAll()
+    {
+        $result = $this->fluent->from('user')->fetchPairs('id', 'name');
+        $result2 = $this->fluent->from('user')->fetchAll();
+
+        self::assertEquals(['1' => 'Marek', '2' => 'Robert'], $result);
+        self::assertEquals(['0' => ['id' => '1', 'country_id' => '1', 'type' => 'admin', 'name' => 'Marek'], '1' => ['id' => '2', 'country_id' => '1', 'type' => 'author', 'name' => 'Robert']], $result2);
+    }
+
+    public function testFetchAllWithParams()
+    {
+        $result = $this->fluent->from('user')->fetchAll('id', 'type, name');
+
+        self::assertEquals(['1' => ['id' => '1', 'type' => 'admin', 'name' => 'Marek'], '2' => ['id' => '2', 'type' => 'author', 'name' => 'Robert']], $result);
+    }
+
+    public function testFetchColumn()
+    {
+        $printColumn = $this->fluent->from('user', 1)->fetchColumn();
+        $printColumn2 = $this->fluent->from('user', 1)->fetchColumn(3);
+        $statement = $this->fluent->from('user', 3)->fetchColumn();
+        $statement2 = $this->fluent->from('user', 3)->fetchColumn(3);
+
+        self::assertEquals(1, $printColumn);
+        self::assertEquals('Marek', $printColumn2);
+        self::assertEquals(false, $statement);
+        self::assertEquals(false, $statement2);
+    }
 }

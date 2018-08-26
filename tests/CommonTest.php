@@ -156,42 +156,6 @@ class CommonTest extends TestCase {
         self::assertEquals('SELECT user.*, article.title FROM user INNER JOIN article ON article.user_id = user.id', $query3->getQuery(false));
     }
 
-    public function testAliasesForClausesGroupbyOrderBy()
-    {
-        $query = $this->fluent->from('article')->group('user_id')->order('id');
-
-        self::assertEquals('SELECT article.* FROM article GROUP BY user_id ORDER BY id', $query->getQuery(false));
-    }
-
-    public function testFetch()
-    {
-        $queryPrint = $this->fluent->from('user', 1)->fetch('name');
-        $queryPrint2 = $this->fluent->from('user', 1)->fetch();
-        $statement = $this->fluent->from('user', 3)->fetch();
-        $statement2 = $this->fluent->from('user', 3)->fetch('name');
-
-        self::assertEquals('Marek', $queryPrint);
-        self::assertEquals(['id' => '1', 'country_id' => '1', 'type' => 'admin', 'name' => 'Marek'], $queryPrint2);
-        self::assertEquals(false, $statement);
-        self::assertEquals(false, $statement2);
-    }
-
-    public function testFetchPairsFetchAll()
-    {
-        $result = $this->fluent->from('user')->fetchPairs('id', 'name');
-        $result2 = $this->fluent->from('user')->fetchAll();
-
-        self::assertEquals(['1' => 'Marek', '2' => 'Robert'], $result);
-        self::assertEquals(['0' => ['id' => '1', 'country_id' => '1', 'type' => 'admin', 'name' => 'Marek'], '1' => ['id' => '2', 'country_id' => '1', 'type' => 'author', 'name' => 'Robert']], $result2);
-    }
-
-    public function testFetchAllWithParams()
-    {
-        $result = $this->fluent->from('user')->fetchAll('id', 'type, name');
-
-        self::assertEquals(['1' => ['id' => '1', 'type' => 'admin', 'name' => 'Marek'], '2' => ['id' => '2', 'type' => 'author', 'name' => 'Robert']], $result);
-    }
-
     public function testFromOtherDB() {
         $queryPrint = $this->fluent->from('db2.user')->order('db2.user.name')->getQuery(false);
 
@@ -247,19 +211,6 @@ class CommonTest extends TestCase {
         self::assertEquals('-- Plain: SELECT comment.*, user.name FROM comment LEFT JOIN user ON user.id = comment.user_id  LEFT JOIN article ON article.id = comment.article_id ORDER BY article.published_at', $printQuery);
         self::assertEquals('-- Disable: SELECT comment.*, user.name FROM comment ORDER BY article.published_at', $printQuery2);
         self::assertEquals('-- Disable and enable: SELECT comment.*, user.name FROM comment LEFT JOIN user ON user.id = comment.user_id  LEFT JOIN article ON article.id = comment.article_id ORDER BY article.published_at', $printQuery3);
-    }
-
-    public function testFetchColumn()
-    {
-        $printColumn = $this->fluent->from('user', 1)->fetchColumn();
-        $printColumn2 = $this->fluent->from('user', 1)->fetchColumn(3);
-        $statement = $this->fluent->from('user', 3)->fetchColumn();
-        $statement2 = $this->fluent->from('user', 3)->fetchColumn(3);
-
-        self::assertEquals(1, $printColumn);
-        self::assertEquals('Marek', $printColumn2);
-        self::assertEquals(false, $statement);
-        self::assertEquals(false, $statement2);
     }
 
     public function testPDOFetchObj()
