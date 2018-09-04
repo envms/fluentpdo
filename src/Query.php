@@ -133,6 +133,58 @@ class Query
     }
 
     /**
+     * Create JSON_REMOVE query for JSON format only
+     *
+     * @param string $table
+     *
+     * @return Update
+     */
+    public function jsonRemove($table){
+        $query = new Update($this, $table, 'JSON_REMOVE');
+
+        return $query;
+    }
+
+    /**
+     * Create JSON_INSERT query for JSON format only
+     *
+     * @param string $table
+     *
+     * @return Update
+     */
+    public function jsonInsert($table){
+        $query = new Update($this, $table, 'JSON_INSERT');
+
+        return $query;
+    }
+
+    /**
+     * Create JSON_REPLACE query for JSON format only
+     *
+     * @param string $table
+     *
+     * @return Update
+     */
+    public function jsonReplace($table){
+        $query = new Update($this, $table, 'JSON_REPLACE');
+
+        return $query;
+    }
+
+    /**
+     * Create JSON_REMOVE query for JSON format only
+     *
+     * @param string $table
+     *
+     * @return Update
+     */
+    public function jsonSet($table){
+        $query = new Update($this, $table, 'JSON_SET');
+
+        return $query;
+    }
+
+    /**
      * @return \PDO
      */
     public function getPdo() {
