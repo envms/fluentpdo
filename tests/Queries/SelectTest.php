@@ -258,4 +258,13 @@ class SelectTest extends TestCase
         self::assertEquals(false, $statement);
         self::assertEquals(false, $statement2);
     }
+
+    public function testJSONExtract()
+    {
+        $query = $this->fluent->from('players')->select(null)->select('user->$.name')->disableSmartJoin();
+
+        self::assertEquals('Marek', $query->getQuery(false));
+
+    }
+
 }

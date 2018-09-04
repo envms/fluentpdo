@@ -137,4 +137,27 @@ class UpdateTest extends TestCase
             $query2->getQuery(false));
         self::assertEquals(['0' => '1', '1' => 'Slovakia', '2' => 'Marek'], $query2->getParameters());
     }
+
+
+    public function testJSONRemove()
+    {
+        $query = $this->fluent->jsonRemove('user')->set('ColumnTest','.user.id');
+
+        self::assertEquals('UPDATE user SET ColumnTest = JSON_REMOVE(ColumnTest, $.user.id)', $query->getQuery(false));
+    }
+
+    public function testJSONReplace()
+    {
+        $query = $this->fluent->jsonReplace('user')->set('ColumnTest','.user.id', "newValue")->where("player_and_games", "name = Ali", true);
+
+        self::assertEquals('UPDATE user SET ColumnTest = JSON_REPLACE(ColumnTest, $.user.id, newValue) WHERE player_and_games -> $name = Ali', $query->getQuery(false));
+    }
+
+    public function testJSONInsert()
+    {
+        $query = $this->fluent->jsonInsert('user')->set('ColumnTest','.user.id', ["newValue",20])->where("player_and_games", ".name = Ali", true)->disableSmartJoin();
+
+        self::assertEquals('UPDATE user SET ColumnTest = JSON_INSERT(ColumnTest, $.user.id, JSON_OBJECT(newValue, 20)) WHERE player_and_games -> $.name = Ali', $query->getQuery(false));
+    }
+
 }
