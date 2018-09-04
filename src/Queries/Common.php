@@ -60,10 +60,11 @@ abstract class Common extends Base
      *
      * @param string $condition  possibly containing ? or :name (PDO syntax)
      * @param mixed  $parameters array or a scalar value
+     * @param bool   $json
      *
      * @return $this
      */
-    public function where($condition, $parameters = array()) {
+    public function where($condition, $parameters = array(), $json = false) {
         if ($condition === null) {
             return $this->resetClause('WHERE');
         }
@@ -91,7 +92,7 @@ abstract class Common extends Base
         a parameter, add them; it's up to the dev to be valid sql. Otherwise it's probably
         just an identifier, so construct a new condition based on the passed parameter value.
         */
-        if (count($args) == 2 && !preg_match('/(\?|:\w+)/i', $condition)) {
+        if ((count($args) == 2 || count($args) == 3)&& !preg_match('/(\?|:\w+)/i', $condition)) {
             // condition is column only
             if (is_null($parameters)) {
                 return $this->addStatement('WHERE', "$condition IS NULL");
@@ -106,6 +107,10 @@ abstract class Common extends Base
             // don't parameterize the value if it's an instance of Literal
             if ($parameters instanceof Literal) {
                 $condition = "{$condition} = {$parameters}";
+
+                return $this->addStatement('WHERE', $condition);
+            } else if ($json === true){
+                $condition = $condition. ' -> $'.$parameters;
 
                 return $this->addStatement('WHERE', $condition);
             }
