@@ -22,7 +22,7 @@ class Update extends Common
      * @param Query     $fluent
      * @param           $table
      */
-    public function __construct(Query $fluent, $table) {
+    public function __construct(Query $fluent, $table, $jsonFunction = ''){
         $clauses = array(
             'UPDATE'   => array($this, 'getClauseUpdate'),
             'JOIN'     => array($this, 'getClauseJoin'),
@@ -35,6 +35,8 @@ class Update extends Common
 
         $this->statements['UPDATE'] = $table;
 
+        $this->jsonFunction    = $jsonFunction;
+
         $tableParts    = explode(' ', $table);
         $this->joins[] = end($tableParts);
     }
@@ -46,13 +48,22 @@ class Update extends Common
      * @return $this
      * @throws \Exception
      */
-    public function set($fieldOrArray, $value = false) {
+    public function set($fieldOrArray, $value = false, $jsonUpdateValue = '')
+    {
         if (!$fieldOrArray) {
             return $this;
         }
         if (is_string($fieldOrArray) && $value !== false) {
             $this->statements['SET'][$fieldOrArray] = $value;
-        } else {
+            if ($jsonUpdateValue != ''){
+                if (is_array($jsonUpdateValue)){
+                    $this->jsonPath = 'JSON_OBJECT('.$jsonUpdateValue[0].', '.$jsonUpdateValue[1].')';
+                } else {
+                    $this->jsonPath = $jsonUpdateValue;
+                }
+            }
+        }
+        else {
             if (!is_array($fieldOrArray)) {
                 throw new \Exception('You must pass a value, or provide the SET list as an associative array. column => value');
             } else {
@@ -97,7 +108,14 @@ class Update extends Common
     protected function getClauseSet() {
         $setArray = array();
         foreach ($this->statements['SET'] as $field => $value) {
-            if ($value instanceof Literal) {
+            if ($this->jsonFunction !== ''){
+                if (!empty($this->jsonPath)) {
+                    $setArray[] = $field . ' = ' . $this->jsonFunction . '(' . $field . ', $' . $value . ', '. $this->jsonPath .')';
+                } else {
+                    $setArray[] = $field . ' = ' . $this->jsonFunction . '(' . $field . ', $' . $value . ')';
+                }
+            }
+            else if ($value instanceof Literal) {
                 $setArray[] = $field . ' = ' . $value;
             } else {
                 $setArray[]                      = $field . ' = ?';
