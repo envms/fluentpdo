@@ -267,4 +267,12 @@ class SelectTest extends TestCase
 
     }
 
+    public function testJSONSearch()
+    {
+        $query = $this->fluent->from('players')->select(null)->select('JSON_SEARCH(player_and_game,\'all\',\'Alfred\')')->disableSmartJoin();
+
+        self::assertEquals('Marek', $query->getQuery(false));
+
+    }
+
 }
