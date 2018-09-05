@@ -172,19 +172,6 @@ class Query
     }
 
     /**
-     * Create JSON_REMOVE query for JSON format only
-     *
-     * @param string $table
-     *
-     * @return Update
-     */
-    public function jsonSet($table){
-        $query = new Update($this, $table, 'JSON_SET');
-
-        return $query;
-    }
-
-    /**
      * @return \PDO
      */
     public function getPdo() {

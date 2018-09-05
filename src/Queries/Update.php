@@ -34,8 +34,7 @@ class Update extends Common
         parent::__construct($fluent, $clauses);
 
         $this->statements['UPDATE'] = $table;
-
-        $this->jsonFunction    = $jsonFunction;
+        $this->jsonFunction         = $jsonFunction;
 
         $tableParts    = explode(' ', $table);
         $this->joins[] = end($tableParts);
