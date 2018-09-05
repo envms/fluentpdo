@@ -263,7 +263,7 @@ class SelectTest extends TestCase
     {
         $query = $this->fluent->from('players')->select(null)->select('user->$.name')->disableSmartJoin();
 
-        self::assertEquals('Marek', $query->getQuery(false));
+        self::assertEquals('SELECT user->$.name FROM players', $query->getQuery(false));
 
     }
 
@@ -271,7 +271,7 @@ class SelectTest extends TestCase
     {
         $query = $this->fluent->from('players')->select(null)->select('JSON_SEARCH(player_and_game,\'all\',\'Alfred\')')->disableSmartJoin();
 
-        self::assertEquals('Marek', $query->getQuery(false));
+        self::assertEquals('SELECT JSON_SEARCH(player_and_game,\'all\',\'Alfred\') FROM players', $query->getQuery(false));
 
     }
 
@@ -279,7 +279,7 @@ class SelectTest extends TestCase
     {
         $query = $this->fluent->from('players')->where('tags', ['one','Java%'], true)->disableSmartJoin();
 
-        self::assertEquals('Marek', $query->getQuery(false));
+        self::assertEquals('SELECT players.* FROM players WHERE JSON_CONTAINS(tags, `one`, `Java%`)', $query->getQuery(false));
 
     }
 
