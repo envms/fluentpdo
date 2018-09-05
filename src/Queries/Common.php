@@ -92,13 +92,13 @@ abstract class Common extends Base
         a parameter, add them; it's up to the dev to be valid sql. Otherwise it's probably
         just an identifier, so construct a new condition based on the passed parameter value.
         */
-        if ((count($args) == 2 || count($args) == 3)&& !preg_match('/(\?|:\w+)/i', $condition)) {
+        if ((count($args) > 2 || count($args) < 4)&& !preg_match('/(\?|:\w+)/i', $condition)) {
             // condition is column only
             if (is_null($parameters)) {
                 return $this->addStatement('WHERE', "$condition IS NULL");
             } elseif ($args[1] === array()) {
                 return $this->addStatement('WHERE', 'FALSE');
-            } elseif (is_array($args[1])) {
+            } elseif (is_array($args[1]) && $json == false) {
                 $in = $this->quote($args[1]);
 
                 return $this->addStatement('WHERE', "$condition IN $in");
@@ -110,7 +110,11 @@ abstract class Common extends Base
 
                 return $this->addStatement('WHERE', $condition);
             } else if ($json === true){
-                $condition = $condition. ' -> $'.$parameters;
+                if (count($parameters) == 2){
+                    $condition = 'JSON_CONTAINS('.$condition.', `'.$parameters[0].'`, `'.$parameters[1].'`)';
+                } else {
+                    $condition = $condition . ' -> $' . $parameters;
+                }
 
                 return $this->addStatement('WHERE', $condition);
             }

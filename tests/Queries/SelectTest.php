@@ -275,4 +275,12 @@ class SelectTest extends TestCase
 
     }
 
+    public function testJSONSearchWhere()
+    {
+        $query = $this->fluent->from('players')->where('tags', ['one','Java%'], true)->disableSmartJoin();
+
+        self::assertEquals('Marek', $query->getQuery(false));
+
+    }
+
 }
