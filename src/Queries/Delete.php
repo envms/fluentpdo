@@ -23,9 +23,8 @@ class Delete extends Common
      * Delete constructor
      *
      * @param Query  $fluent
-     * @param string $table
      */
-    public function __construct(Query $fluent, $table) {
+    public function __construct(Query $fluent) {
         $clauses = array(
             'DELETE FROM' => array($this, 'getClauseDeleteFrom'),
             'DELETE'      => array($this, 'getClauseDelete'),
@@ -38,8 +37,8 @@ class Delete extends Common
 
         parent::__construct($fluent, $clauses);
 
-        $this->statements['DELETE FROM'] = $table;
-        $this->statements['DELETE']      = $table;
+        $this->statements['DELETE FROM'] = $fluent->getTableName();
+        $this->statements['DELETE']      = $fluent->getTableName();
     }
 
     /**
