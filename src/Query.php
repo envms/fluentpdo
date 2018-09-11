@@ -3,6 +3,7 @@ namespace Envms\FluentPDO;
 
 use Envms\FluentPDO\Queries\{Insert,Select,Update,Delete};
 
+
 /**
  * FluentPDO is a quick and light PHP library for rapid query building. It features a smart join builder, which automatically creates table joins.
  *
@@ -31,6 +32,13 @@ class Query
 
     /** @var boolean */
     public $convertTypes = false;
+
+    /** @var string */
+    protected $table;
+    /** @var string */
+    protected $prefix;
+    /** @var string */
+    protected $separator;
 
     /**
      * Query constructor
@@ -83,17 +91,22 @@ class Query
     /**
      * Create UPDATE query
      *
-     * @param string       $table
      * @param array|string $set
      * @param string       $primaryKey
      *
+     * @throws \Exception
      * @return Update
      */
-    public function update($table, $set = array(), $primaryKey = null) {
-        $query = new Update($this, $table);
+    public function update($set = array(), $primaryKey = null) {
+        if(empty($this->table)){
+            throw new \Exception('Table name is not set');
+        } else {
+            $query = new Update($this);
+        }
+
         $query->set($set);
         if ($primaryKey) {
-            $primaryKeyName = $this->getStructure()->getPrimaryKey($table);
+            $primaryKeyName = $this->getStructure()->getPrimaryKey($this->table);
             $query          = $query->where($primaryKeyName, $primaryKey);
         }
 
@@ -106,12 +119,18 @@ class Query
      * @param string $table
      * @param string $primaryKey delete only row by primary key
      *
+     * @throws \Exception
      * @return Delete
      */
-    public function delete($table, $primaryKey = null) {
-        $query = new Delete($this, $table);
+    public function delete($primaryKey = null) {
+        if(empty($this->table)){
+            throw new \Exception('Table name is not set');
+        } else {
+            $query = new Delete($this);
+        }
+
         if ($primaryKey) {
-            $primaryKeyName = $this->getStructure()->getPrimaryKey($table);
+            $primaryKeyName = $this->getStructure()->getPrimaryKey($this->table);
             $query          = $query->where($primaryKeyName, $primaryKey);
         }
 
@@ -153,6 +172,29 @@ class Query
      */
     public function close() {
         $this->pdo = null;
+    }
+
+    /**
+     * Set table name comprised of prefix.separator.table
+     *
+     */
+    public function setTableName($table = '', $prefix = '', $separator = ''){
+        $this->prefix    = $prefix;
+        $this->separator = $separator;
+
+        $this->table     = $prefix.$separator.$table;
+
+        return $this;
+    }
+
+    /**
+     * Return table name
+     *
+     * @return string
+     *
+     */
+    public function getTableName() {
+        return $this->table;
     }
 
 }
