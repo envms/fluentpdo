@@ -20,9 +20,8 @@ class Update extends Common
      * UpdateQuery constructor
      *
      * @param Query     $fluent
-     * @param           $table
      */
-    public function __construct(Query $fluent, $table) {
+    public function __construct(Query $fluent) {
         $clauses = array(
             'UPDATE'   => array($this, 'getClauseUpdate'),
             'JOIN'     => array($this, 'getClauseJoin'),
@@ -33,9 +32,9 @@ class Update extends Common
         );
         parent::__construct($fluent, $clauses);
 
-        $this->statements['UPDATE'] = $table;
+        $this->statements['UPDATE'] = $fluent->getTableName();
 
-        $tableParts    = explode(' ', $table);
+        $tableParts    = explode(' ', $fluent->getTableName());
         $this->joins[] = end($tableParts);
     }
 
