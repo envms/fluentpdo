@@ -317,7 +317,12 @@ abstract class Base implements \IteratorAggregate
                 }
             }
             else {
-                if ($clauses) {
+                if (!$clauses) {
+                    $acceptValue = Utilities::acceptedSqlTypes($clauses);
+                    if($acceptValue){
+                        $parameters[] = $clauses;
+                    }
+                }else {
                     $parameters[] = $clauses;
                 }
             }
