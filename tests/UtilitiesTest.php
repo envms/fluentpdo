@@ -84,4 +84,18 @@ class UtilitiesTest extends TestCase
         self::assertEquals(true, Utilities::isCountable($selectQuery));
         self::assertEquals(false, Utilities::isCountable($deleteQuery));
     }
+
+    public function testisAcceptSqlValue()
+    {
+        $value1 = Utilities::acceptedSqlTypes(false);
+        $value2 = Utilities::acceptedSqlTypes("");
+        $value3 = Utilities::acceptedSqlTypes(NULL);
+        $value4 = Utilities::acceptedSqlTypes(2);
+
+        self::assertEquals(true, $value1);
+        self::assertEquals(false, $value2);
+        self::assertEquals(false, $value3);
+        self::assertEquals(true, $value4);
+
+    }
 }
