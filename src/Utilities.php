@@ -107,10 +107,18 @@ class Utilities
             switch($type)
             {
                 case 'boolean':
+/*                    if ($value === true){
+                        $value = 1;
+                    } else{
+                        $value = 0;
+                    }
+                    return $value;*/
                     return true;
                     break;
                 case 'string':
+                    break;
                 case 'integer':
+                    return true;
                 case 'double':
                 case 'array':
                 case 'object':
@@ -120,7 +128,7 @@ class Utilities
             }
         }
 
-        return true;
+        return false;
     }
 
     /**
