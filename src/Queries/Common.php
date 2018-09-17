@@ -123,6 +123,74 @@ abstract class Common extends Base
         return $this->addStatement('WHERE', $condition, $args);
     }
 
+    public function whereOr($condition, $parameters = array(), $separator = []) {
+
+        $this->clauses['WHERE'] = ' OR ';
+
+        if ($condition === null) {
+            return $this->resetClause('WHERE');
+        }
+
+        if (!$condition) {
+           return $this;
+        }
+
+        if(is_array($condition)) {
+            foreach ($condition as $key => $val) {
+                $this->where($key, $val);
+            }
+
+            return $this;
+        }
+
+        $args = func_get_args();
+
+        if (count($args) == 1) {
+            return $this->addStatement('WHERE', $condition);
+        }
+
+        if (count($args) >= 2 && !preg_match('/(\?|:\w+)/i', $condition)) {
+            // condition is column only
+            if (is_null($parameters)) {
+                return $this->addStatement('WHERE', "$condition IS NULL");
+            } elseif ($args[1] === array()) {
+                return $this->addStatement('WHERE', 'FALSE');
+            //create bracketed condition statement: WHERE ($arg1 SEPARATOR $arg2)
+            } elseif (is_array($args[1]) && isset($args[2])) {
+                $like = "(";
+                $count = count($args[1]);
+                for($i = 0; $i < $count ; $i++) {
+                    if ($i === $count - 1){
+                        $like .= $condition ." ".$args[1][$i].")";
+                    } else {
+                        $like .= $condition ." ".$args[1][$i]." ". $separator." ";
+
+                    }
+                }
+
+                return $this->addStatement('WHERE', $like);
+            } elseif (is_array($args[1])) {
+                $in = $this->quote($args[1]);
+
+                return $this->addStatement('WHERE', "$condition IN $in");
+            }
+
+            // don't parameterize the value if it's an instance of Literal
+            if ($parameters instanceof Literal) {
+                $condition = "{$condition} = {$parameters}";
+
+                return $this->addStatement('WHERE', $condition);
+            }
+            else {
+                $condition = "$condition = ?";
+            }
+        }
+
+        array_shift($args);
+
+        return $this->addStatement('WHERE', $condition, $args);
+    }
+
     /**
      * @param string $name
      * @param array  $parameters - first is $statement followed by $parameters
