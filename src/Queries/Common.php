@@ -64,6 +64,10 @@ abstract class Common extends Base
      * @return $this
      */
     public function where($condition, $parameters = array()) {
+
+        //replace separator for WHERE to separate from whereOr function
+        $this->clauses['WHERE'] = ' AND ';
+
         if ($condition === null) {
             return $this->resetClause('WHERE');
         }
