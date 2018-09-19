@@ -89,6 +89,49 @@ class Utilities
     }
 
     /**
+     *
+     *Converts PHP datatype to MySQL accept values
+     *
+     *.
+     * @param $value mixed
+     * @return boolean
+     */
+    public static function acceptedSqlTypes($value)
+    {
+        $count = count($value);
+        for ($i = 0; $i < $count ; $i++)
+        {
+
+            $type = gettype($value);
+
+            switch($type)
+            {
+                case 'boolean':
+/*                    if ($value === true){
+                        $value = 1;
+                    } else{
+                        $value = 0;
+                    }
+                    return $value;*/
+                    return true;
+                    break;
+                case 'string':
+                    break;
+                case 'integer':
+                    return true;
+                case 'double':
+                case 'array':
+                case 'object':
+                default:
+                    return false;
+                    break;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @param $subject
      *
      * @return bool
