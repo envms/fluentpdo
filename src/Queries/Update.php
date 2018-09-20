@@ -1,7 +1,8 @@
 <?php
+
 namespace Envms\FluentPDO\Queries;
 
-use Envms\FluentPDO\{Query,Literal};
+use Envms\FluentPDO\{Query, Literal};
 
 /**
  * UPDATE query builder
@@ -19,22 +20,24 @@ class Update extends Common
     /**
      * UpdateQuery constructor
      *
-     * @param Query     $fluent
+     * @param Query  $fluent
+     * @param string $table
      */
-    public function __construct(Query $fluent) {
-        $clauses = array(
-            'UPDATE'   => array($this, 'getClauseUpdate'),
-            'JOIN'     => array($this, 'getClauseJoin'),
-            'SET'      => array($this, 'getClauseSet'),
+    public function __construct(Query $fluent, string $table)
+    {
+        $clauses = [
+            'UPDATE'   => [$this, 'getClauseUpdate'],
+            'JOIN'     => [$this, 'getClauseJoin'],
+            'SET'      => [$this, 'getClauseSet'],
             'WHERE'    => ' AND ',
             'ORDER BY' => ', ',
             'LIMIT'    => null,
-        );
+        ];
         parent::__construct($fluent, $clauses);
 
-        $this->statements['UPDATE'] = $fluent->getTableName();
+        $this->statements['UPDATE'] = $table;
 
-        $tableParts    = explode(' ', $fluent->getTableName());
+        $tableParts = explode(' ', $table);
         $this->joins[] = end($tableParts);
     }
 
@@ -45,7 +48,8 @@ class Update extends Common
      * @return $this
      * @throws \Exception
      */
-    public function set($fieldOrArray, $value = false) {
+    public function set($fieldOrArray, $value = false)
+    {
         if (!$fieldOrArray) {
             return $this;
         }
@@ -71,7 +75,8 @@ class Update extends Common
      *
      * @return int|boolean|\PDOStatement
      */
-    public function execute($getResultAsPdoStatement = false) {
+    public function execute($getResultAsPdoStatement = false)
+    {
         $result = parent::execute();
         if ($getResultAsPdoStatement) {
             return $result;
@@ -86,20 +91,22 @@ class Update extends Common
     /**
      * @return string
      */
-    protected function getClauseUpdate() {
+    protected function getClauseUpdate()
+    {
         return 'UPDATE ' . $this->statements['UPDATE'];
     }
 
     /**
      * @return string
      */
-    protected function getClauseSet() {
-        $setArray = array();
+    protected function getClauseSet()
+    {
+        $setArray = [];
         foreach ($this->statements['SET'] as $field => $value) {
             if ($value instanceof Literal) {
                 $setArray[] = $field . ' = ' . $value;
             } else {
-                $setArray[]                      = $field . ' = ?';
+                $setArray[] = $field . ' = ?';
                 $this->parameters['SET'][$field] = $value;
             }
         }
