@@ -1,7 +1,8 @@
 <?php
+
 namespace Envms\FluentPDO\Queries;
 
-use Envms\FluentPDO\{Query,Literal,Structure,Utilities};
+use Envms\FluentPDO\{Query, Literal, Structure, Utilities};
 
 /**
  * Base query builder
@@ -22,20 +23,21 @@ abstract class Base implements \IteratorAggregate
     private $object = false;
 
     /** @var array - definition clauses */
-    protected $clauses = array();
+    protected $clauses = [];
     /** @var array */
-    protected $statements = array();
+    protected $statements = [];
     /** @var array */
-    protected $parameters = array();
+    protected $parameters = [];
 
     /**
-     * BaseQuery constructor.
+     * Base constructor
      *
      * @param Query $fluent
      * @param       $clauses
      */
-    protected function __construct(Query $fluent, $clauses) {
-        $this->fluent  = $fluent;
+    protected function __construct(Query $fluent, $clauses)
+    {
+        $this->fluent = $fluent;
         $this->clauses = $clauses;
         $this->initClauses();
     }
@@ -46,18 +48,20 @@ abstract class Base implements \IteratorAggregate
      *
      * @return string - formatted query
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->getQuery();
     }
 
     /**
      * Initialize statement and parameter clauses.
      */
-    private function initClauses() {
+    private function initClauses()
+    {
         foreach ($this->clauses as $clause => $value) {
             if ($value) {
-                $this->statements[$clause] = array();
-                $this->parameters[$clause] = array();
+                $this->statements[$clause] = [];
+                $this->parameters[$clause] = [];
             } else {
                 $this->statements[$clause] = null;
                 $this->parameters[$clause] = null;
@@ -74,7 +78,8 @@ abstract class Base implements \IteratorAggregate
      *
      * @return $this
      */
-    protected function addStatement($clause, $statement, $parameters = array()) {
+    protected function addStatement($clause, $statement, $parameters = [])
+    {
         if ($statement === null) {
             return $this->resetClause($clause);
         }
@@ -102,11 +107,12 @@ abstract class Base implements \IteratorAggregate
      *
      * @return $this
      */
-    protected function resetClause($clause) {
+    protected function resetClause($clause)
+    {
         $this->statements[$clause] = null;
-        $this->parameters[$clause] = array();
+        $this->parameters[$clause] = [];
         if (isset($this->clauses[$clause]) && $this->clauses[$clause]) {
-            $this->statements[$clause] = array();
+            $this->statements[$clause] = [];
         }
 
         return $this;
@@ -117,7 +123,8 @@ abstract class Base implements \IteratorAggregate
      *
      * @return \PDOStatement
      */
-    public function getIterator() {
+    public function getIterator()
+    {
         return $this->execute();
     }
 
@@ -126,8 +133,9 @@ abstract class Base implements \IteratorAggregate
      *
      * @return \PDOStatement
      */
-    public function execute() {
-        $query      = $this->buildQuery();
+    public function execute()
+    {
+        $query = $this->buildQuery();
         $parameters = $this->buildParameters();
 
         $result = $this->fluent->getPdo()->prepare($query);
@@ -166,15 +174,16 @@ abstract class Base implements \IteratorAggregate
     /**
      * Echo/pass a debug string
      */
-    private function debugger() {
+    private function debugger()
+    {
         if ($this->fluent->debug) {
             if (!is_callable($this->fluent->debug)) {
-                $backtrace  = '';
-                $query      = $this->getQuery();
+                $backtrace = '';
+                $query = $this->getQuery();
                 $parameters = $this->getParameters();
-                $debug      = '';
+                $debug = '';
                 if ($parameters) {
-                    $debug = '# parameters: ' . implode(', ', array_map(array($this, 'quote'), $parameters)) . "\n";
+                    $debug = '# parameters: ' . implode(', ', array_map([$this, 'quote'], $parameters)) . "\n";
                 }
                 $debug .= $query;
                 $pattern = '(^' . preg_quote(__DIR__) . '(\\.php$|[/\\\\]))'; // can be static
@@ -190,12 +199,10 @@ abstract class Base implements \IteratorAggregate
                 if (defined('STDERR')) { // if STDERR is set, send there, otherwise just output the string
                     if (is_resource(STDERR)) {
                         fwrite(STDERR, $finalString);
-                    }
-                    else {
+                    } else {
                         echo $finalString;
                     }
-                }
-                else {
+                } else {
                     echo $finalString;
                 }
             } else {
@@ -207,14 +214,16 @@ abstract class Base implements \IteratorAggregate
     /**
      * @return \PDO
      */
-    protected function getPDO() {
+    protected function getPDO()
+    {
         return $this->fluent->getPdo();
     }
 
     /**
      * @return Structure
      */
-    protected function getStructure() {
+    protected function getStructure()
+    {
         return $this->fluent->getStructure();
     }
 
@@ -223,7 +232,8 @@ abstract class Base implements \IteratorAggregate
      *
      * @return \PDOStatement
      */
-    public function getResult() {
+    public function getResult()
+    {
         return $this->result;
     }
 
@@ -232,7 +242,8 @@ abstract class Base implements \IteratorAggregate
      *
      * @return float
      */
-    public function getTime() {
+    public function getTime()
+    {
         return $this->time;
     }
 
@@ -241,7 +252,8 @@ abstract class Base implements \IteratorAggregate
      *
      * @return array
      */
-    public function getParameters() {
+    public function getParameters()
+    {
         return $this->buildParameters();
     }
 
@@ -252,7 +264,8 @@ abstract class Base implements \IteratorAggregate
      *
      * @return string
      */
-    public function getQuery($formatted = true) {
+    public function getQuery($formatted = true)
+    {
         $query = $this->buildQuery();
         if ($formatted) {
             $query = Utilities::formatQuery($query);
@@ -267,7 +280,8 @@ abstract class Base implements \IteratorAggregate
      * @return string
      * @throws \Exception
      */
-    protected function buildQuery() {
+    protected function buildQuery()
+    {
         $query = '';
         foreach ($this->clauses as $clause => $separator) {
             if ($this->clauseNotEmpty($clause)) {
@@ -291,7 +305,8 @@ abstract class Base implements \IteratorAggregate
      *
      * @return bool
      */
-    private function clauseNotEmpty($clause) {
+    private function clauseNotEmpty($clause)
+    {
         if ((Utilities::isCountable($this->statements[$clause])) && $this->clauses[$clause]) {
             return (boolean)count($this->statements[$clause]);
         } else {
@@ -302,21 +317,19 @@ abstract class Base implements \IteratorAggregate
     /**
      * @return array
      */
-    protected function buildParameters() {
-        $parameters = array();
+    protected function buildParameters()
+    {
+        $parameters = [];
         foreach ($this->parameters as $clauses) {
             if (is_array($clauses)) {
                 foreach ($clauses as $value) {
-                    if (is_array($value) && is_string(key($value)) && substr(key($value), 0, 1) == ':') {
-                        // this is named params e.g. (':name' => 'Mark')
+                    if ($this->isNamedParameter($value)) { // for example [':name' => 'Mark']
                         $parameters = array_merge($parameters, $value);
-                    }
-                    else {
+                    } else {
                         $parameters[] = $value;
                     }
                 }
-            }
-            else {
+            } else {
                 if ($clauses) {
                     $parameters[] = $clauses;
                 }
@@ -331,13 +344,14 @@ abstract class Base implements \IteratorAggregate
      *
      * @return string
      */
-    protected function quote($value) {
+    protected function quote($value)
+    {
         if (!isset($value)) {
             return "NULL";
         }
 
         if (is_array($value)) { // (a, b) IN ((1, 2), (3, 4))
-            return "(" . implode(", ", array_map(array($this, 'quote'), $value)) . ")";
+            return "(" . implode(", ", array_map([$this, 'quote'], $value)) . ")";
         }
 
         $value = $this->formatValue($value);
@@ -361,7 +375,8 @@ abstract class Base implements \IteratorAggregate
      *
      * @return string
      */
-    private function formatValue($val) {
+    private function formatValue($val)
+    {
         if ($val instanceof \DateTime) {
             return $val->format("Y-m-d H:i:s"); // may be driver specific
         }
@@ -378,10 +393,20 @@ abstract class Base implements \IteratorAggregate
      *
      * @return $this
      */
-    public function asObject($object = true) {
+    public function asObject($object = true)
+    {
         $this->object = $object;
 
         return $this;
+    }
+
+    /**
+     * @param $value
+     *
+     * @return bool
+     */
+    public function isNamedParameter($value) {
+        return is_array($value) && is_string(key($value)) && substr(key($value), 0, 1) == ':';
     }
 
 }
