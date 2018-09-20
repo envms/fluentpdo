@@ -9,11 +9,10 @@ use Envms\FluentPDO\Queries\{Insert,Select,Update,Delete};
  *
  * For more information see readme.md
  *
- * @link      http://github.com/envms/fluentpdo
+ * @link      https://github.com/envms/fluentpdo
  * @author    envms, start@env.ms
- * @copyright 2012-2017 env.ms - Chris Bornhoft, Aldo Matelli, Stefan Yohansson, Kevin Sanabria, Carol Zhang, Marek Lichtner
- * @license   http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
- * @license   http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License, version 2 (one or other)
+ * @copyright 2012-2018 env.ms - Chris Bornhoft, Aldo Matelli, Stefan Yohansson, Kevin Sanabria, Marek Lichtner
+ * @license   https://www.gnu.org/licenses/gpl-3.0.en.html GNU General Public License, version 3.0
  */
 
 /**
