@@ -177,11 +177,17 @@ class Query
      * Set table name comprised of prefix.separator.table
      *
      */
-    public function setTableName($table = '', $prefix = '', $separator = ''){
-        $this->prefix    = $prefix;
-        $this->separator = $separator;
+    public function setTableName(?string $table = '', string $prefix = '', string $separator = ''): Query
+    {
+        if ($table !== null) {
+            $this->prefix = $prefix;
+            $this->separator = $separator;
+            $this->table = $table;
+        }
 
-        $this->table     = $prefix.$separator.$table;
+        if ($this->getFullTableName() === '') {
+            throw new \Exception('Table name cannot be empty');
+        }
 
         return $this;
     }
@@ -192,8 +198,9 @@ class Query
      * @return string
      *
      */
-    public function getTableName() {
-        return $this->table;
+    public function getFullTableName(): string
+    {
+        return $this->prefix . $this->separator . $this->table;
     }
 
 }
