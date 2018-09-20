@@ -1,7 +1,8 @@
 <?php
+
 namespace Envms\FluentPDO\Queries;
 
-use Envms\FluentPDO\{Query,Literal};
+use Envms\FluentPDO\{Query, Literal};
 
 /** INSERT query builder
  */
@@ -9,10 +10,10 @@ class Insert extends Base
 {
 
     /** @var array */
-    private $columns = array();
+    private $columns = [];
 
     /** @var array */
-    private $firstValue = array();
+    private $firstValue = [];
 
     /** @var bool */
     private $ignore = false;
@@ -25,13 +26,16 @@ class Insert extends Base
      * @param Query     $fluent
      * @param string    $table
      * @param           $values
+     *
+     * @throws \Exception
      */
-    public function __construct(Query $fluent, $table, $values) {
-        $clauses = array(
-            'INSERT INTO'             => array($this, 'getClauseInsertInto'),
-            'VALUES'                  => array($this, 'getClauseValues'),
-            'ON DUPLICATE KEY UPDATE' => array($this, 'getClauseOnDuplicateKeyUpdate'),
-        );
+    public function __construct(Query $fluent, $table, $values)
+    {
+        $clauses = [
+            'INSERT INTO'             => [$this, 'getClauseInsertInto'],
+            'VALUES'                  => [$this, 'getClauseValues'],
+            'ON DUPLICATE KEY UPDATE' => [$this, 'getClauseOnDuplicateKeyUpdate'],
+        ];
         parent::__construct($fluent, $clauses);
 
         $this->statements['INSERT INTO'] = $table;
@@ -40,12 +44,13 @@ class Insert extends Base
 
     /**
      * Execute insert query
-     * 
+     *
      * @param mixed $sequence
      *
      * @return integer last inserted id or false
      */
-    public function execute($sequence = null) {
+    public function execute($sequence = null)
+    {
         $result = parent::execute();
         if ($result) {
             return $this->getPDO()->lastInsertId($sequence);
@@ -61,7 +66,8 @@ class Insert extends Base
      *
      * @return Insert
      */
-    public function onDuplicateKeyUpdate($values) {
+    public function onDuplicateKeyUpdate($values)
+    {
         $this->statements['ON DUPLICATE KEY UPDATE'] = array_merge(
             $this->statements['ON DUPLICATE KEY UPDATE'], $values
         );
@@ -77,7 +83,8 @@ class Insert extends Base
      * @return Insert
      * @throws \Exception
      */
-    public function values($values) {
+    public function values($values)
+    {
         if (!is_array($values)) {
             throw new \Exception('Param VALUES for INSERT query must be array');
         }
@@ -100,7 +107,8 @@ class Insert extends Base
      *
      * @return Insert
      */
-    public function ignore() {
+    public function ignore()
+    {
         $this->ignore = true;
 
         return $this;
@@ -110,7 +118,8 @@ class Insert extends Base
      *
      * @return Insert
      */
-    public function delayed() {
+    public function delayed()
+    {
         $this->delayed = true;
 
         return $this;
@@ -119,7 +128,8 @@ class Insert extends Base
     /**
      * @return string
      */
-    protected function getClauseInsertInto() {
+    protected function getClauseInsertInto()
+    {
         return 'INSERT' . ($this->ignore ? " IGNORE" : '') . ($this->delayed ? " DELAYED" : '') . ' INTO ' . $this->statements['INSERT INTO'];
     }
 
@@ -128,25 +138,27 @@ class Insert extends Base
      *
      * @return string
      */
-    protected function parameterGetValue($param) {
+    protected function parameterGetValue($param)
+    {
         return $param instanceof Literal ? (string)$param : '?';
     }
 
     /**
      * @return string
      */
-    protected function getClauseValues() {
-        $valuesArray = array();
+    protected function getClauseValues()
+    {
+        $valuesArray = [];
         foreach ($this->statements['VALUES'] as $rows) {
             // literals should not be parametrized.
             // They are commonly used to call engine functions or literals.
             // Eg: NOW(), CURRENT_TIMESTAMP etc
-            $placeholders  = array_map(array($this, 'parameterGetValue'), $rows);
+            $placeholders = array_map([$this, 'parameterGetValue'], $rows);
             $valuesArray[] = '(' . implode(', ', $placeholders) . ')';
         }
 
         $columns = implode(', ', $this->columns);
-        $values  = implode(', ', $valuesArray);
+        $values = implode(', ', $valuesArray);
 
         return " ($columns) VALUES $values";
     }
@@ -159,7 +171,8 @@ class Insert extends Base
      *
      * @return array
      */
-    protected function filterLiterals($statements) {
+    protected function filterLiterals($statements)
+    {
         $f = function ($item) {
             return !$item instanceof Literal;
         };
@@ -176,7 +189,8 @@ class Insert extends Base
     /**
      * @return array
      */
-    protected function buildParameters() {
+    protected function buildParameters()
+    {
         $this->parameters = array_merge(
             $this->filterLiterals($this->statements['VALUES']),
             $this->filterLiterals($this->statements['ON DUPLICATE KEY UPDATE'])
@@ -188,8 +202,9 @@ class Insert extends Base
     /**
      * @return string
      */
-    protected function getClauseOnDuplicateKeyUpdate() {
-        $result = array();
+    protected function getClauseOnDuplicateKeyUpdate()
+    {
+        $result = [];
         foreach ($this->statements['ON DUPLICATE KEY UPDATE'] as $key => $value) {
             $result[] = "$key = " . $this->parameterGetValue($value);
         }
@@ -202,7 +217,8 @@ class Insert extends Base
      *
      * @throws \Exception
      */
-    private function addOneValue($oneValue) {
+    private function addOneValue($oneValue)
+    {
         // check if all $keys are strings
         foreach ($oneValue as $key => $value) {
             if (!is_string($key)) {

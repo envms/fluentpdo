@@ -1,4 +1,5 @@
 <?php
+
 namespace Envms\FluentPDO\Queries;
 
 use Envms\FluentPDO\Query;
@@ -23,22 +24,24 @@ class Delete extends Common
      * Delete constructor
      *
      * @param Query  $fluent
+     * @param string $table
      */
-    public function __construct(Query $fluent) {
-        $clauses = array(
-            'DELETE FROM' => array($this, 'getClauseDeleteFrom'),
-            'DELETE'      => array($this, 'getClauseDelete'),
+    public function __construct(Query $fluent, string $table)
+    {
+        $clauses = [
+            'DELETE FROM' => [$this, 'getClauseDeleteFrom'],
+            'DELETE'      => [$this, 'getClauseDelete'],
             'FROM'        => null,
-            'JOIN'        => array($this, 'getClauseJoin'),
+            'JOIN'        => [$this, 'getClauseJoin'],
             'WHERE'       => ' AND ',
             'ORDER BY'    => ', ',
             'LIMIT'       => null,
-        );
+        ];
 
         parent::__construct($fluent, $clauses);
 
-        $this->statements['DELETE FROM'] = $fluent->getTableName();
-        $this->statements['DELETE']      = $fluent->getTableName();
+        $this->statements['DELETE FROM'] = $table;
+        $this->statements['DELETE'] = $table;
     }
 
     /**
@@ -46,7 +49,8 @@ class Delete extends Common
      *
      * @return Delete
      */
-    public function ignore() {
+    public function ignore()
+    {
         $this->ignore = true;
 
         return $this;
@@ -55,7 +59,8 @@ class Delete extends Common
     /**
      * @return string
      */
-    protected function buildQuery() {
+    protected function buildQuery()
+    {
         if ($this->statements['FROM']) {
             unset($this->clauses['DELETE FROM']);
         } else {
@@ -70,7 +75,8 @@ class Delete extends Common
      *
      * @return bool
      */
-    public function execute() {
+    public function execute()
+    {
         $result = parent::execute();
         if ($result) {
             return $result->rowCount();
@@ -82,15 +88,17 @@ class Delete extends Common
     /**
      * @return string
      */
-    protected function getClauseDelete() {
+    protected function getClauseDelete()
+    {
         return 'DELETE' . ($this->ignore ? " IGNORE" : '') . ' ' . $this->statements['DELETE'];
     }
 
     /**
      * @return string
      */
-    protected function getClauseDeleteFrom() {
+    protected function getClauseDeleteFrom()
+    {
         return 'DELETE' . ($this->ignore ? " IGNORE" : '') . ' FROM ' . $this->statements['DELETE FROM'];
     }
-    
+
 }
