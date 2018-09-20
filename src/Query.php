@@ -61,7 +61,11 @@ class Query
      *
      * @return Select
      */
-    public function from($table, $primaryKey = null) {
+    public function from(?string $table = null, ?int $primaryKey = null): Select
+    {
+        $this->setTableName($table);
+        $table = $this->getFullTableName();
+
         $query = new Select($this, $table);
         if ($primaryKey !== null) {
             $tableTable     = $query->getFromTable();
@@ -81,7 +85,11 @@ class Query
      *
      * @return Insert
      */
-    public function insertInto($table, $values = array()) {
+    public function insertInto(?string $table = null, array $values = []): Insert
+    {
+        $this->setTableName($table);
+        $table = $this->getFullTableName();
+
         $query = new Insert($this, $table, $values);
 
         return $query;
@@ -96,12 +104,12 @@ class Query
      * @throws \Exception
      * @return Update
      */
-    public function update($set = array(), $primaryKey = null) {
-        if(empty($this->table)){
-            throw new \Exception('Table name is not set');
-        } else {
-            $query = new Update($this);
-        }
+    public function update(?string $table = null, $set = [], ?int $primaryKey = null): Update
+    {
+        $this->setTableName($table);
+        $table = $this->getFullTableName();
+
+        $query = new Update($this, $table);
 
         $query->set($set);
         if ($primaryKey) {
@@ -121,12 +129,12 @@ class Query
      * @throws \Exception
      * @return Delete
      */
-    public function delete($primaryKey = null) {
-        if(empty($this->table)){
-            throw new \Exception('Table name is not set');
-        } else {
-            $query = new Delete($this);
-        }
+    public function delete(?string $table = null, ?int $primaryKey = null): Delete
+    {
+        $this->setTableName($table);
+        $table = $this->getFullTableName();
+
+        $query = new Delete($this, $table);
 
         if ($primaryKey) {
             $primaryKeyName = $this->getStructure()->getPrimaryKey($this->table);
