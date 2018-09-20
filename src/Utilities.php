@@ -1,4 +1,5 @@
 <?php
+
 namespace Envms\FluentPDO;
 
 /**
@@ -14,7 +15,8 @@ class Utilities
      *
      * @return string
      */
-    public static function toUpperWords($string) {
+    public static function toUpperWords($string)
+    {
         return trim(strtoupper(preg_replace('/(.)([A-Z]+)/', '$1 $2', $string)));
     }
 
@@ -23,7 +25,8 @@ class Utilities
      *
      * @return string
      */
-    public static function formatQuery($query) {
+    public static function formatQuery($query)
+    {
         $query = preg_replace(
             '/\b(WHERE|FROM|GROUP BY|HAVING|ORDER BY|LIMIT|OFFSET|UNION|ON DUPLICATE KEY UPDATE|VALUES|SET)\b/',
             "\n$0", $query
@@ -40,22 +43,21 @@ class Utilities
     }
 
     /**
-     * Converts columns from strings to types according to 
+     * Converts columns from strings to types according to
      * PDOStatement::columnMeta
      * http://stackoverflow.com/a/9952703/3006989
-     * 
-     * @param \PDOStatement $statement
+     *
+     * @param \PDOStatement      $statement
      * @param array|\Traversable $rows - provided by PDOStatement::fetch with PDO::FETCH_ASSOC
+     *
      * @return array|\Traversable - copy of $assoc with matching type fields
      */
     public static function convertToNativeTypes(\PDOStatement $statement, $rows)
     {
-        for ($i = 0; ($columnMeta = $statement->getColumnMeta($i)) !== false; $i++)
-        {
+        for ($i = 0; ($columnMeta = $statement->getColumnMeta($i)) !== false; $i++) {
             $type = $columnMeta['native_type'];
-    
-            switch($type)
-            {
+
+            switch ($type) {
                 case 'DECIMAL':
                 case 'NEWDECIMAL':
                 case 'FLOAT':
@@ -65,17 +67,17 @@ class Utilities
                 case 'LONG':
                 case 'LONGLONG':
                 case 'INT24':
-                        if(isset($rows[$columnMeta['name']])){
-                            $rows[$columnMeta['name']] = $rows[$columnMeta['name']] + 0;
-                        }else{
-                            if(is_array($rows) || $rows instanceof \Traversable){
-                                foreach($rows as &$row){
-                                    if(isset($row[$columnMeta['name']])){
-                                        $row[$columnMeta['name']] = $row[$columnMeta['name']] + 0;
-                                    }
+                    if (isset($rows[$columnMeta['name']])) {
+                        $rows[$columnMeta['name']] = $rows[$columnMeta['name']] + 0;
+                    } else {
+                        if (is_array($rows) || $rows instanceof \Traversable) {
+                            foreach ($rows as &$row) {
+                                if (isset($row[$columnMeta['name']])) {
+                                    $row[$columnMeta['name']] = $row[$columnMeta['name']] + 0;
                                 }
-                            }                           
+                            }
                         }
+                    }
                     break;
                 case 'DATETIME':
                 case 'DATE':
@@ -85,6 +87,7 @@ class Utilities
                 // default: keep as string
             }
         }
+
         return $rows;
     }
 
@@ -93,7 +96,8 @@ class Utilities
      *
      * @return bool
      */
-    public static function isCountable($subject) {
+    public static function isCountable($subject)
+    {
         return (is_array($subject) || ($subject instanceof \Countable));
     }
 

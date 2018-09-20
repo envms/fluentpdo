@@ -1,4 +1,5 @@
 <?php
+
 namespace Envms\FluentPDO;
 
 /**
@@ -18,7 +19,8 @@ class Structure
      * @param string $primaryKey
      * @param string $foreignKey
      */
-    function __construct($primaryKey = 'id', $foreignKey = '%s_id') {
+    function __construct($primaryKey = 'id', $foreignKey = '%s_id')
+    {
         if ($foreignKey === null) {
             $foreignKey = $primaryKey;
         }
@@ -31,7 +33,8 @@ class Structure
      *
      * @return string
      */
-    public function getPrimaryKey($table) {
+    public function getPrimaryKey($table)
+    {
         return $this->key($this->primaryKey, $table);
     }
 
@@ -40,7 +43,8 @@ class Structure
      *
      * @return string
      */
-    public function getForeignKey($table) {
+    public function getForeignKey($table)
+    {
         return $this->key($this->foreignKey, $table);
     }
 
@@ -50,12 +54,13 @@ class Structure
      *
      * @return string
      */
-    private function key($key, $table) {
+    private function key($key, $table)
+    {
         if (is_callable($key)) {
             return $key($table);
         }
 
         return sprintf($key, $table);
     }
-    
+
 }

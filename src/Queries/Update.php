@@ -1,7 +1,8 @@
 <?php
+
 namespace Envms\FluentPDO\Queries;
 
-use Envms\FluentPDO\{Query,Literal};
+use Envms\FluentPDO\{Query, Literal};
 
 /**
  * UPDATE query builder
@@ -17,26 +18,27 @@ class Update extends Common
 {
 
     /**
-     * UpdateQuery constructor
+     * Update constructor
      *
      * @param Query     $fluent
      * @param           $table
      */
-    public function __construct(Query $fluent, $table, $jsonFunction = ''){
-        $clauses = array(
-            'UPDATE'   => array($this, 'getClauseUpdate'),
-            'JOIN'     => array($this, 'getClauseJoin'),
-            'SET'      => array($this, 'getClauseSet'),
+    public function __construct(Query $fluent, $table, $jsonFunction = '')
+    {
+        $clauses = [
+            'UPDATE'   => [$this, 'getClauseUpdate'],
+            'JOIN'     => [$this, 'getClauseJoin'],
+            'SET'      => [$this, 'getClauseSet'],
             'WHERE'    => ' AND ',
             'ORDER BY' => ', ',
             'LIMIT'    => null,
-        );
+        ];
         parent::__construct($fluent, $clauses);
 
         $this->statements['UPDATE'] = $table;
-        $this->jsonFunction         = $jsonFunction;
+        $this->jsonFunction = $jsonFunction;
 
-        $tableParts    = explode(' ', $table);
+        $tableParts = explode(' ', $table);
         $this->joins[] = end($tableParts);
     }
 
@@ -54,15 +56,14 @@ class Update extends Common
         }
         if (is_string($fieldOrArray) && $value !== false) {
             $this->statements['SET'][$fieldOrArray] = $value;
-            if ($jsonUpdateValue != ''){
-                if (is_array($jsonUpdateValue)){
-                    $this->jsonPath = 'JSON_OBJECT('.$jsonUpdateValue[0].', '.$jsonUpdateValue[1].')';
+            if ($jsonUpdateValue != '') {
+                if (is_array($jsonUpdateValue)) {
+                    $this->jsonPath = 'JSON_OBJECT(' . $jsonUpdateValue[0] . ', ' . $jsonUpdateValue[1] . ')';
                 } else {
                     $this->jsonPath = $jsonUpdateValue;
                 }
             }
-        }
-        else {
+        } else {
             if (!is_array($fieldOrArray)) {
                 throw new \Exception('You must pass a value, or provide the SET list as an associative array. column => value');
             } else {
@@ -82,7 +83,8 @@ class Update extends Common
      *
      * @return int|boolean|\PDOStatement
      */
-    public function execute($getResultAsPdoStatement = false) {
+    public function execute($getResultAsPdoStatement = false)
+    {
         $result = parent::execute();
         if ($getResultAsPdoStatement) {
             return $result;
@@ -97,27 +99,28 @@ class Update extends Common
     /**
      * @return string
      */
-    protected function getClauseUpdate() {
+    protected function getClauseUpdate()
+    {
         return 'UPDATE ' . $this->statements['UPDATE'];
     }
 
     /**
      * @return string
      */
-    protected function getClauseSet() {
-        $setArray = array();
+    protected function getClauseSet()
+    {
+        $setArray = [];
         foreach ($this->statements['SET'] as $field => $value) {
-            if ($this->jsonFunction !== ''){
+            if ($this->jsonFunction !== '') {
                 if (!empty($this->jsonPath)) {
-                    $setArray[] = $field . ' = ' . $this->jsonFunction . '(' . $field . ', $' . $value . ', '. $this->jsonPath .')';
+                    $setArray[] = $field . ' = ' . $this->jsonFunction . '(' . $field . ', $' . $value . ', ' . $this->jsonPath . ')';
                 } else {
                     $setArray[] = $field . ' = ' . $this->jsonFunction . '(' . $field . ', $' . $value . ')';
                 }
-            }
-            else if ($value instanceof Literal) {
+            } elseif ($value instanceof Literal) {
                 $setArray[] = $field . ' = ' . $value;
             } else {
-                $setArray[]                      = $field . ' = ?';
+                $setArray[] = $field . ' = ?';
                 $this->parameters['SET'][$field] = $value;
             }
         }
