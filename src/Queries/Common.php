@@ -212,7 +212,7 @@ abstract class Common extends Base
             }
         }
 
-        if (strpos(strtoupper($statement), ' ON ') || strpos(strtoupper($statement), ' USING')) {
+        if (strpos(strtoupper($statement), ' ON ') !== false || strpos(strtoupper($statement), ' USING') !== false) {
             if (!$joinAlias) {
                 $joinAlias = $joinTable;
             }
@@ -310,6 +310,8 @@ abstract class Common extends Base
     }
 
     /**
+     * @throws \Exception
+     *
      * @return string
      */
     protected function buildQuery()

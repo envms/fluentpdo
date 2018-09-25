@@ -47,6 +47,8 @@ abstract class Base implements \IteratorAggregate
      * ie: echo $query
      *
      * @return string - formatted query
+     *
+     * @throws \Exception
      */
     public function __toString()
     {
@@ -122,6 +124,8 @@ abstract class Base implements \IteratorAggregate
      * Implements method from IteratorAggregate
      *
      * @return \PDOStatement
+     *
+     * @throws \Exception
      */
     public function getIterator()
     {
@@ -132,6 +136,8 @@ abstract class Base implements \IteratorAggregate
      * Execute query with earlier added parameters
      *
      * @return \PDOStatement
+     *
+     * @throws \Exception
      */
     public function execute()
     {
@@ -173,6 +179,8 @@ abstract class Base implements \IteratorAggregate
 
     /**
      * Echo/pass a debug string
+     *
+     * @throws \Exception
      */
     private function debugger()
     {
@@ -263,6 +271,8 @@ abstract class Base implements \IteratorAggregate
      * @param bool $formatted - Return formatted query
      *
      * @return string
+     *
+     * @throws \Exception
      */
     public function getQuery($formatted = true)
     {

@@ -47,7 +47,7 @@ class Select extends Common implements \Countable
             'ORDER BY' => ', ',
             'LIMIT'    => null,
             'OFFSET'   => null,
-            "\n--"     => "\n--",
+            "\n--"     => "\n--"
         ];
         parent::__construct($fluent, $clauses);
 
@@ -87,6 +87,8 @@ class Select extends Common implements \Countable
      * @param int $columnNumber
      *
      * @return string
+     *
+     * @throws \Exception
      */
     public function fetchColumn($columnNumber = 0)
     {
@@ -105,6 +107,8 @@ class Select extends Common implements \Countable
      * @param string $column column name or empty string for the whole row
      *
      * @return mixed string, array or false if there is no row
+     *
+     * @throws \Exception
      */
     public function fetch($column = '')
     {
@@ -138,7 +142,9 @@ class Select extends Common implements \Countable
      * @param $value
      * @param $object
      *
-     * @return array of fetched rows as pairs
+     * @return array|\PDOStatement
+     *
+     * @throws \Exception
      */
     public function fetchPairs($key, $value, $object = false)
     {
@@ -155,6 +161,8 @@ class Select extends Common implements \Countable
      * @param string $selectOnly select columns which could be fetched
      *
      * @return \PDOStatement|array of fetched rows
+     *
+     * @throws \Exception
      */
     public function fetchAll($index = '', $selectOnly = '')
     {
@@ -189,6 +197,8 @@ class Select extends Common implements \Countable
      * \Countable interface doesn't break current select query
      *
      * @return int
+     *
+     * @throws \Exception
      */
     public function count()
     {
@@ -200,6 +210,8 @@ class Select extends Common implements \Countable
     /**
      * @return \ArrayIterator|\PDOStatement
      * @todo look into \Countable implementation
+     *
+     * @throws \Exception
      */
     public function getIterator()
     {
