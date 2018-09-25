@@ -1,7 +1,8 @@
 <?php
+
 namespace Envms\FluentPDO\Queries;
 
-use Envms\FluentPDO\{Literal,Utilities};
+use Envms\FluentPDO\{Literal, Utilities};
 
 /**
  * CommonQuery add JOIN and WHERE clauses for (SELECT, UPDATE, DELETE)
@@ -21,11 +22,26 @@ abstract class Common extends Base
 {
 
     /** @var array - methods which are allowed to be call by the magic method __call() */
-    private $validMethods = ['from', 'fullJoin', 'group', 'groupBy', 'having', 'innerJoin', 'join', 'leftJoin',
-        'limit', 'offset', 'order', 'orderBy', 'outerJoin', 'rightJoin', 'select'];
+    private $validMethods = [
+        'from',
+        'fullJoin',
+        'group',
+        'groupBy',
+        'having',
+        'innerJoin',
+        'join',
+        'leftJoin',
+        'limit',
+        'offset',
+        'order',
+        'orderBy',
+        'outerJoin',
+        'rightJoin',
+        'select'
+    ];
 
     /** @var array - Query tables (also include table from clause FROM) */
-    protected $joins = array();
+    protected $joins = [];
 
     /** @var bool - Disable adding undefined joins to query? */
     protected $isSmartJoinEnabled = true;
@@ -33,7 +49,8 @@ abstract class Common extends Base
     /**
      * @return $this
      */
-    public function enableSmartJoin() {
+    public function enableSmartJoin()
+    {
         $this->isSmartJoinEnabled = true;
 
         return $this;
@@ -42,7 +59,8 @@ abstract class Common extends Base
     /**
      * @return $this
      */
-    public function disableSmartJoin() {
+    public function disableSmartJoin()
+    {
         $this->isSmartJoinEnabled = false;
 
         return $this;
@@ -51,7 +69,8 @@ abstract class Common extends Base
     /**
      * @return bool
      */
-    public function isSmartJoinEnabled() {
+    public function isSmartJoinEnabled()
+    {
         return $this->isSmartJoinEnabled;
     }
 
@@ -63,7 +82,8 @@ abstract class Common extends Base
      *
      * @return $this
      */
-    public function where($condition, $parameters = array()) {
+    public function where($condition, $parameters = [])
+    {
         if ($condition === null) {
             return $this->resetClause('WHERE');
         }
@@ -95,7 +115,7 @@ abstract class Common extends Base
             // condition is column only
             if (is_null($parameters)) {
                 return $this->addStatement('WHERE', "$condition IS NULL");
-            } elseif ($args[1] === array()) {
+            } elseif ($args[1] === []) {
                 return $this->addStatement('WHERE', 'FALSE');
             } elseif (is_array($args[1])) {
                 $in = $this->quote($args[1]);
@@ -108,8 +128,7 @@ abstract class Common extends Base
                 $condition = "{$condition} = {$parameters}";
 
                 return $this->addStatement('WHERE', $condition);
-            }
-            else {
+            } else {
                 $condition = "$condition = ?";
             }
         }
@@ -125,7 +144,8 @@ abstract class Common extends Base
      *
      * @return $this
      */
-    public function __call($name, $parameters = array()) {
+    public function __call($name, $parameters = [])
+    {
         if (!in_array($name, $this->validMethods)) {
             trigger_error("Call to invalid method " . get_class($this) . "::{$name}()", E_USER_ERROR);
         }
@@ -154,7 +174,8 @@ abstract class Common extends Base
     /**
      * @return string
      */
-    protected function getClauseJoin() {
+    protected function getClauseJoin()
+    {
         return implode(' ', $this->statements['JOIN']);
     }
 
@@ -167,9 +188,10 @@ abstract class Common extends Base
      *
      * @return $this
      */
-    private function addJoinStatements($clause, $statement, $parameters = array()) {
+    private function addJoinStatements($clause, $statement, $parameters = [])
+    {
         if ($statement === null) {
-            $this->joins = array();
+            $this->joins = [];
 
             return $this->resetClause('JOIN');
         }
@@ -185,12 +207,12 @@ abstract class Common extends Base
 
         if ($matches) {
             $joinTable = $matches[1];
-            if (isset($matches[4]) && !in_array(strtoupper($matches[4]), array('ON', 'USING'))) {
+            if (isset($matches[4]) && !in_array(strtoupper($matches[4]), ['ON', 'USING'])) {
                 $joinAlias = $matches[4];
             }
         }
 
-        if (strpos(strtoupper($statement), ' ON ') || strpos(strtoupper($statement), ' USING')) {
+        if (strpos(strtoupper($statement), ' ON ') !== false || strpos(strtoupper($statement), ' USING') !== false) {
             if (!$joinAlias) {
                 $joinAlias = $joinTable;
             }
@@ -198,14 +220,14 @@ abstract class Common extends Base
                 return $this;
             } else {
                 $this->joins[] = $joinAlias;
-                $statement     = " $clause $statement";
+                $statement = " $clause $statement";
 
                 return $this->addStatement('JOIN', $statement, $parameters);
             }
         }
 
         // $joinTable is list of tables for join e.g.: table1.table2:table3....
-        if (!in_array(substr($joinTable, -1), array('.', ':'))) {
+        if (!in_array(substr($joinTable, -1), ['.', ':'])) {
             $joinTable .= '.';
         }
 
@@ -252,14 +274,15 @@ abstract class Common extends Base
      *
      * @return string
      */
-    private function createJoinStatement($clause, $mainTable, $joinTable, $joinAlias = '') {
-        if (in_array(substr($mainTable, -1), array(':', '.'))) {
+    private function createJoinStatement($clause, $mainTable, $joinTable, $joinAlias = '')
+    {
+        if (in_array(substr($mainTable, -1), [':', '.'])) {
             $mainTable = substr($mainTable, 0, -1);
         }
 
         $referenceDirection = substr($joinTable, -1);
-        $joinTable          = substr($joinTable, 0, -1);
-        $asJoinAlias        = '';
+        $joinTable = substr($joinTable, 0, -1);
+        $asJoinAlias = '';
 
         if ($joinAlias) {
             $asJoinAlias = " AS $joinAlias";
@@ -287,15 +310,18 @@ abstract class Common extends Base
     }
 
     /**
+     * @throws \Exception
+     *
      * @return string
      */
-    protected function buildQuery() {
+    protected function buildQuery()
+    {
         // first create extra join from statements with columns with referenced tables
-        $statementsWithReferences = array('WHERE', 'SELECT', 'GROUP BY', 'ORDER BY');
+        $statementsWithReferences = ['WHERE', 'SELECT', 'GROUP BY', 'ORDER BY'];
 
         foreach ($statementsWithReferences as $clause) {
             if (array_key_exists($clause, $this->statements)) {
-                $this->statements[$clause] = array_map(array($this, 'createUndefinedJoins'), $this->statements[$clause]);
+                $this->statements[$clause] = array_map([$this, 'createUndefinedJoins'], $this->statements[$clause]);
             }
         }
 
@@ -309,7 +335,8 @@ abstract class Common extends Base
      *
      * @return string - the rewritten $statement (e.g. tab1.tab2:col => tab2.col)
      */
-    private function createUndefinedJoins($statement) {
+    private function createUndefinedJoins($statement)
+    {
         if (!$this->isSmartJoinEnabled) {
             return $statement;
         }
@@ -336,5 +363,5 @@ abstract class Common extends Base
 
         return $statement;
     }
-    
+
 }

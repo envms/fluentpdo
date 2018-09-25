@@ -1,18 +1,18 @@
 <?php
+
 namespace Envms\FluentPDO;
 
-use Envms\FluentPDO\Queries\{Insert,Select,Update,Delete};
+use Envms\FluentPDO\Queries\{Insert, Select, Update, Delete};
 
 /**
  * FluentPDO is a quick and light PHP library for rapid query building. It features a smart join builder, which automatically creates table joins.
  *
  * For more information see readme.md
  *
- * @link      http://github.com/envms/fluentpdo
+ * @link      https://github.com/envms/fluentpdo
  * @author    envms, start@env.ms
- * @copyright 2012-2017 env.ms - Chris Bornhoft, Aldo Matelli, Stefan Yohansson, Kevin Sanabria, Carol Zhang, Marek Lichtner
- * @license   http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
- * @license   http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License, version 2 (one or other)
+ * @copyright 2012-2018 env.ms - Chris Bornhoft, Aldo Matelli, Stefan Yohansson, Kevin Sanabria, Marek Lichtner
+ * @license   https://www.gnu.org/licenses/gpl-3.0.en.html GNU General Public License, version 3.0
  */
 
 /**
@@ -32,13 +32,21 @@ class Query
     /** @var boolean */
     public $convertTypes = false;
 
+    /** @var string */
+    protected $table;
+    /** @var string */
+    protected $prefix;
+    /** @var string */
+    protected $separator;
+
     /**
      * Query constructor
      *
      * @param \PDO           $pdo
      * @param Structure|null $structure
      */
-    function __construct(\PDO $pdo, Structure $structure = null) {
+    function __construct(\PDO $pdo, Structure $structure = null)
+    {
         $this->pdo = $pdo;
         if (!$structure) {
             $structure = new Structure();
@@ -49,18 +57,25 @@ class Query
     /**
      * Create SELECT query from $table
      *
-     * @param string  $table      - db table name
-     * @param integer $primaryKey - return one row by primary key
+     * @param string $table      - db table name
+     * @param int    $primaryKey - return one row by primary key
      *
      * @return Select
+     *
+     * @throws \Exception
      */
-    public function from($table, $primaryKey = null) {
+    public function from(?string $table = null, ?int $primaryKey = null): Select
+    {
+        $this->setTableName($table);
+        $table = $this->getFullTableName();
+
         $query = new Select($this, $table);
+
         if ($primaryKey !== null) {
-            $tableTable     = $query->getFromTable();
-            $tableAlias     = $query->getFromAlias();
+            $tableTable = $query->getFromTable();
+            $tableAlias = $query->getFromAlias();
             $primaryKeyName = $this->structure->getPrimaryKey($tableTable);
-            $query          = $query->where("$tableAlias.$primaryKeyName", $primaryKey);
+            $query = $query->where("$tableAlias.$primaryKeyName", $primaryKey);
         }
 
         return $query;
@@ -73,8 +88,14 @@ class Query
      * @param array  $values - accepts one or multiple rows, @see docs
      *
      * @return Insert
+     *
+     * @throws \Exception
      */
-    public function insertInto($table, $values = array()) {
+    public function insertInto(?string $table = null, array $values = []): Insert
+    {
+        $this->setTableName($table);
+        $table = $this->getFullTableName();
+
         $query = new Insert($this, $table, $values);
 
         return $query;
@@ -85,16 +106,23 @@ class Query
      *
      * @param string       $table
      * @param array|string $set
-     * @param string       $primaryKey
+     * @param int          $primaryKey
      *
      * @return Update
+     *
+     * @throws \Exception
      */
-    public function update($table, $set = array(), $primaryKey = null) {
+    public function update(?string $table = null, $set = [], ?int $primaryKey = null): Update
+    {
+        $this->setTableName($table);
+        $table = $this->getFullTableName();
+
         $query = new Update($this, $table);
+
         $query->set($set);
         if ($primaryKey) {
-            $primaryKeyName = $this->getStructure()->getPrimaryKey($table);
-            $query          = $query->where($primaryKeyName, $primaryKey);
+            $primaryKeyName = $this->getStructure()->getPrimaryKey($this->table);
+            $query = $query->where($primaryKeyName, $primaryKey);
         }
 
         return $query;
@@ -104,15 +132,22 @@ class Query
      * Create DELETE query
      *
      * @param string $table
-     * @param string $primaryKey delete only row by primary key
+     * @param int    $primaryKey delete only row by primary key
      *
      * @return Delete
+     *
+     * @throws \Exception
      */
-    public function delete($table, $primaryKey = null) {
+    public function delete(?string $table = null, ?int $primaryKey = null): Delete
+    {
+        $this->setTableName($table);
+        $table = $this->getFullTableName();
+
         $query = new Delete($this, $table);
+
         if ($primaryKey) {
-            $primaryKeyName = $this->getStructure()->getPrimaryKey($table);
-            $query          = $query->where($primaryKeyName, $primaryKey);
+            $primaryKeyName = $this->getStructure()->getPrimaryKey($this->table);
+            $query = $query->where($primaryKeyName, $primaryKey);
         }
 
         return $query;
@@ -122,37 +157,97 @@ class Query
      * Create DELETE FROM query
      *
      * @param string $table
-     * @param string $primaryKey
+     * @param int    $primaryKey
      *
      * @return Delete
      */
-    public function deleteFrom($table, $primaryKey = null) {
+    public function deleteFrom(?string $table = null, ?int $primaryKey = null): Delete
+    {
         $args = func_get_args();
 
-        return call_user_func_array(array($this, 'delete'), $args);
+        return call_user_func_array([$this, 'delete'], $args);
     }
 
     /**
      * @return \PDO
      */
-    public function getPdo() {
+    public function getPdo(): \PDO
+    {
         return $this->pdo;
     }
 
     /**
      * @return Structure
      */
-    public function getStructure() {
+    public function getStructure(): Structure
+    {
         return $this->structure;
     }
 
     /**
      * Closes the \PDO connection to the database
-     *
-     * @return null
      */
-    public function close() {
+    public function close(): void
+    {
         $this->pdo = null;
+    }
+
+    /**
+     * Set table name comprised of prefix.separator.table
+     *
+     * @param string $table
+     * @param string $prefix
+     * @param string $separator
+     *
+     * @return $this
+     *
+     * @throws \Exception
+     */
+    public function setTableName(?string $table = '', string $prefix = '', string $separator = ''): Query
+    {
+        if ($table !== null) {
+            $this->prefix = $prefix;
+            $this->separator = $separator;
+            $this->table = $table;
+        }
+
+        if ($this->getFullTableName() === '') {
+            throw new \Exception('Table name cannot be empty');
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFullTableName(): string
+    {
+        return $this->prefix . $this->separator . $this->table;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPrefix(): string
+    {
+        return $this->prefix;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSeparator(): string
+    {
+        return $this->separator;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTable(): string
+    {
+        return $this->table;
     }
 
 }
