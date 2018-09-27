@@ -457,4 +457,28 @@ abstract class Base implements \IteratorAggregate
         return $this;
     }
 
+    /**
+     * @return array
+     */
+    public function getRawClauses()
+    {
+        return $this->clauses;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRawStatements()
+    {
+        return $this->statements;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRawParameters()
+    {
+        return $this->parameters;
+    }
+
 }
