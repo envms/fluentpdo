@@ -72,7 +72,7 @@ abstract class Base implements \IteratorAggregate
     }
 
     /**
-     * Add statement for all kind of clauses
+     * Add statement for all clauses except WHERE
      *
      * @param       $clause
      * @param       $statement
@@ -98,6 +98,34 @@ abstract class Base implements \IteratorAggregate
             $this->statements[$clause] = $statement;
             $this->parameters[$clause] = $parameters;
         }
+
+        return $this;
+    }
+
+    /**
+     * Add statement for all kind of clauses
+     *
+     * @param        $statement
+     * @param string $separator - should be AND or OR
+     * @param array  $parameters
+     *
+     * @return $this
+     */
+    protected function addWhereStatement($statement, string $separator = 'AND', $parameters = [])
+    {
+        if ($statement === null) {
+            return $this->resetClause('WHERE');
+        }
+
+        if (is_array($statement)) {
+            foreach ($statement as $s) {
+                $this->statements['WHERE'][] = [$separator, $s];
+            }
+        } else {
+            $this->statements['WHERE'][] = [$separator, $statement];
+        }
+
+        $this->parameters['WHERE'] = array_merge($this->parameters['WHERE'], $parameters);
 
         return $this;
     }
