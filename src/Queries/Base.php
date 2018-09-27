@@ -378,10 +378,9 @@ abstract class Base implements \IteratorAggregate
         $parameters = [];
         foreach ($this->parameters as $clauses) {
             if (is_array($clauses)) {
-                foreach ($clauses as $value) {
-                    if (is_array($value) && is_string(key($value)) && substr(key($value), 0, 1) == ':') {
-                        // this is named params e.g. (':name' => 'Mark')
-                        $parameters = array_merge($parameters, $value);
+                foreach ($clauses as $key => $value) {
+                    if (strpos($key, ':') === 0) { // these are named params e.g. (':name' => 'Mark')
+                        $parameters = array_merge($parameters, [$key => $value]);
                     } else {
                         $parameters[] = $value;
                     }
