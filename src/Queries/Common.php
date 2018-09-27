@@ -134,9 +134,35 @@ abstract class Common extends Base
             }
         }
 
-        array_shift($args);
+        $args = [0 => $args[1]];
 
-        return $this->addStatement('WHERE', $condition, $args);
+        // parameters can be passed as [1, 2, 3] and will fill a condition of: id IN (?, ?, ?)
+        if (is_array($parameters) && !empty($parameters)) {
+            $args = $parameters;
+        }
+
+        return $this->addWhereStatement($condition, $separator, $args);
+    }
+
+    /**
+     * Add where appending with OR
+     *
+     * @param string $condition  - possibly containing ? or :name (PDO syntax)
+     * @param mixed  $parameters
+     *
+     * @return $this
+     */
+    public function whereOr($condition, $parameters = [])
+    {
+        if (is_array($condition)) { // where(["column1 > ?" => 1, "column2 < ?" => 2])
+            foreach ($condition as $key => $val) {
+                $this->whereOr($key, $val);
+            }
+
+            return $this;
+        }
+
+        return $this->where($condition, $parameters, 'OR');
     }
 
     /**
