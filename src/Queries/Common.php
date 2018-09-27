@@ -311,7 +311,7 @@ abstract class Common extends Base
         $joinTable = substr($joinTable, 0, -1);
         $asJoinAlias = '';
 
-        if ($joinAlias) {
+        if (!empty($joinAlias)) {
             $asJoinAlias = " AS $joinAlias";
         } else {
             $joinAlias = $joinTable;
