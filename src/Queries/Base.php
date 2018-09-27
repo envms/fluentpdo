@@ -326,14 +326,29 @@ abstract class Base implements \IteratorAggregate
 
         foreach ($this->clauses as $clause => $separator) {
             if ($this->clauseNotEmpty($clause)) {
-                if (is_string($separator)) {
-                    $query .= " $clause " . implode($separator, $this->statements[$clause]);
-                } elseif ($separator === null) {
-                    $query .= " $clause " . $this->statements[$clause];
-                } elseif (is_callable($separator)) {
-                    $query .= call_user_func($separator);
-                } else {
-                    throw new \Exception("Clause '$clause' is incorrectly set to '$separator'.");
+                if ($clause === 'WHERE') {
+                    $firstStatement = array_shift($this->statements[$clause]);
+                    $query .= " {$clause} {$firstStatement[1]}"; // append first statement to WHERE without condition
+
+                    if (!empty($this->statements[$clause])) {
+                        foreach ($this->statements[$clause] as $statement) {
+                            $query .= " {$statement[0]} {$statement[1]}";
+                        }
+                    }
+
+                    // put the first statement back onto the beginning of the array in case we want to run this again
+                    array_unshift($this->statements[$clause], $firstStatement);
+                }
+                else {
+                    if (is_string($separator)) {
+                        $query .= " {$clause} " . implode($separator, $this->statements[$clause]);
+                    } elseif ($separator === null) {
+                        $query .= " {$clause} {$this->statements[$clause]}";
+                    } elseif (is_callable($separator)) {
+                        $query .= call_user_func($separator);
+                    } else {
+                        throw new \Exception("Clause '$clause' is incorrectly set to '$separator'.");
+                    }
                 }
             }
         }
