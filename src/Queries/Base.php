@@ -298,13 +298,14 @@ abstract class Base implements \IteratorAggregate
      *
      * @param bool $formatted - Return formatted query
      *
-     * @return string
-     *
      * @throws \Exception
+     *
+     * @return string
      */
     public function getQuery($formatted = true)
     {
         $query = $this->buildQuery();
+
         if ($formatted) {
             $query = Utilities::formatQuery($query);
         }
@@ -315,12 +316,14 @@ abstract class Base implements \IteratorAggregate
     /**
      * Generate query
      *
-     * @return string
      * @throws \Exception
+     *
+     * @return string
      */
     protected function buildQuery()
     {
         $query = '';
+
         foreach ($this->clauses as $clause => $separator) {
             if ($this->clauseNotEmpty($clause)) {
                 if (is_string($separator)) {
