@@ -72,7 +72,7 @@ abstract class Base implements \IteratorAggregate
     }
 
     /**
-     * Add statement for all kind of clauses
+     * Add statement for all clauses except WHERE
      *
      * @param       $clause
      * @param       $statement
@@ -98,6 +98,34 @@ abstract class Base implements \IteratorAggregate
             $this->statements[$clause] = $statement;
             $this->parameters[$clause] = $parameters;
         }
+
+        return $this;
+    }
+
+    /**
+     * Add statement for all kind of clauses
+     *
+     * @param        $statement
+     * @param string $separator - should be AND or OR
+     * @param array  $parameters
+     *
+     * @return $this
+     */
+    protected function addWhereStatement($statement, string $separator = 'AND', $parameters = [])
+    {
+        if ($statement === null) {
+            return $this->resetClause('WHERE');
+        }
+
+        if (is_array($statement)) {
+            foreach ($statement as $s) {
+                $this->statements['WHERE'][] = [$separator, $s];
+            }
+        } else {
+            $this->statements['WHERE'][] = [$separator, $statement];
+        }
+
+        $this->parameters['WHERE'] = array_merge($this->parameters['WHERE'], $parameters);
 
         return $this;
     }
@@ -270,13 +298,14 @@ abstract class Base implements \IteratorAggregate
      *
      * @param bool $formatted - Return formatted query
      *
-     * @return string
-     *
      * @throws \Exception
+     *
+     * @return string
      */
     public function getQuery($formatted = true)
     {
         $query = $this->buildQuery();
+
         if ($formatted) {
             $query = Utilities::formatQuery($query);
         }
@@ -287,22 +316,39 @@ abstract class Base implements \IteratorAggregate
     /**
      * Generate query
      *
-     * @return string
      * @throws \Exception
+     *
+     * @return string
      */
     protected function buildQuery()
     {
         $query = '';
+
         foreach ($this->clauses as $clause => $separator) {
             if ($this->clauseNotEmpty($clause)) {
-                if (is_string($separator)) {
-                    $query .= " $clause " . implode($separator, $this->statements[$clause]);
-                } elseif ($separator === null) {
-                    $query .= " $clause " . $this->statements[$clause];
-                } elseif (is_callable($separator)) {
-                    $query .= call_user_func($separator);
-                } else {
-                    throw new \Exception("Clause '$clause' is incorrectly set to '$separator'.");
+                if ($clause === 'WHERE') {
+                    $firstStatement = array_shift($this->statements[$clause]);
+                    $query .= " {$clause} {$firstStatement[1]}"; // append first statement to WHERE without condition
+
+                    if (!empty($this->statements[$clause])) {
+                        foreach ($this->statements[$clause] as $statement) {
+                            $query .= " {$statement[0]} {$statement[1]}";
+                        }
+                    }
+
+                    // put the first statement back onto the beginning of the array in case we want to run this again
+                    array_unshift($this->statements[$clause], $firstStatement);
+                }
+                else {
+                    if (is_string($separator)) {
+                        $query .= " {$clause} " . implode($separator, $this->statements[$clause]);
+                    } elseif ($separator === null) {
+                        $query .= " {$clause} {$this->statements[$clause]}";
+                    } elseif (is_callable($separator)) {
+                        $query .= call_user_func($separator);
+                    } else {
+                        throw new \Exception("Clause '$clause' is incorrectly set to '$separator'.");
+                    }
                 }
             }
         }
@@ -332,10 +378,9 @@ abstract class Base implements \IteratorAggregate
         $parameters = [];
         foreach ($this->parameters as $clauses) {
             if (is_array($clauses)) {
-                foreach ($clauses as $value) {
-                    if (is_array($value) && is_string(key($value)) && substr(key($value), 0, 1) == ':') {
-                        // this is named params e.g. (':name' => 'Mark')
-                        $parameters = array_merge($parameters, $value);
+                foreach ($clauses as $key => $value) {
+                    if (strpos($key, ':') === 0) { // these are named params e.g. (':name' => 'Mark')
+                        $parameters = array_merge($parameters, [$key => $value]);
                     } else {
                         $parameters[] = $value;
                     }
@@ -409,6 +454,30 @@ abstract class Base implements \IteratorAggregate
         $this->object = $object;
 
         return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRawClauses()
+    {
+        return $this->clauses;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRawStatements()
+    {
+        return $this->statements;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRawParameters()
+    {
+        return $this->parameters;
     }
 
 }

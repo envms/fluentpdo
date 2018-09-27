@@ -75,14 +75,15 @@ abstract class Common extends Base
     }
 
     /**
-     * Add where condition, more calls appends with AND
+     * Add where condition, defaults to appending with AND
      *
-     * @param string $condition  possibly containing ? or :name (PDO syntax)
-     * @param mixed  $parameters array or a scalar value
+     * @param string $condition  - possibly containing ? or :name (PDO syntax)
+     * @param mixed  $parameters
+     * @param string $separator - should be AND or OR
      *
      * @return $this
      */
-    public function where($condition, $parameters = [])
+    public function where($condition, $parameters = [], $separator = 'AND')
     {
         if ($condition === null) {
             return $this->resetClause('WHERE');
@@ -102,40 +103,66 @@ abstract class Common extends Base
 
         $args = func_get_args();
 
-        if (count($args) == 1) {
-            return $this->addStatement('WHERE', $condition);
+        if ($parameters === []) {
+            return $this->addWhereStatement($condition, $separator);
         }
 
         /*
-        Check that there are 2 arguments, a condition and a parameter value. If the condition contains
-        a parameter, add them; it's up to the dev to be valid sql. Otherwise it's probably
-        just an identifier, so construct a new condition based on the passed parameter value.
-        */
-        if (count($args) == 2 && !preg_match('/(\?|:\w+)/i', $condition)) {
+         * Check that there are 2 arguments, a condition and a parameter value. If the condition contains
+         * a parameter (? or :name), add them; it's up to the dev to be valid sql. Otherwise it's probably
+         * just an identifier, so construct a new condition based on the passed parameter value.
+         */
+        if (count($args) >= 2 && !preg_match('/(\?|:\w+)/i', $condition)) {
             // condition is column only
             if (is_null($parameters)) {
-                return $this->addStatement('WHERE', "$condition IS NULL");
+                return $this->addWhereStatement("$condition IS NULL", $separator);
             } elseif ($args[1] === []) {
-                return $this->addStatement('WHERE', 'FALSE');
+                return $this->addWhereStatement('FALSE', $separator);
             } elseif (is_array($args[1])) {
                 $in = $this->quote($args[1]);
 
-                return $this->addStatement('WHERE', "$condition IN $in");
+                return $this->addWhereStatement("$condition IN $in", $separator);
             }
 
             // don't parameterize the value if it's an instance of Literal
             if ($parameters instanceof Literal) {
                 $condition = "{$condition} = {$parameters}";
 
-                return $this->addStatement('WHERE', $condition);
+                return $this->addWhereStatement($condition, $separator);
             } else {
                 $condition = "$condition = ?";
             }
         }
 
-        array_shift($args);
+        $args = [0 => $args[1]];
 
-        return $this->addStatement('WHERE', $condition, $args);
+        // parameters can be passed as [1, 2, 3] and will fill a condition of: id IN (?, ?, ?)
+        if (is_array($parameters) && !empty($parameters)) {
+            $args = $parameters;
+        }
+
+        return $this->addWhereStatement($condition, $separator, $args);
+    }
+
+    /**
+     * Add where appending with OR
+     *
+     * @param string $condition  - possibly containing ? or :name (PDO syntax)
+     * @param mixed  $parameters
+     *
+     * @return $this
+     */
+    public function whereOr($condition, $parameters = [])
+    {
+        if (is_array($condition)) { // where(["column1 > ?" => 1, "column2 < ?" => 2])
+            foreach ($condition as $key => $val) {
+                $this->whereOr($key, $val);
+            }
+
+            return $this;
+        }
+
+        return $this->where($condition, $parameters, 'OR');
     }
 
     /**
@@ -284,7 +311,7 @@ abstract class Common extends Base
         $joinTable = substr($joinTable, 0, -1);
         $asJoinAlias = '';
 
-        if ($joinAlias) {
+        if (!empty($joinAlias)) {
             $asJoinAlias = " AS $joinAlias";
         } else {
             $joinAlias = $joinTable;
@@ -310,25 +337,6 @@ abstract class Common extends Base
     }
 
     /**
-     * @throws \Exception
-     *
-     * @return string
-     */
-    protected function buildQuery()
-    {
-        // first create extra join from statements with columns with referenced tables
-        $statementsWithReferences = ['WHERE', 'SELECT', 'GROUP BY', 'ORDER BY'];
-
-        foreach ($statementsWithReferences as $clause) {
-            if (array_key_exists($clause, $this->statements)) {
-                $this->statements[$clause] = array_map([$this, 'createUndefinedJoins'], $this->statements[$clause]);
-            }
-        }
-
-        return parent::buildQuery();
-    }
-
-    /**
      * Create undefined joins from statement with column with referenced tables
      *
      * @param string $statement
@@ -339,6 +347,13 @@ abstract class Common extends Base
     {
         if (!$this->isSmartJoinEnabled) {
             return $statement;
+        }
+
+        $separator = null;
+        // if we're in here, this is a where clause
+        if (is_array($statement)) {
+            $separator = $statement[0];
+            $statement = $statement[1];
         }
 
         // matches a table name made of any printable characters followed by a dot/colon,
@@ -361,7 +376,31 @@ abstract class Common extends Base
         // remove extra referenced tables (rewrite tab1.tab2:col => tab2.col)
         $statement = preg_replace('/(?:[^\s]*[.:])?([^\s]+)[.:]([^\s]*)/u', '$1.$2', $statement);
 
+        // rebuild the where statement
+        if ($separator !== null) {
+            $statement = [$separator, $statement];
+        }
+
         return $statement;
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return string
+     */
+    protected function buildQuery()
+    {
+        // first create extra join from statements with columns with referenced tables
+        $statementsWithReferences = ['WHERE', 'SELECT', 'GROUP BY', 'ORDER BY'];
+
+        foreach ($statementsWithReferences as $clause) {
+            if (array_key_exists($clause, $this->statements)) {
+                $this->statements[$clause] = array_map([$this, 'createUndefinedJoins'], $this->statements[$clause]);
+            }
+        }
+
+        return parent::buildQuery();
     }
 
 }

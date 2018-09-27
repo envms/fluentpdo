@@ -33,7 +33,7 @@ class Utilities
         );
 
         $query = preg_replace(
-            '/\b(INNER|OUTER|LEFT|RIGHT|FULL|CASE|WHEN|END|ELSE|AND)\b/',
+            '/\b(INNER|OUTER|LEFT|RIGHT|FULL|CASE|WHEN|END|ELSE|AND|OR)\b/',
             "\n    $0", $query
         );
 
