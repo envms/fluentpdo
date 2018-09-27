@@ -337,25 +337,6 @@ abstract class Common extends Base
     }
 
     /**
-     * @throws \Exception
-     *
-     * @return string
-     */
-    protected function buildQuery()
-    {
-        // first create extra join from statements with columns with referenced tables
-        $statementsWithReferences = ['WHERE', 'SELECT', 'GROUP BY', 'ORDER BY'];
-
-        foreach ($statementsWithReferences as $clause) {
-            if (array_key_exists($clause, $this->statements)) {
-                $this->statements[$clause] = array_map([$this, 'createUndefinedJoins'], $this->statements[$clause]);
-            }
-        }
-
-        return parent::buildQuery();
-    }
-
-    /**
      * Create undefined joins from statement with column with referenced tables
      *
      * @param string $statement
@@ -389,6 +370,25 @@ abstract class Common extends Base
         $statement = preg_replace('/(?:[^\s]*[.:])?([^\s]+)[.:]([^\s]*)/u', '$1.$2', $statement);
 
         return $statement;
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @return string
+     */
+    protected function buildQuery()
+    {
+        // first create extra join from statements with columns with referenced tables
+        $statementsWithReferences = ['WHERE', 'SELECT', 'GROUP BY', 'ORDER BY'];
+
+        foreach ($statementsWithReferences as $clause) {
+            if (array_key_exists($clause, $this->statements)) {
+                $this->statements[$clause] = array_map([$this, 'createUndefinedJoins'], $this->statements[$clause]);
+            }
+        }
+
+        return parent::buildQuery();
     }
 
 }
