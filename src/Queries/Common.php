@@ -75,14 +75,15 @@ abstract class Common extends Base
     }
 
     /**
-     * Add where condition, more calls appends with AND
+     * Add where condition, defaults to appending with AND
      *
-     * @param string $condition  possibly containing ? or :name (PDO syntax)
-     * @param mixed  $parameters array or a scalar value
+     * @param string $condition  - possibly containing ? or :name (PDO syntax)
+     * @param mixed  $parameters
+     * @param string $separator - should be AND or OR
      *
      * @return $this
      */
-    public function where($condition, $parameters = [])
+    public function where($condition, $parameters = [], $separator = 'AND')
     {
         if ($condition === null) {
             return $this->resetClause('WHERE');
@@ -102,32 +103,32 @@ abstract class Common extends Base
 
         $args = func_get_args();
 
-        if (count($args) == 1) {
-            return $this->addStatement('WHERE', $condition);
+        if ($parameters === []) {
+            return $this->addWhereStatement($condition, $separator);
         }
 
         /*
-        Check that there are 2 arguments, a condition and a parameter value. If the condition contains
-        a parameter, add them; it's up to the dev to be valid sql. Otherwise it's probably
-        just an identifier, so construct a new condition based on the passed parameter value.
-        */
-        if (count($args) == 2 && !preg_match('/(\?|:\w+)/i', $condition)) {
+         * Check that there are 2 arguments, a condition and a parameter value. If the condition contains
+         * a parameter (? or :name), add them; it's up to the dev to be valid sql. Otherwise it's probably
+         * just an identifier, so construct a new condition based on the passed parameter value.
+         */
+        if (count($args) >= 2 && !preg_match('/(\?|:\w+)/i', $condition)) {
             // condition is column only
             if (is_null($parameters)) {
-                return $this->addStatement('WHERE', "$condition IS NULL");
+                return $this->addWhereStatement("$condition IS NULL", $separator);
             } elseif ($args[1] === []) {
-                return $this->addStatement('WHERE', 'FALSE');
+                return $this->addWhereStatement('FALSE', $separator);
             } elseif (is_array($args[1])) {
                 $in = $this->quote($args[1]);
 
-                return $this->addStatement('WHERE', "$condition IN $in");
+                return $this->addWhereStatement("$condition IN $in", $separator);
             }
 
             // don't parameterize the value if it's an instance of Literal
             if ($parameters instanceof Literal) {
                 $condition = "{$condition} = {$parameters}";
 
-                return $this->addStatement('WHERE', $condition);
+                return $this->addWhereStatement($condition, $separator);
             } else {
                 $condition = "$condition = ?";
             }
