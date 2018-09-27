@@ -349,6 +349,13 @@ abstract class Common extends Base
             return $statement;
         }
 
+        $separator = null;
+        // if we're in here, this is a where clause
+        if (is_array($statement)) {
+            $separator = $statement[0];
+            $statement = $statement[1];
+        }
+
         // matches a table name made of any printable characters followed by a dot/colon,
         // followed by any letters, numbers and most punctuation (to exclude '*')
         preg_match_all('/([^[:space:]\(\)]+[.:])[\p{L}\p{N}\p{Pd}\p{Pi}\p{Pf}\p{Pc}]*/u', $statement, $matches);
@@ -368,6 +375,11 @@ abstract class Common extends Base
 
         // remove extra referenced tables (rewrite tab1.tab2:col => tab2.col)
         $statement = preg_replace('/(?:[^\s]*[.:])?([^\s]+)[.:]([^\s]*)/u', '$1.$2', $statement);
+
+        // rebuild the where statement
+        if ($separator !== null) {
+            $statement = [$separator, $statement];
+        }
 
         return $statement;
     }
