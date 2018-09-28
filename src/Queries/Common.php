@@ -207,6 +207,25 @@ abstract class Common extends Base
     }
 
     /**
+     * @return string
+     */
+    protected function getClauseWhere() {
+        $firstStatement = array_shift($this->statements['WHERE']);
+        $query = " WHERE {$firstStatement[1]}"; // append first statement to WHERE without condition
+
+        if (!empty($this->statements['WHERE'])) {
+            foreach ($this->statements['WHERE'] as $statement) {
+                $query .= " {$statement[0]} {$statement[1]}"; // [0] -> AND/OR [1] -> field = ?
+            }
+        }
+
+        // put the first statement back onto the beginning of the array in case we want to run this again
+        array_unshift($this->statements['WHERE'], $firstStatement);
+
+        return $query;
+    }
+
+    /**
      * Statement can contain more tables (e.g. "table1.table2:table3:")
      *
      * @param       $clause

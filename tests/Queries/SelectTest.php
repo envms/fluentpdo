@@ -86,8 +86,8 @@ class SelectTest extends TestCase
                 'type' => 'author'
             ]);
 
-        self::assertEquals([0 => 2, 1 => 'author'], $query->getParameters());
         self::assertEquals('SELECT user.* FROM user WHERE id = ? AND type = ?', $query->getQuery(false));
+        self::assertEquals([0 => 2, 1 => 'author'], $query->getParameters());
     }
 
     public function testWhereColumnValue()
@@ -95,8 +95,8 @@ class SelectTest extends TestCase
         $query = $this->fluent->from('user')
             ->where('type', 'author');
 
-        self::assertEquals([0 => 'author'], $query->getParameters());
         self::assertEquals('SELECT user.* FROM user WHERE type = ?', $query->getQuery(false));
+        self::assertEquals([0 => 'author'], $query->getParameters());
     }
 
     public function testWhereColumnNull()
@@ -118,6 +118,16 @@ class SelectTest extends TestCase
         self::assertEquals([], $query->getParameters());
     }
 
+    public function testWherePreparedArray()
+    {
+        $query = $this->fluent
+            ->from('user')
+            ->where('id IN (?, ?, ?)', [1, 2, 3]);
+
+        self::assertEquals('SELECT user.* FROM user WHERE id IN (?, ?, ?)', $query->getQuery(false));
+        self::assertEquals([0 => 1, 1 => 2, 2 => 3], $query->getParameters());
+    }
+
     public function testWhereColumnName()
     {
         $query = $this->fluent->from('user')
@@ -134,6 +144,17 @@ class SelectTest extends TestCase
         self::assertEquals('Robert', $returnValue);
     }
 
+    public function testWhereOr()
+    {
+        $query = $this->fluent->from('comment')
+            ->where('comment.id = :id', [':id' => 1])
+            ->whereOr('user.id = :userId', [':userId' => 2]);
+
+        self::assertEquals('SELECT comment.* FROM comment LEFT JOIN user ON user.id = comment.user_id WHERE comment.id = :id OR user.id = :userId',
+            $query->getQuery(false));
+        self::assertEquals([':id' => '1', ':userId' => '2'], $query->getParameters());
+    }
+
     public function testWhereReset()
     {
         $query = $this->fluent->from('user')->where('id > ?', 0)->orderBy('name');
@@ -143,6 +164,8 @@ class SelectTest extends TestCase
         self::assertEquals(['0' => 'Marek'], $query->getParameters());
         self::assertEquals(['id' => '1', 'country_id' => '1', 'type' => 'admin', 'name' => 'Marek'], $query->fetch());
     }
+
+
 
     public function testSelectArrayParam()
     {
