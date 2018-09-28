@@ -42,11 +42,14 @@ class Update extends Common
     }
 
     /**
+     * In Update's case, parameters are not assigned until the query is built, since this method
+     *
      * @param string|array $fieldOrArray
      * @param bool|string  $value
      *
-     * @return $this
      * @throws \Exception
+     *
+     * @return $this
      */
     public function set($fieldOrArray, $value = false)
     {
@@ -72,6 +75,8 @@ class Update extends Common
      * Execute update query
      *
      * @param boolean $getResultAsPdoStatement true to return the pdo statement instead of row count
+     *
+     * @throws \Exception
      *
      * @return int|boolean|\PDOStatement
      */
@@ -103,7 +108,13 @@ class Update extends Common
     {
         $setArray = [];
         foreach ($this->statements['SET'] as $field => $value) {
-            if ($value instanceof Literal) {
+            // named params are being used here
+            if (is_array($value) && strpos(key($value), ':') === 0) {
+                $key = key($value);
+                $setArray[] = $field . ' = ' . $key;
+                $this->parameters['SET'][$key] = $value[$key];
+            }
+            elseif ($value instanceof Literal) {
                 $setArray[] = $field . ' = ' . $value;
             } else {
                 $setArray[] = $field . ' = ?';
