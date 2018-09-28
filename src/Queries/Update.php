@@ -29,7 +29,7 @@ class Update extends Common
             'UPDATE'   => [$this, 'getClauseUpdate'],
             'JOIN'     => [$this, 'getClauseJoin'],
             'SET'      => [$this, 'getClauseSet'],
-            'WHERE'    => ' AND ',
+            'WHERE'    => [$this, 'getClauseWhere'],
             'ORDER BY' => ', ',
             'LIMIT'    => null,
         ];

@@ -33,7 +33,7 @@ class Delete extends Common
             'DELETE'      => [$this, 'getClauseDelete'],
             'FROM'        => null,
             'JOIN'        => [$this, 'getClauseJoin'],
-            'WHERE'       => ' AND ',
+            'WHERE'       => [$this, 'getClauseWhere'],
             'ORDER BY'    => ', ',
             'LIMIT'       => null,
         ];

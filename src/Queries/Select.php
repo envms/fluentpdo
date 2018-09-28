@@ -41,7 +41,7 @@ class Select extends Common implements \Countable
             'SELECT'   => ', ',
             'FROM'     => null,
             'JOIN'     => [$this, 'getClauseJoin'],
-            'WHERE'    => ' AND ',
+            'WHERE'    => [$this, 'getClauseWhere'],
             'GROUP BY' => ',',
             'HAVING'   => ' AND ',
             'ORDER BY' => ', ',
