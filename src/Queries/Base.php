@@ -2,7 +2,7 @@
 
 namespace Envms\FluentPDO\Queries;
 
-use Envms\FluentPDO\{Query, Literal, Structure, Utilities};
+use Envms\FluentPDO\{Query, Literal, Regex, Structure, Utilities};
 
 /**
  * Base query builder
@@ -222,20 +222,24 @@ abstract class Base implements \IteratorAggregate
                 $query = $this->getQuery();
                 $parameters = $this->getParameters();
                 $debug = '';
+
                 if ($parameters) {
                     $debug = '# parameters: ' . implode(', ', array_map([$this, 'quote'], $parameters)) . "\n";
                 }
+
                 $debug .= $query;
-                $pattern = '(^' . preg_quote(__DIR__) . '(\\.php$|[/\\\\]))'; // can be static
+
                 foreach (debug_backtrace() as $backtrace) {
-                    if (isset($backtrace['file']) && !preg_match($pattern, $backtrace['file'])) {
-                        // stop on first file outside Query source codes
+                    if (isset($backtrace['file']) && !$this->regex->localFile($backtrace['file'])) {
+                        // stop at the first file outside the FluentPDO source
                         break;
                     }
                 }
+
                 $time = sprintf('%0.3f', $this->time * 1000) . ' ms';
                 $rows = ($this->result) ? $this->result->rowCount() : 0;
                 $finalString = "# $backtrace[file]:$backtrace[line] ($time; rows = $rows)\n$debug\n\n";
+
                 if (defined('STDERR')) { // if STDERR is set, send there, otherwise just output the string
                     if (is_resource(STDERR)) {
                         fwrite(STDERR, $finalString);
