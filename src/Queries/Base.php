@@ -29,6 +29,8 @@ abstract class Base implements \IteratorAggregate
     /** @var array */
     protected $parameters = [];
 
+    protected $regex;
+
     /**
      * BaseQuery constructor.
      *
@@ -40,6 +42,8 @@ abstract class Base implements \IteratorAggregate
         $this->fluent = $fluent;
         $this->clauses = $clauses;
         $this->initClauses();
+
+        $this->regex = new Regex();
     }
 
     /**
