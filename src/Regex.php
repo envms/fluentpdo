@@ -87,14 +87,17 @@ class Regex
     /**
      * Match the first file outside of the Fluent source
      *
-     * @param        $subject
-     * @param string $extension
+     * @param string     $subject
+     * @param array|null $matches
+     * @param string     $directory
      *
      * @return false|int
      */
-    public function localFile($subject, $extension = 'php')
+    public function compareLocation($subject, &$matches = null, $directory = null)
     {
-        return preg_match('/(^' . preg_quote(__DIR__) . '(\\.' . $extension . '$|[/\\\\]))/', $subject);
+        $directory = ($directory === null) ? preg_quote(__DIR__, '/') : preg_quote($directory, '/');
+
+        return preg_match('/(^' . $directory . '(\\.php$|[\/\\\\]))/', $subject, $matches);
     }
 
     /**
