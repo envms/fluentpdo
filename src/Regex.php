@@ -17,7 +17,7 @@ class Regex
     /**
      * Replace "camelCaseMethod" with "camel Case Method"
      *
-     * @param $subject
+     * @param string $subject
      *
      * @return null|string|string[]
      */
@@ -32,7 +32,7 @@ class Regex
      *  FROM table
      *  WHERE column = ?"
      *
-     * @param $subject
+     * @param string $subject
      *
      * @return null|string|string[]
      */
@@ -49,7 +49,7 @@ class Regex
      * "SELECT t2.id FROM t1
      *      LEFT JOIN t2 ON t2.id = t1.t2_id"
      *
-     * @param $subject
+     * @param string $subject
      *
      * @return null|string|string[]
      */
@@ -64,7 +64,7 @@ class Regex
     /**
      * Replace "WHERE column = ?  " with "WHERE column = ?"
      *
-     * @param $subject
+     * @param string $subject
      *
      * @return null|string|string[]
      */
@@ -74,9 +74,9 @@ class Regex
     }
 
     /**
-     * Replace the string "table1.table2.column" with "table2.column"
+     * Replace the string "table1.table2:column" with "table2.column"
      *
-     * @param $subject
+     * @param string $subject
      *
      * @return null|string|string[]
      */
@@ -87,51 +87,55 @@ class Regex
     /**
      * Match the first file outside of the Fluent source
      *
-     * @param        $subject
-     * @param string $extension
+     * @param string     $subject
+     * @param array|null $matches
+     * @param string     $directory
      *
      * @return false|int
      */
-    public function localFile($subject, $extension = 'php')
+    public function compareLocation($subject, &$matches = null, $directory = null)
     {
-        return preg_match('/(^' . preg_quote(__DIR__) . '(\\.' . $extension . '$|[/\\\\]))/', $subject);
+        $directory = ($directory === null) ? preg_quote(__DIR__, '/') : preg_quote($directory, '/');
+
+        return preg_match('/(^' . $directory . '(\\.php$|[\/\\\\]))/', $subject, $matches);
     }
 
     /**
      * Match the string "?" or ":param"
      *
-     * @param $subject
+     * @param string     $subject
+     * @param array|null $matches
      *
      * @return false|int
      */
-    public function sqlParameter($subject)
+    public function sqlParameter($subject, &$matches = null)
     {
-        return preg_match('/(\?|:\w+)/i', $subject);
+        return preg_match('/(\?|:\w+)/i', $subject, $matches);
     }
 
     /**
      * Match the UTF-8 string "table AS alias"
      *
-     * @param      $subject
-     * @param null $matches
+     * @param string     $subject
+     * @param array|null $matches
      *
      * @return false|int
      */
     public function tableAlias($subject, &$matches = null)
     {
-        return preg_match('/`?([' . self::SQLCHARS . ']+[.:]?[' . self::SQLCHARS . ']*)`?(\s+AS)?(\s+`?([' . self::SQLCHARS . ']*)`?)?/ui',
+        return preg_match('/`?([' . self::SQLCHARS . ']+[.:]?[' . self::SQLCHARS . '*]*)`?(\s+AS)?(\s+`?([' . self::SQLCHARS . ']*)`?)?/ui',
             $subject, $matches);
     }
 
     /**
      * Match the UTF-8 string "table" or "table."
      *
-     * @param $subject
-     * @param $matches
+     * @param string     $subject
+     * @param array|null $matches
      *
      * @return false|int
      */
-    public function tableJoin($subject, &$matches)
+    public function tableJoin($subject, &$matches = null)
     {
         return preg_match_all('/([' . self::SQLCHARS . ']+[.:]?)/u', $subject, $matches);
     }
@@ -139,12 +143,12 @@ class Regex
     /**
      * Match the UTF-8 string "table." or "table.column"
      *
-     * @param $subject
-     * @param $matches
+     * @param string     $subject
+     * @param array|null $matches
      *
      * @return false|int
      */
-    public function tableJoinFull($subject, &$matches)
+    public function tableJoinFull($subject, &$matches = null)
     {
         return preg_match_all('/([^[:space:]\(\)]+[.:])[' . self::SQLCHARS . ']*/u', $subject, $matches);
     }
