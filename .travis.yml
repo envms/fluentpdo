@@ -17,4 +17,4 @@ notifications:
 
 os: linux
 group: stable
-dist: trusty
+dist: xenial
