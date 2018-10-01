@@ -87,7 +87,7 @@ class RegexTest extends TestCase
         $join = $this->regex->tableJoin("user");
         self::assertEquals(1, $join);
 
-        $join = $this->regex->tableJoin("user.");
+        $join = $this->regex->tableJoin("`user`.");
         self::assertEquals(1, $join);
 
         $join = $this->regex->tableJoin("'''");
@@ -102,7 +102,7 @@ class RegexTest extends TestCase
         $join = $this->regex->tableJoinFull("user.");
         self::assertEquals(1, $join);
 
-        $join = $this->regex->tableJoinFull("user.column");
+        $join = $this->regex->tableJoinFull("`user`.`column`");
         self::assertEquals(1, $join);
 
         $join = $this->regex->tableJoinFull("user .column");
