@@ -230,7 +230,7 @@ abstract class Base implements \IteratorAggregate
                 $debug .= $query;
 
                 foreach (debug_backtrace() as $backtrace) {
-                    if (isset($backtrace['file']) && !$this->regex->localFile($backtrace['file'])) {
+                    if (isset($backtrace['file']) && !$this->regex->compareLocation($backtrace['file'])) {
                         // stop at the first file outside the FluentPDO source
                         break;
                     }
