@@ -40,7 +40,7 @@ class CommonTest extends TestCase
 
         self::assertEquals('SELECT article.*, user.name FROM article LEFT JOIN user ON user.id = article.user_id ORDER BY article.title',
             $query->getQuery(false));
-        self::assertEquals('Marek - article 1 Robert - article 2 Marek - article 3 ', $returnValue);
+        self::assertEquals('Marek - article 1 Robert - article 2 Marek - article 3 Kevin - artïcle 4 Chris - article 5 Chris - სარედაქციო 6 ', $returnValue);
     }
 
     public function testShortJoin()
@@ -146,7 +146,7 @@ class CommonTest extends TestCase
 
         self::assertEquals('SELECT user.type, count(article.id) AS article_count FROM article LEFT JOIN user ON user.id = article.user_id GROUP BY user.type',
             $query->getQuery(false));
-        self::assertEquals(['0' => ['type' => 'admin', 'article_count' => '2'], '1' => ['type' => 'author', 'article_count' => '1']],
+        self::assertEquals(['0' => ['type' => 'admin', 'article_count' => '4'], '1' => ['type' => 'author', 'article_count' => '2']],
             $query->fetchAll());
     }
 

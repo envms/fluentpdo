@@ -34,12 +34,12 @@ class UpdateTest extends TestCase
 
         self::assertEquals('UPDATE country SET name = ? WHERE id = ?', $query->getQuery(false));
         self::assertEquals(['0' => 'aikavolS', '1' => '1'], $query->getParameters());
-        self::assertEquals(['id' => '1', 'name' => 'aikavolS'], $query2->fetch());
+        self::assertEquals(['id' => '1', 'name' => 'aikavolS', 'details' => '{"gdp": 90.75, "pop": 5456300, "name": "Slovensko"}'], $query2->fetch());
 
         $this->fluent->update('country')->set('name', 'Slovakia')->where('id', 1)->execute();
         $query3 = $this->fluent->from('country')->where('id', 1);
 
-        self::assertEquals(['id' => '1', 'name' => 'Slovakia'], $query3->fetch());
+        self::assertEquals(['id' => '1', 'name' => 'Slovakia', 'details' => '{"gdp": 90.75, "pop": 5456300, "name": "Slovensko"}'], $query3->fetch());
     }
 
     public function testUpdateLiteral()
