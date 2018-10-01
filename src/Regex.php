@@ -81,7 +81,7 @@ class Regex
      * @return null|string|string[]
      */
     public function removeAdditionalJoins($subject) {
-        return preg_replace('/(?:[^\s]*[.:])?([^\s]+)[.:]([^\s]*)/u', '$1.$2', $subject);
+        return preg_replace('/(?:[^\s]*[^\\\\][.:])?([^\s]+)[^\\\\][.:]([^\s]*)/u', '$1.$2', $subject);
     }
 
     /**
@@ -123,7 +123,7 @@ class Regex
      */
     public function tableAlias($subject, &$matches = null)
     {
-        return preg_match('/`?([' . self::SQLCHARS . ']+[.:]?[' . self::SQLCHARS . '*]*)`?(\s+AS)?(\s+`?([' . self::SQLCHARS . ']*)`?)?/ui',
+        return preg_match('/`?([' . self::SQLCHARS . ']+[^\\\\][.:]?[' . self::SQLCHARS . '*]*)`?(\s+AS)?(\s+`?([' . self::SQLCHARS . ']*)`?)?/ui',
             $subject, $matches);
     }
 
@@ -137,7 +137,7 @@ class Regex
      */
     public function tableJoin($subject, &$matches = null)
     {
-        return preg_match_all('/([' . self::SQLCHARS . ']+[.:]?)/u', $subject, $matches);
+        return preg_match_all('/([' . self::SQLCHARS . ']+[^\\\\][.:]?)/u', $subject, $matches);
     }
 
     /**
@@ -150,7 +150,7 @@ class Regex
      */
     public function tableJoinFull($subject, &$matches = null)
     {
-        return preg_match_all('/([^[:space:]\(\)]+[.:])[' . self::SQLCHARS . ']*/u', $subject, $matches);
+        return preg_match_all('/([^[:space:]\(\)]+[^\\\\][.:])[' . self::SQLCHARS . ']*/u', $subject, $matches);
     }
 
 }
