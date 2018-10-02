@@ -82,10 +82,16 @@ class Update extends Common
      */
     public function execute($getResultAsPdoStatement = false)
     {
+        if (empty($this->statements['WHERE'])) {
+            throw new \Exception('Update queries must contain a WHERE clause to prevent unwanted data loss');
+        }
+
         $result = parent::execute();
+
         if ($getResultAsPdoStatement) {
             return $result;
         }
+
         if ($result) {
             return $result->rowCount();
         }
