@@ -6,17 +6,6 @@ use Envms\FluentPDO\{Query, Utilities};
 
 /**
  * SELECT query builder
- *
- * @method Select  select(string $column) add one or more columns in SELECT to query
- * @method Select  leftJoin(string $statement) add LEFT JOIN to query
- *                        ($statement can be 'table' name only or 'table:' means back reference)
- * @method Select  innerJoin(string $statement) add INNER JOIN to query
- *                        ($statement can be 'table' name only or 'table:' means back reference)
- * @method Select  groupBy(string $column) add GROUP BY to query
- * @method Select  having(string $column) add HAVING query
- * @method Select  orderBy(string $column) add ORDER BY to query
- * @method Select  limit(int $limit) add LIMIT to query
- * @method Select  offset(int $offset) add OFFSET to query
  */
 class Select extends Common implements \Countable
 {
@@ -63,6 +52,25 @@ class Select extends Common implements \Countable
         if (isset($fluent->convertTypes) && $fluent->convertTypes) {
             $this->convertTypes = true;
         }
+    }
+
+    /**
+     * @param mixed $columns
+     * @param bool  $overrideDefault
+     *
+     * @return $this
+     */
+    public function select($columns, bool $overrideDefault = false)
+    {
+        if ($overrideDefault === true) {
+            $this->resetClause('SELECT');
+        } elseif ($columns === null) {
+            return $this->resetClause('SELECT');
+        }
+
+        $this->addStatement('SELECT', $columns, []);
+
+        return $this;
     }
 
     /**

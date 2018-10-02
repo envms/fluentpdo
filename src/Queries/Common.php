@@ -7,7 +7,6 @@ use Envms\FluentPDO\{Literal, Utilities};
 /**
  * CommonQuery add JOIN and WHERE clauses for (SELECT, UPDATE, DELETE)
  *
- * @method select(string $column) add one or more columns in SELECT to query
  * @method leftJoin(string $statement) add LEFT JOIN to query
  *                        ($statement can be 'table' name only or 'table:' means back reference)
  * @method innerJoin(string $statement) add INNER JOIN to query
@@ -36,8 +35,7 @@ abstract class Common extends Base
         'order',
         'orderBy',
         'outerJoin',
-        'rightJoin',
-        'select'
+        'rightJoin'
     ];
 
     /** @var array - Query tables (also include table from clause FROM) */
