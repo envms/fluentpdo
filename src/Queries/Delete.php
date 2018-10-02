@@ -57,6 +57,8 @@ class Delete extends Common
     }
 
     /**
+     * @throws \Exception
+     *
      * @return string
      */
     protected function buildQuery()
@@ -73,10 +75,16 @@ class Delete extends Common
     /**
      * Execute DELETE query
      *
+     * @throws \Exception
+     *
      * @return bool
      */
     public function execute()
     {
+        if (empty($this->statements['WHERE'])) {
+            throw new \Exception('Delete queries must contain a WHERE clause to prevent unwanted data loss');
+        }
+
         $result = parent::execute();
         if ($result) {
             return $result->rowCount();
