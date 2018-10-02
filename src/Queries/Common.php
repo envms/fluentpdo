@@ -364,7 +364,7 @@ abstract class Common extends Base
      */
     private function createUndefinedJoins($statement)
     {
-        if (!$this->isSmartJoinEnabled) {
+        if ($this->isEscapedJoin($statement)) {
             return $statement;
         }
 
@@ -380,6 +380,7 @@ abstract class Common extends Base
         $this->regex->tableJoinFull($statement, $matches);
 
         foreach ($matches[1] as $join) {
+            // remove the trailing dot and compare with the joins we already have
             if (!in_array(substr($join, 0, -1), $this->joins)) {
                 $this->addJoinStatements('LEFT JOIN', $join);
             }
@@ -419,6 +420,20 @@ abstract class Common extends Base
         }
 
         return parent::buildQuery();
+    }
+
+    /**
+     * @param $statement
+     *
+     * @return bool
+     */
+    protected function isEscapedJoin($statement)
+    {
+        if (is_array($statement)) {
+            $statement = $statement[1];
+        }
+
+        return !$this->isSmartJoinEnabled || strpos($statement, '\.') !== false || strpos($statement, '\:') !== false;
     }
 
 }
