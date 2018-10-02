@@ -150,6 +150,21 @@ class CommonTest extends TestCase
             $query->fetchAll());
     }
 
+    public function testEscapeJoin()
+    {
+        $query = $this->fluent->from('article')
+            ->where('user\.name = ?', 'Chris');
+
+        self::assertEquals('SELECT article.* FROM article WHERE user.name = ?', $query->getQuery(false));
+
+        $query = $this->fluent->from('article')
+            ->where('comment.id = :id', 1)
+            ->where('user\.name = :name', 'Chris');
+
+        self::assertEquals('SELECT article.* FROM article LEFT JOIN comment ON comment.id = article.comment_id WHERE comment.id = :id AND user.name = :name',
+            $query->getQuery(false));
+    }
+
     public function testDontCreateDuplicateJoins()
     {
         $query = $this->fluent->from('article')

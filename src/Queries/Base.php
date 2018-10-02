@@ -346,7 +346,7 @@ abstract class Base implements \IteratorAggregate
             }
         }
 
-        return trim($query);
+        return trim(str_replace(['\.', '\:'], ['.', ':'], $query));
     }
 
     /**
