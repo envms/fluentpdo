@@ -15,9 +15,6 @@ class Select extends Common implements \Countable
     /** @var mixed */
     private $fromAlias;
 
-    /** @var boolean */
-    private $convertTypes = false;
-
     /**
      * SelectQuery constructor.
      *
@@ -48,10 +45,6 @@ class Select extends Common implements \Countable
         $this->statements['FROM'] = $from;
         $this->statements['SELECT'][] = $this->fromAlias . '.*';
         $this->joins[] = $this->fromAlias;
-
-        if (isset($fluent->convertTypes) && $fluent->convertTypes) {
-            $this->convertTypes = true;
-        }
     }
 
     /**
@@ -110,8 +103,6 @@ class Select extends Common implements \Countable
     /**
      * Fetch first row or column
      *
-     * @todo rename either $s (which is a PDOStatement), or the Select::fetch() function
-     *
      * @param string $column column name or empty string for the whole row
      *
      * @return mixed string, array or false if there is no row
@@ -120,14 +111,16 @@ class Select extends Common implements \Countable
      */
     public function fetch($column = '')
     {
-        $s = $this->execute();
-        if ($s === false) {
+        $result = $this->execute();
+
+        if ($result === false) {
             return false;
         }
-        $row = $s->fetch();
 
-        if ($this->convertTypes) {
-            $row = Utilities::convertToNativeTypes($s, $row);
+        $row = $result->fetch();
+
+        if ($this->fluent->convertRead === true) {
+            $row = Utilities::stringToNumeric($result, $row);
         }
 
         if ($row && $column != '') {
@@ -143,8 +136,6 @@ class Select extends Common implements \Countable
 
     /**
      * Fetch pairs
-     *
-     * @todo fix return value on query failure
      *
      * @param $key
      * @param $value
@@ -189,15 +180,15 @@ class Select extends Common implements \Countable
 
             return $data;
         } else {
-            if (($s = $this->execute()) !== false) {
-                if ($this->convertTypes) {
-                    return Utilities::convertToNativeTypes($s, $s->fetchAll());
+            if (($result = $this->execute()) !== false) {
+                if ($this->fluent->convertRead === true) {
+                    return Utilities::stringToNumeric($result, $result->fetchAll());
                 } else {
-                    return $s->fetchAll();
+                    return $result->fetchAll();
                 }
             }
 
-            return $s;
+            return $result;
         }
     }
 
@@ -223,7 +214,7 @@ class Select extends Common implements \Countable
      */
     public function getIterator()
     {
-        if ($this->convertTypes) {
+        if ($this->fluent->convertRead === true) {
             return new \ArrayIterator($this->fetchAll());
         } else {
             return $this->execute();

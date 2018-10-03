@@ -7,7 +7,6 @@ namespace Envms\FluentPDO;
  */
 class Utilities
 {
-
     /**
      * Convert "camelCaseWord" to "CAMEL CASE WORD"
      *
@@ -32,36 +31,34 @@ class Utilities
 
         $query = $regex->splitClauses($query);
         $query = $regex->splitSubClauses($query);
-        $query = $regex->removeLineEndWhitespace($query); // remove trailing spaces
+        $query = $regex->removeLineEndWhitespace($query);
 
         return $query;
     }
 
     /**
-     * Converts columns from strings to types according to
-     * PDOStatement::columnMeta
-     * http://stackoverflow.com/a/9952703/3006989
+     * Converts columns from strings to types according to PDOStatement::columnMeta()
      *
      * @param \PDOStatement      $statement
      * @param array|\Traversable $rows - provided by PDOStatement::fetch with PDO::FETCH_ASSOC
      *
-     * @return array|\Traversable - copy of $assoc with matching type fields
+     * @return array|\Traversable
      */
-    public static function convertToNativeTypes(\PDOStatement $statement, $rows)
+    public static function stringToNumeric(\PDOStatement $statement, $rows)
     {
         for ($i = 0; ($columnMeta = $statement->getColumnMeta($i)) !== false; $i++) {
             $type = $columnMeta['native_type'];
 
             switch ($type) {
                 case 'DECIMAL':
-                case 'NEWDECIMAL':
-                case 'FLOAT':
                 case 'DOUBLE':
-                case 'TINY':
-                case 'SHORT':
+                case 'FLOAT':
+                case 'INT24':
                 case 'LONG':
                 case 'LONGLONG':
-                case 'INT24':
+                case 'NEWDECIMAL':
+                case 'SHORT':
+                case 'TINY':
                     if (isset($rows[$columnMeta['name']])) {
                         $rows[$columnMeta['name']] = $rows[$columnMeta['name']] + 0;
                     } else {
@@ -74,16 +71,53 @@ class Utilities
                         }
                     }
                     break;
-                case 'DATETIME':
-                case 'DATE':
-                case 'TIMESTAMP':
-                    // convert to date type?
+                default:
+                    // return as string
                     break;
-                // default: keep as string
             }
         }
 
         return $rows;
+    }
+
+    /**
+     * @param $value
+     *
+     * @return bool
+     */
+    public static function convertSqlWriteValues($value)
+    {
+        if (is_array($value)) {
+            foreach ($value as $k => $v) {
+                $value[$k] = self::convertValue($v);
+            }
+        } else {
+            $value = self::convertValue($value);
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param $value
+     *
+     * @return int|string
+     */
+    public static function convertValue($value)
+    {
+        switch(gettype($value)) {
+            case 'boolean':
+                $conversion = ($value) ? 1 : 0;
+                break;
+            case 'NULL':
+                $conversion = 'NULL';
+                break;
+            default:
+                $conversion = $value;
+                break;
+        }
+
+        return $conversion;
     }
 
     /**

@@ -43,66 +43,6 @@ class Insert extends Base
     }
 
     /**
-     * Execute insert query
-     *
-     * @param mixed $sequence
-     *
-     * @return integer last inserted id or false
-     */
-    public function execute($sequence = null)
-    {
-        $result = parent::execute();
-        if ($result) {
-            return $this->getPDO()->lastInsertId($sequence);
-        }
-
-        return false;
-    }
-
-    /**
-     * Add ON DUPLICATE KEY UPDATE
-     *
-     * @param array $values
-     *
-     * @return Insert
-     */
-    public function onDuplicateKeyUpdate($values)
-    {
-        $this->statements['ON DUPLICATE KEY UPDATE'] = array_merge(
-            $this->statements['ON DUPLICATE KEY UPDATE'], $values
-        );
-
-        return $this;
-    }
-
-    /**
-     * Add VALUES
-     *
-     * @param $values
-     *
-     * @return Insert
-     * @throws \Exception
-     */
-    public function values($values)
-    {
-        if (!is_array($values)) {
-            throw new \Exception('Param VALUES for INSERT query must be array');
-        }
-        $first = current($values);
-        if (is_string(key($values))) {
-            // is one row array
-            $this->addOneValue($values);
-        } elseif (is_array($first) && is_string(key($first))) {
-            // this is multi values
-            foreach ($values as $oneValue) {
-                $this->addOneValue($oneValue);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
      * Force insert operation to fail silently
      *
      * @return Insert
@@ -126,21 +66,74 @@ class Insert extends Base
     }
 
     /**
+     * Add VALUES
+     *
+     * @param $values
+     *
+     * @return Insert
+     * @throws \Exception
+     */
+    public function values($values)
+    {
+        if (!is_array($values)) {
+            throw new \Exception('Param VALUES for INSERT query must be array');
+        }
+
+        $first = current($values);
+        if (is_string(key($values))) {
+            // is one row array
+            $this->addOneValue($values);
+        } elseif (is_array($first) && is_string(key($first))) {
+            // this is multi values
+            foreach ($values as $oneValue) {
+                $this->addOneValue($oneValue);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add ON DUPLICATE KEY UPDATE
+     *
+     * @param array $values
+     *
+     * @return Insert
+     */
+    public function onDuplicateKeyUpdate($values)
+    {
+        $this->statements['ON DUPLICATE KEY UPDATE'] = array_merge(
+            $this->statements['ON DUPLICATE KEY UPDATE'], $values
+        );
+
+        return $this;
+    }
+
+    /**
+     * Execute insert query
+     *
+     * @param mixed $sequence
+     *
+     * @throws \Exception
+     *
+     * @return integer last inserted id or false
+     */
+    public function execute($sequence = null)
+    {
+        $result = parent::execute();
+        if ($result) {
+            return $this->getPDO()->lastInsertId($sequence);
+        }
+
+        return false;
+    }
+
+    /**
      * @return string
      */
     protected function getClauseInsertInto()
     {
         return 'INSERT' . ($this->ignore ? " IGNORE" : '') . ($this->delayed ? " DELAYED" : '') . ' INTO ' . $this->statements['INSERT INTO'];
-    }
-
-    /**
-     * @param $param
-     *
-     * @return string
-     */
-    protected function parameterGetValue($param)
-    {
-        return $param instanceof Literal ? (string)$param : '?';
     }
 
     /**
@@ -161,6 +154,30 @@ class Insert extends Base
         $values = implode(', ', $valuesArray);
 
         return " ($columns) VALUES $values";
+    }
+
+
+    /**
+     * @return string
+     */
+    protected function getClauseOnDuplicateKeyUpdate()
+    {
+        $result = [];
+        foreach ($this->statements['ON DUPLICATE KEY UPDATE'] as $key => $value) {
+            $result[] = "$key = " . $this->parameterGetValue($value);
+        }
+
+        return ' ON DUPLICATE KEY UPDATE ' . implode(', ', $result);
+    }
+
+    /**
+     * @param $param
+     *
+     * @return string
+     */
+    protected function parameterGetValue($param)
+    {
+        return $param instanceof Literal ? (string)$param : '?';
     }
 
     /**
@@ -197,19 +214,6 @@ class Insert extends Base
         );
 
         return parent::buildParameters();
-    }
-
-    /**
-     * @return string
-     */
-    protected function getClauseOnDuplicateKeyUpdate()
-    {
-        $result = [];
-        foreach ($this->statements['ON DUPLICATE KEY UPDATE'] as $key => $value) {
-            $result[] = "$key = " . $this->parameterGetValue($value);
-        }
-
-        return ' ON DUPLICATE KEY UPDATE ' . implode(', ', $result);
     }
 
     /**

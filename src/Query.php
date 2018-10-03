@@ -29,8 +29,10 @@ class Query
     /** @var bool|callback */
     public $debug;
 
-    /** @var boolean */
-    public $convertTypes = false;
+    /** @var bool - Determines whether to convert types when fetching rows from Select */
+    public $convertRead = false;
+    /** @var bool - Determines whether to convert types within Base::buildParameters() */
+    public $convertWrite = false;
 
     /** @var string */
     protected $table;
@@ -248,6 +250,32 @@ class Query
     public function getTable(): string
     {
         return $this->table;
+    }
+
+    /**
+     * @param bool $read
+     * @param bool $write
+     */
+    public function convertTypes(bool $read, bool $write)
+    {
+        $this->convertRead = $read;
+        $this->convertWrite = $write;
+    }
+
+    /**
+     * @param bool $value
+     */
+    public function convertReadTypes(bool $value)
+    {
+        $this->convertRead = $value;
+    }
+
+    /**
+     * @param bool $value
+     */
+    public function convertWriteTypes(bool $value)
+    {
+        $this->convertWrite = $value;
     }
 
 }
