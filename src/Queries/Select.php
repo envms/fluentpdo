@@ -126,7 +126,7 @@ class Select extends Common implements \Countable
 
         $row = $result->fetch();
 
-        if ($this->convertTypes) {
+        if ($this->convertTypes === true) {
             $row = Utilities::convertToNativeTypes($result, $row);
         }
 
@@ -190,7 +190,7 @@ class Select extends Common implements \Countable
             return $data;
         } else {
             if (($s = $this->execute()) !== false) {
-                if ($this->convertTypes) {
+                if ($this->convertTypes === true) {
                     return Utilities::convertToNativeTypes($s, $s->fetchAll());
                 } else {
                     return $s->fetchAll();
