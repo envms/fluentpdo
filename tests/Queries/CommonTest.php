@@ -84,7 +84,7 @@ class CommonTest extends TestCase
 
         self::assertEquals('SELECT article.* FROM article INNER JOIN comment ON comment.article_id = article.id  INNER JOIN user AS comment_user ON comment_user.id = comment.user_id',
             $query->getQuery(false));
-        self::assertEquals(['id' => 1, 'user_id' => 1, 'published_at' => '2011-12-10 12:10:00', 'title' => 'article 1', 'content' => 'content 1'],
+        self::assertEquals(['id' => '1', 'user_id' => '1', 'published_at' => '2011-12-10 12:10:00', 'title' => 'article 1', 'content' => 'content 1'],
             $query->fetch());
     }
 

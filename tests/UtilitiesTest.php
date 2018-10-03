@@ -63,10 +63,21 @@ class UtilitiesTest extends TestCase
             ->execute();
 
         $returnRow = $query->fetch();
-        $forceInt = Utilities::convertToNativeTypes($query, $returnRow);
+        $forceInt = Utilities::stringToNumeric($query, $returnRow);
 
         self::assertEquals(['id' => '1'], $returnRow);
         self::assertEquals(['id' => 1], $forceInt);
+    }
+
+    public function testConvertSqlWriteValues()
+    {
+        $valueArray = Utilities::convertSqlWriteValues(['string', 1, 2, false, true, null, 'false']);
+        $value1 = Utilities::convertSqlWriteValues(false);
+        $value2 = Utilities::convertSqlWriteValues(true);
+
+        self::assertEquals(['string', 1, 2, 0, 1, 'NULL', 'false'], $valueArray);
+        self::assertEquals(0, $value1);
+        self::assertEquals(1, $value2);
     }
 
     public function testisCountable()
@@ -84,4 +95,5 @@ class UtilitiesTest extends TestCase
         self::assertEquals(true, Utilities::isCountable($selectQuery));
         self::assertEquals(false, Utilities::isCountable($deleteQuery));
     }
+
 }
