@@ -370,6 +370,10 @@ abstract class Base implements \IteratorAggregate
     {
         $parameters = [];
         foreach ($this->parameters as $clauses) {
+            if ($this->fluent->convertWrite === true) {
+                $clauses = Utilities::convertSqlWriteValues($clauses);
+            }
+
             if (is_array($clauses)) {
                 foreach ($clauses as $key => $value) {
                     if (strpos($key, ':') === 0) { // these are named params e.g. (':name' => 'Mark')
