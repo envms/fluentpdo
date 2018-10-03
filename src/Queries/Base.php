@@ -11,7 +11,7 @@ abstract class Base implements \IteratorAggregate
 {
 
     /** @var Query */
-    private $fluent;
+    protected $fluent;
 
     /** @var \PDOStatement */
     private $result;
