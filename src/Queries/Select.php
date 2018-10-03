@@ -110,8 +110,6 @@ class Select extends Common implements \Countable
     /**
      * Fetch first row or column
      *
-     * @todo rename either $s (which is a PDOStatement), or the Select::fetch() function
-     *
      * @param string $column column name or empty string for the whole row
      *
      * @return mixed string, array or false if there is no row
@@ -120,14 +118,16 @@ class Select extends Common implements \Countable
      */
     public function fetch($column = '')
     {
-        $s = $this->execute();
-        if ($s === false) {
+        $result = $this->execute();
+
+        if ($result === false) {
             return false;
         }
-        $row = $s->fetch();
+
+        $row = $result->fetch();
 
         if ($this->convertTypes) {
-            $row = Utilities::convertToNativeTypes($s, $row);
+            $row = Utilities::convertToNativeTypes($result, $row);
         }
 
         if ($row && $column != '') {
