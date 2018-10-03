@@ -379,7 +379,7 @@ abstract class Base implements \IteratorAggregate
                     }
                 }
             } else {
-                if ($clauses) {
+                if ($clauses !== false && $clauses !== null) {
                     $parameters[] = $clauses;
                 }
             }
