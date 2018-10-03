@@ -44,7 +44,7 @@ class Utilities
      *
      * @return array|\Traversable
      */
-    public static function convertToNativeTypes(\PDOStatement $statement, $rows)
+    public static function stringToNumeric(\PDOStatement $statement, $rows)
     {
         for ($i = 0; ($columnMeta = $statement->getColumnMeta($i)) !== false; $i++) {
             $type = $columnMeta['native_type'];
