@@ -32,20 +32,18 @@ class Utilities
 
         $query = $regex->splitClauses($query);
         $query = $regex->splitSubClauses($query);
-        $query = $regex->removeLineEndWhitespace($query); // remove trailing spaces
+        $query = $regex->removeLineEndWhitespace($query);
 
         return $query;
     }
 
     /**
-     * Converts columns from strings to types according to
-     * PDOStatement::columnMeta
-     * http://stackoverflow.com/a/9952703/3006989
+     * Converts columns from strings to types according to PDOStatement::columnMeta()
      *
      * @param \PDOStatement      $statement
      * @param array|\Traversable $rows - provided by PDOStatement::fetch with PDO::FETCH_ASSOC
      *
-     * @return array|\Traversable - copy of $assoc with matching type fields
+     * @return array|\Traversable
      */
     public static function convertToNativeTypes(\PDOStatement $statement, $rows)
     {
@@ -54,14 +52,14 @@ class Utilities
 
             switch ($type) {
                 case 'DECIMAL':
-                case 'NEWDECIMAL':
-                case 'FLOAT':
                 case 'DOUBLE':
-                case 'TINY':
-                case 'SHORT':
+                case 'FLOAT':
+                case 'INT24':
                 case 'LONG':
                 case 'LONGLONG':
-                case 'INT24':
+                case 'NEWDECIMAL':
+                case 'SHORT':
+                case 'TINY':
                     if (isset($rows[$columnMeta['name']])) {
                         $rows[$columnMeta['name']] = $rows[$columnMeta['name']] + 0;
                     } else {
@@ -74,12 +72,9 @@ class Utilities
                         }
                     }
                     break;
-                case 'DATETIME':
-                case 'DATE':
-                case 'TIMESTAMP':
-                    // convert to date type?
+                default:
+                    // return as string
                     break;
-                // default: keep as string
             }
         }
 
