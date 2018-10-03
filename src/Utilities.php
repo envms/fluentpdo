@@ -7,7 +7,6 @@ namespace Envms\FluentPDO;
  */
 class Utilities
 {
-
     /**
      * Convert "camelCaseWord" to "CAMEL CASE WORD"
      *
@@ -79,6 +78,46 @@ class Utilities
         }
 
         return $rows;
+    }
+
+    /**
+     * @param $value
+     *
+     * @return bool
+     */
+    public static function convertSqlWriteValues($value)
+    {
+        if (is_array($value)) {
+            foreach ($value as $k => $v) {
+                $value[$k] = self::convertValue($v);
+            }
+        } else {
+            $value = self::convertValue($value);
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param $value
+     *
+     * @return int|string
+     */
+    public static function convertValue($value)
+    {
+        switch(gettype($value)) {
+            case 'boolean':
+                $conversion = ($value) ? 1 : 0;
+                break;
+            case 'NULL':
+                $conversion = 'NULL';
+                break;
+            default:
+                $conversion = $value;
+                break;
+        }
+
+        return $conversion;
     }
 
     /**
