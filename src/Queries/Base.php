@@ -398,7 +398,7 @@ abstract class Base implements \IteratorAggregate
     /**
      * @return array
      */
-    protected function buildParameters()
+    protected function buildParameters(): array
     {
         $parameters = [];
         foreach ($this->parameters as $clauses) {
@@ -429,7 +429,7 @@ abstract class Base implements \IteratorAggregate
      *
      * @return string
      */
-    protected function quote($value)
+    protected function quote($value): string
     {
         if (!isset($value)) {
             return "NULL";
@@ -460,7 +460,7 @@ abstract class Base implements \IteratorAggregate
      *
      * @return string
      */
-    private function formatValue($val)
+    private function formatValue($val): string
     {
         if ($val instanceof \DateTime) {
             return $val->format("Y-m-d H:i:s"); // may be driver specific
