@@ -2,7 +2,7 @@
 
 namespace Envms\FluentPDO\Queries;
 
-use Envms\FluentPDO\{Literal, Utilities};
+use Envms\FluentPDO\{Exception, Literal, Utilities};
 
 /**
  * CommonQuery add JOIN and WHERE clauses for (SELECT, UPDATE, DELETE)
@@ -402,7 +402,7 @@ abstract class Common extends Base
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      *
      * @return string
      */

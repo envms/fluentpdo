@@ -2,7 +2,7 @@
 
 namespace Envms\FluentPDO\Queries;
 
-use Envms\FluentPDO\{Query, Literal};
+use Envms\FluentPDO\{Exception, Literal, Query};
 
 /** INSERT query builder
  */
@@ -27,7 +27,7 @@ class Insert extends Base
      * @param string    $table
      * @param           $values
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct(Query $fluent, $table, $values)
     {
@@ -71,12 +71,12 @@ class Insert extends Base
      * @param $values
      *
      * @return Insert
-     * @throws \Exception
+     * @throws Exception
      */
     public function values($values)
     {
         if (!is_array($values)) {
-            throw new \Exception('Param VALUES for INSERT query must be array');
+            throw new Exception('Param VALUES for INSERT query must be array');
         }
 
         $first = current($values);
@@ -114,7 +114,7 @@ class Insert extends Base
      *
      * @param mixed $sequence
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @return integer last inserted id or false
      */
@@ -206,7 +206,7 @@ class Insert extends Base
     /**
      * @return array
      */
-    protected function buildParameters()
+    protected function buildParameters(): array
     {
         $this->parameters = array_merge(
             $this->filterLiterals($this->statements['VALUES']),
@@ -219,14 +219,14 @@ class Insert extends Base
     /**
      * @param array $oneValue
      *
-     * @throws \Exception
+     * @throws Exception
      */
     private function addOneValue($oneValue)
     {
         // check if all $keys are strings
         foreach ($oneValue as $key => $value) {
             if (!is_string($key)) {
-                throw new \Exception('INSERT query: All keys of value array have to be strings.');
+                throw new Exception('INSERT query: All keys of value array have to be strings.');
             }
         }
         if (!$this->firstValue) {
@@ -236,7 +236,7 @@ class Insert extends Base
             $this->columns = array_keys($oneValue);
         }
         if ($this->columns != array_keys($oneValue)) {
-            throw new \Exception('INSERT query: All VALUES have to same keys (columns).');
+            throw new Exception('INSERT query: All VALUES have to same keys (columns).');
         }
         $this->statements['VALUES'][] = $oneValue;
     }

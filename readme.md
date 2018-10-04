@@ -1,21 +1,19 @@
 # FluentPDO [![Build Status](https://secure.travis-ci.org/envms/fluentpdo.png?branch=master)](http://travis-ci.org/envms/fluentpdo) [![Maintainability](https://api.codeclimate.com/v1/badges/19210ca91c7055b89705/maintainability)](https://codeclimate.com/github/fpdo/fluentpdo/maintainability)
 
-FluentPDO is a quick and light PHP library for rapid query building. It features a smart join builder, which automatically creates table joins.
+FluentPDO is a PHP SQL query builder using PDO. It's a quick and light library featuring a smart join builder, which automatically creates table joins for you.
 
 ## Features
 
-- Easy interface for creating queries step by step
-- Support for any database compatible with PDO
-- Simple API based on PDO and SQL syntax
+- Easy interface for creating robust queries
+- Supports any database compatible with PDO
 - Ability to build complex SELECT, INSERT, UPDATE & DELETE queries with little code
-- Small and very fast
 - Type hinting for magic methods with code completion in smart IDEs
 
 ## Requirements
 
-The latest (2.x) release of FluentPDO supports PHP 7.0, 7.1 and 7.2
+The latest (2.x) release of FluentPDO officially supports PHP 7.1, 7.2 and 7.3. v2.x is actively maintained.
 
-The legacy (1.x) release of FluentPDO supports PHP 5.4 to 7.1
+The legacy (1.x) release of FluentPDO works with PHP 5.4 to 7.1. **Note:** The v1.x branch is no longer supported and will not be maintained or updated.
 
 ## Reference
 
@@ -25,13 +23,14 @@ The legacy (1.x) release of FluentPDO supports PHP 5.4 to 7.1
 
 ### Composer
 
-The preferred way to install FluentPDO is via [composer](http://getcomposer.org/). v1.1.x will be the last until the release of 2.0, so we recommend using 1.1.* to ensure no breaking changes are introduced.
+The preferred way to install FluentPDO is via [composer](http://getcomposer.org/). Version 2.0 is in beta! Please start using v2.0.0 in your projects
+and let us know of any issues you find, and they will be resolved quickly. No further breaking changes will be introduced in the 2.0 branch.
 
 Add the following line in your `composer.json` file:
 
 	"require": {
 		...
-		"envms/fluentpdo": "1.1.*"
+		"envms/fluentpdo": "^2.0.0-beta1"
 	}
 
 update your dependencies with `composer update`, and you're done!
@@ -58,8 +57,8 @@ $fluent = new FluentPDO($pdo);
 Then, creating queries is quick and easy:
 
 ```php
-$query = $fluent->from('article')
-            ->where('published_at > ?', $date)
+$query = $fluent->from('comment')
+            ->where('article.published_at > ?', $date)
             ->orderBy('published_at DESC')
             ->limit(5);
 ```
@@ -67,10 +66,11 @@ $query = $fluent->from('article')
 which builds the query below:
 
 ```mysql
-SELECT article.*
-FROM article
-WHERE published_at > ?
-ORDER BY published_at DESC
+SELECT comment.*
+FROM comment
+LEFT JOIN article ON article.id = comment.article_id
+WHERE article.published_at > ?
+ORDER BY article.published_at DESC
 LIMIT 5
 ```
 
