@@ -274,26 +274,26 @@ class Query
      * @param bool $read
      * @param bool $write
      */
-    public function convertTypes(bool $read, bool $write)
+    public function convertTypes(bool $read, bool $write): void
     {
         $this->convertRead = $read;
         $this->convertWrite = $write;
     }
 
     /**
-     * @param bool $value
+     * @param bool $flag
      */
-    public function convertReadTypes(bool $value)
+    public function convertReadTypes(bool $flag): void
     {
-        $this->convertRead = $value;
+        $this->convertRead = $flag;
     }
 
     /**
-     * @param bool $value
+     * @param bool $flag
      */
-    public function convertWriteTypes(bool $value)
+    public function convertWriteTypes(bool $flag): void
     {
-        $this->convertWrite = $value;
+        $this->convertWrite = $flag;
     }
 
 }
