@@ -206,7 +206,7 @@ class Insert extends Base
     /**
      * @return array
      */
-    protected function buildParameters()
+    protected function buildParameters(): array
     {
         $this->parameters = array_merge(
             $this->filterLiterals($this->statements['VALUES']),
