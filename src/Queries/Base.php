@@ -10,9 +10,6 @@ use Envms\FluentPDO\{Exception, Literal, Query, Regex, Structure, Utilities};
 abstract class Base implements \IteratorAggregate
 {
 
-    /** @var Query */
-    protected $fluent;
-
     /** @var \PDOStatement */
     private $result;
 
@@ -25,6 +22,9 @@ abstract class Base implements \IteratorAggregate
     /** @var bool */
     private $object = false;
 
+    /** @var Query */
+    protected $fluent;
+
     /** @var array - definition clauses */
     protected $clauses = [];
     /** @var array */
@@ -32,6 +32,7 @@ abstract class Base implements \IteratorAggregate
     /** @var array */
     protected $parameters = [];
 
+    /** @var Regex */
     protected $regex;
 
     /** @var string */
@@ -58,7 +59,7 @@ abstract class Base implements \IteratorAggregate
      *
      * @return string - formatted query
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function __toString()
     {
@@ -163,7 +164,7 @@ abstract class Base implements \IteratorAggregate
      *
      * @return \PDOStatement
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getIterator()
     {
@@ -175,7 +176,7 @@ abstract class Base implements \IteratorAggregate
      *
      * @return \PDOStatement
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function execute()
     {
@@ -201,7 +202,7 @@ abstract class Base implements \IteratorAggregate
     /**
      * Echo/pass a debug string
      *
-     * @throws \Exception
+     * @throws Exception
      */
     private function debugger()
     {
@@ -271,16 +272,6 @@ abstract class Base implements \IteratorAggregate
     }
 
     /**
-     * Get time of execution
-     *
-     * @return float
-     */
-    public function getTime()
-    {
-        return $this->time;
-    }
-
-    /**
      * Get query parameters
      *
      * @return array
@@ -347,7 +338,7 @@ abstract class Base implements \IteratorAggregate
      *
      * @param bool $formatted - Return formatted query
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @return string
      */
@@ -365,7 +356,7 @@ abstract class Base implements \IteratorAggregate
     /**
      * Generate query
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @return string
      */
@@ -382,7 +373,7 @@ abstract class Base implements \IteratorAggregate
                 } elseif (is_callable($separator)) {
                     $query .= call_user_func($separator);
                 } else {
-                    throw new \Exception("Clause '$clause' is incorrectly set to '$separator'.");
+                    throw new Exception("Clause '$clause' is incorrectly set to '$separator'.");
                 }
             }
         }
@@ -563,30 +554,6 @@ abstract class Base implements \IteratorAggregate
         $this->object = $object;
 
         return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function getRawClauses()
-    {
-        return $this->clauses;
-    }
-
-    /**
-     * @return array
-     */
-    public function getRawStatements()
-    {
-        return $this->statements;
-    }
-
-    /**
-     * @return array
-     */
-    public function getRawParameters()
-    {
-        return $this->parameters;
     }
 
 }
