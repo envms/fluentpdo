@@ -34,6 +34,9 @@ class Query
     /** @var bool - Determines whether to convert types within Base::buildParameters() */
     public $convertWrite = false;
 
+    /** @var bool - If a query errors, this determines how to handle it */
+    public $exceptionOnError = false;
+
     /** @var string */
     protected $table;
     /** @var string */
@@ -50,9 +53,16 @@ class Query
     function __construct(\PDO $pdo, Structure $structure = null)
     {
         $this->pdo = $pdo;
+
+        // if exceptions are already activated in PDO, activate them in Fluent as well
+        if ($this->pdo->getAttribute(\PDO::ATTR_ERRMODE) === \PDO::ERRMODE_EXCEPTION) {
+            $this->throwExceptionOnError(true);
+        }
+
         if (!$structure) {
             $structure = new Structure();
         }
+
         $this->structure = $structure;
     }
 
@@ -250,6 +260,14 @@ class Query
     public function getTable(): string
     {
         return $this->table;
+    }
+
+    /**
+     * @param bool $flag
+     */
+    public function throwExceptionOnError(bool $flag): void
+    {
+        $this->exceptionOnError = $flag;
     }
 
     /**
