@@ -2,7 +2,7 @@
 
 namespace Envms\FluentPDO\Queries;
 
-use Envms\FluentPDO\{Query, Literal, Regex, Structure, Utilities};
+use Envms\FluentPDO\{Exception, Literal, Query, Regex, Structure, Utilities};
 
 /**
  * Base query builder
@@ -17,7 +17,10 @@ abstract class Base implements \IteratorAggregate
     private $result;
 
     /** @var float */
-    private $time;
+    private $totalTime;
+
+    /** @var float */
+    private $executionTime;
 
     /** @var bool */
     private $object = false;
@@ -30,6 +33,9 @@ abstract class Base implements \IteratorAggregate
     protected $parameters = [];
 
     protected $regex;
+
+    /** @var string */
+    protected $message = '';
 
     /**
      * BaseQuery constructor.
@@ -173,40 +179,23 @@ abstract class Base implements \IteratorAggregate
      */
     public function execute()
     {
+        $startTime = microtime(true);
+
         $query = $this->buildQuery();
         $parameters = $this->buildParameters();
 
-        $result = $this->fluent->getPdo()->prepare($query);
+        $this->prepareQuery($query);
 
-        // At this point, $result is a PDOStatement instance, or false.
-        // PDO::prepare() does not reliably return errors. Some database drivers
-        // do not support prepared statements, and PHP emulates them. Postgresql
-        // does support prepared statements, but PHP does not call Postgresql's
-        // prepare function until we call PDOStatement::execute() below.
-        // If PDO::prepare() worked properly, this is where we would check
-        // for prepare errors, such as invalid SQL.
+        if ($this->result !== false) {
+            $this->setObjectFetchMode($this->result);
 
-        if ($this->object !== false) {
-            if (class_exists($this->object)) {
-                $result->setFetchMode(\PDO::FETCH_CLASS, $this->object);
-            } else {
-                $result->setFetchMode(\PDO::FETCH_OBJ);
-            }
-        } elseif ($this->fluent->getPdo()->getAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE) == \PDO::FETCH_BOTH) {
-            $result->setFetchMode(\PDO::FETCH_ASSOC);
+            $execTime = microtime(true);
+
+            $this->executeQuery($parameters, $startTime, $execTime);
+            $this->debugger();
         }
 
-        $time = microtime(true);
-        if ($result && $result->execute($parameters)) {
-            $this->time = microtime(true) - $time;
-        } else {
-            $result = false;
-        }
-
-        $this->result = $result;
-        $this->debugger();
-
-        return $result;
+        return $this->result;
     }
 
     /**
@@ -236,7 +225,7 @@ abstract class Base implements \IteratorAggregate
                     }
                 }
 
-                $time = sprintf('%0.3f', $this->time * 1000) . ' ms';
+                $time = sprintf('%0.3f', $this->totalTime * 1000) . 'ms';
                 $rows = ($this->result) ? $this->result->rowCount() : 0;
                 $finalString = "# $backtrace[file]:$backtrace[line] ($time; rows = $rows)\n$debug\n\n";
 
@@ -299,6 +288,58 @@ abstract class Base implements \IteratorAggregate
     public function getParameters()
     {
         return $this->buildParameters();
+    }
+
+    /**
+     * @return array
+     */
+    public function getRawClauses()
+    {
+        return $this->clauses;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRawStatements()
+    {
+        return $this->statements;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRawParameters()
+    {
+        return $this->parameters;
+    }
+
+    /**
+     * Gets the total time of query building, preparation and execution
+     *
+     * @return float
+     */
+    public function getTotalTime(): float
+    {
+        return $this->totalTime;
+    }
+
+    /**
+     * Gets the query execution time
+     *
+     * @return float
+     */
+    public function getExecutionTime(): float
+    {
+        return $this->executionTime;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMessage()
+    {
+        return $this->message;
     }
 
     /**
@@ -435,6 +476,77 @@ abstract class Base implements \IteratorAggregate
         }
 
         return $val;
+    }
+
+    /**
+     * @param string $query
+     *
+     * @throws Exception
+     */
+    private function prepareQuery($query): void
+    {
+        $this->result = $this->fluent->getPdo()->prepare($query);
+
+        // At this point, $result is a PDOStatement instance, or false.
+        // PDO::prepare() does not reliably return errors. Some database drivers
+        // do not support prepared statements, and PHP emulates them. Postgresql
+        // does support prepared statements, but PHP does not call Postgresql's
+        // prepare function until we call PDOStatement::execute() below.
+        // If PDO::prepare() worked properly, this is where we would check
+        // for prepare errors, such as invalid SQL.
+
+        if ($this->result === false) {
+            $error = $this->fluent->getPdo()->errorInfo();
+            $message = "SQLSTATE: {$error[0]} - Driver Code: {$error[1]} - Message: {$error[2]}";
+
+            if ($this->fluent->exceptionOnError === true) {
+                throw new Exception($message);
+            } else {
+                $this->message = $message;
+            }
+        }
+    }
+
+    /**
+     * @param array $parameters
+     * @param int   $startTime
+     * @param int   $execTime
+     *
+     * @throws Exception
+     */
+    private function executeQuery($parameters, $startTime, $execTime): void
+    {
+        if ($this->result->execute($parameters) === true) {
+            $this->executionTime = microtime(true) - $execTime;
+            $this->totalTime = microtime(true) - $startTime;
+        } else {
+            $error = $this->result->errorInfo();
+            $message = "SQLSTATE: {$error[0]} - Driver Code: {$error[1]} - Message: {$error[2]}";
+
+            if ($this->fluent->exceptionOnError === true) {
+                throw new Exception($message);
+            } else {
+                $this->message = $message;
+            }
+
+            $this->result = false;
+        }
+    }
+
+    /**
+     * @param \PDOStatement $result
+     */
+    private function setObjectFetchMode(\PDOStatement &$result): void
+    {
+        if ($this->object !== false) {
+            if (class_exists($this->object)) {
+                $result->setFetchMode(\PDO::FETCH_CLASS, $this->object);
+            } else {
+                $result->setFetchMode(\PDO::FETCH_OBJ);
+            }
+        } elseif ($this->fluent->getPdo()->getAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE) == \PDO::FETCH_BOTH) {
+            $result->setFetchMode(\PDO::FETCH_ASSOC);
+        }
     }
 
     /**
