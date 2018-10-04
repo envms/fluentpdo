@@ -64,7 +64,7 @@ class Query
      *
      * @return Select
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function from(?string $table = null, ?int $primaryKey = null): Select
     {
@@ -91,7 +91,7 @@ class Query
      *
      * @return Insert
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function insertInto(?string $table = null, array $values = []): Insert
     {
@@ -112,7 +112,7 @@ class Query
      *
      * @return Update
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function update(?string $table = null, $set = [], ?int $primaryKey = null): Update
     {
@@ -138,7 +138,7 @@ class Query
      *
      * @return Delete
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function delete(?string $table = null, ?int $primaryKey = null): Delete
     {
@@ -203,7 +203,7 @@ class Query
      *
      * @return $this
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function setTableName(?string $table = '', string $prefix = '', string $separator = ''): Query
     {
@@ -214,7 +214,7 @@ class Query
         }
 
         if ($this->getFullTableName() === '') {
-            throw new \Exception('Table name cannot be empty');
+            throw new Exception('Table name cannot be empty');
         }
 
         return $this;

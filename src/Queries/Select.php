@@ -2,7 +2,7 @@
 
 namespace Envms\FluentPDO\Queries;
 
-use Envms\FluentPDO\{Query, Utilities};
+use Envms\FluentPDO\{Exception, Query, Utilities};
 
 /**
  * SELECT query builder
@@ -87,9 +87,9 @@ class Select extends Common implements \Countable
      *
      * @param int $columnNumber
      *
-     * @return string
+     * @throws Exception
      *
-     * @throws \Exception
+     * @return string
      */
     public function fetchColumn($columnNumber = 0)
     {
@@ -105,9 +105,9 @@ class Select extends Common implements \Countable
      *
      * @param string $column column name or empty string for the whole row
      *
-     * @return mixed string, array or false if there is no row
+     * @throws Exception
      *
-     * @throws \Exception
+     * @return mixed string, array or false if there is no row
      */
     public function fetch($column = '')
     {
@@ -141,9 +141,9 @@ class Select extends Common implements \Countable
      * @param $value
      * @param $object
      *
-     * @return array|\PDOStatement
+     * @throws Exception
      *
-     * @throws \Exception
+     * @return array|\PDOStatement
      */
     public function fetchPairs($key, $value, $object = false)
     {
@@ -159,9 +159,9 @@ class Select extends Common implements \Countable
      * @param string $index      specify index column
      * @param string $selectOnly select columns which could be fetched
      *
-     * @return \PDOStatement|array of fetched rows
+     * @throws Exception
      *
-     * @throws \Exception
+     * @return \PDOStatement|array of fetched rows
      */
     public function fetchAll($index = '', $selectOnly = '')
     {
@@ -195,9 +195,9 @@ class Select extends Common implements \Countable
     /**
      * \Countable interface doesn't break current select query
      *
-     * @return int
+     * @throws Exception
      *
-     * @throws \Exception
+     * @return int
      */
     public function count()
     {
@@ -207,10 +207,9 @@ class Select extends Common implements \Countable
     }
 
     /**
-     * @return \ArrayIterator|\PDOStatement
-     * @todo look into \Countable implementation
+     * @throws Exception
      *
-     * @throws \Exception
+     * @return \ArrayIterator|\PDOStatement
      */
     public function getIterator()
     {

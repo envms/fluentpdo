@@ -2,7 +2,7 @@
 
 namespace Envms\FluentPDO\Queries;
 
-use Envms\FluentPDO\Query;
+use Envms\FluentPDO\{Exception, Query};
 
 /**
  * DELETE query builder
@@ -57,7 +57,7 @@ class Delete extends Common
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      *
      * @return string
      */
@@ -75,14 +75,14 @@ class Delete extends Common
     /**
      * Execute DELETE query
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @return bool
      */
     public function execute()
     {
         if (empty($this->statements['WHERE'])) {
-            throw new \Exception('Delete queries must contain a WHERE clause to prevent unwanted data loss');
+            throw new Exception('Delete queries must contain a WHERE clause to prevent unwanted data loss');
         }
 
         $result = parent::execute();
