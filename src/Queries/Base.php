@@ -444,8 +444,12 @@ abstract class Base implements \IteratorAggregate
             return sprintf("%F", $value); // otherwise depends on setlocale()
         }
 
+        if ($value === true) {
+            return 1;
+        }
+
         if ($value === false) {
-            return "0";
+            return 0;
         }
 
         if (is_int($value) || $value instanceof Literal) { // number or SQL code - for example "NOW()"
