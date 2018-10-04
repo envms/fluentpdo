@@ -429,7 +429,7 @@ abstract class Base implements \IteratorAggregate
      *
      * @return string
      */
-    protected function quote($value): string
+    protected function quote($value)
     {
         if (!isset($value)) {
             return "NULL";
@@ -458,9 +458,9 @@ abstract class Base implements \IteratorAggregate
     /**
      * @param \DateTime $val
      *
-     * @return string
+     * @return mixed
      */
-    private function formatValue($val): string
+    private function formatValue($val)
     {
         if ($val instanceof \DateTime) {
             return $val->format("Y-m-d H:i:s"); // may be driver specific
