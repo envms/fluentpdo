@@ -37,13 +37,13 @@ update your dependencies with `composer update`, and you're done!
 
 ### Copy
 
-If you prefer not to use composer, simply copy the `/FluentPDO` directory into your libraries directory and add:
+If you prefer not to use composer, create the directory `Envms/FluentPDO` in your library directory, and drop this repository into it. Finally, add:
 
 ```php
-include "[your-library-directory]/FluentPDO/FluentPDO.php";
+require "[lib-dir]/Envms/FluentPDO/src/Query.php";
 ```
 
-to the top of your application.
+to the top of your application. **Note:** You will need an autoloader to use FluentPDO without changing its source code.
 
 ## Getting Started
 
@@ -58,12 +58,12 @@ Then, creating queries is quick and easy:
 
 ```php
 $query = $fluent->from('comment')
-            ->where('article.published_at > ?', $date)
-            ->orderBy('published_at DESC')
-            ->limit(5);
+             ->where('article.published_at > ?', $date)
+             ->orderBy('published_at DESC')
+             ->limit(5);
 ```
 
-which builds the query below:
+which would build the query below:
 
 ```mysql
 SELECT comment.*
@@ -88,23 +88,23 @@ Let's start with a traditional join, below:
 
 ```php
 $query = $fluent->from('article')
-            ->leftJoin('user ON user.id = article.user_id')
-            ->select('user.name');
+             ->leftJoin('user ON user.id = article.user_id')
+             ->select('user.name');
 ```
 
 That's pretty verbose, and not very smart. If your tables use proper primary and foreign key names, you can shorten the above to:
 
 ```php
 $query = $fluent->from('article')
-            ->leftJoin('user')
-            ->select('user.name');
+             ->leftJoin('user')
+             ->select('user.name');
 ```
 
 That's better, but not ideal. However, it would be even easier to **not write any joins**:
 
 ```php
 $query = $fluent->from('article')
-            ->select('user.name');
+             ->select('user.name');
 ```
 
 Awesome, right? FluentPDO is able to build the join for you, by you prepending the foreign table name to the requested column.
