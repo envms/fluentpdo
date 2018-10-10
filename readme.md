@@ -117,6 +117,14 @@ FROM article
 LEFT JOIN user ON user.id = article.user_id
 ```
 
+##### Close your connection
+
+Finally, it's always a good idea to free resources as soon as they are done with their duties:
+ 
+ ```php
+$fpdo->close();
+```
+
 ## CRUD Query Examples
 
 ##### SELECT
