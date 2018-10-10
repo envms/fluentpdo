@@ -147,7 +147,7 @@ class Select extends Common implements \Countable
      */
     public function fetchPairs($key, $value, $object = false)
     {
-        if (($s = $this->select(null)->select("$key, $value")->asObject($object)->execute()) !== false) {
+        if (($s = $this->select("$key, $value", true)->asObject($object)->execute()) !== false) {
             return $s->fetchAll(\PDO::FETCH_KEY_PAIR);
         }
 
@@ -165,16 +165,31 @@ class Select extends Common implements \Countable
      */
     public function fetchAll($index = '', $selectOnly = '')
     {
-        if ($selectOnly) {
-            $this->select(null)->select($index . ', ' . $selectOnly);
+        // allows for data organization by field -> fetchAll('column[]')
+        $indexAsArray = strpos($index, '[]');
+
+        if ($indexAsArray !== false) {
+            $index = str_replace('[]', '', $index);
         }
+
+        if ($selectOnly) {
+            $this->select($index . ', ' . $selectOnly, true);
+        }
+
         if ($index) {
             $data = [];
+
             foreach ($this as $row) {
                 if (is_object($row)) {
-                    $data[$row->{$index}] = $row;
+                    $key = $row->{$index};
                 } else {
-                    $data[$row[$index]] = $row;
+                    $key = $row[$index];
+                }
+
+                if ($indexAsArray) {
+                    $data[$key][] = $row;
+                } else {
+                    $data[$key] = $row;
                 }
             }
 
@@ -203,7 +218,7 @@ class Select extends Common implements \Countable
     {
         $fluent = clone $this;
 
-        return (int)$fluent->select(null)->select('COUNT(*)')->fetchColumn();
+        return (int)$fluent->select('COUNT(*)', true)->fetchColumn();
     }
 
     /**
