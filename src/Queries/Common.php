@@ -244,38 +244,13 @@ abstract class Common extends Base
             return $this;
         }
 
-        $this->regex->tableAlias($statement, $matches); // store any found alias in $matches
-        $joinAlias = '';
-        $joinTable = '';
-
-        if ($matches) {
-            $joinTable = $matches[1];
-            if (isset($matches[4]) && !in_array(strtoupper($matches[4]), ['ON', 'USING'])) {
-                $joinAlias = $matches[4];
-            }
-        }
+        list($joinAlias, $joinTable) = $this->setJoinNameAlias($statement);
 
         if (strpos(strtoupper($statement), ' ON ') !== false || strpos(strtoupper($statement), ' USING') !== false) {
-            if (!$joinAlias) {
-                $joinAlias = $joinTable;
-            }
-
-            if (in_array($joinAlias, $this->joins)) {
-                return $this;
-            } else {
-                $this->joins[] = $joinAlias;
-                $statement = " $clause $statement";
-
-                return $this->addStatement('JOIN', $statement, $parameters);
-            }
+            return $this->addRawJoins($clause, $statement, $parameters, $joinAlias, $joinTable);
         }
 
-        $mainTable = '';
-        if (isset($this->statements['FROM'])) {
-            $mainTable = $this->statements['FROM'];
-        } elseif (isset($this->statements['UPDATE'])) {
-            $mainTable = $this->statements['UPDATE'];
-        }
+        $mainTable = $this->setMainTable();
 
         // if $joinTable does not end with a dot or colon, append one
         if (!in_array(substr($joinTable, -1), ['.', ':'])) {
@@ -284,25 +259,17 @@ abstract class Common extends Base
 
         $this->regex->tableJoin($joinTable, $matches);
 
+        // used for applying the table alias
         $lastItem = array_pop($matches[1]);
         array_push($matches[1], $lastItem);
 
         foreach ($matches[1] as $joinItem) {
-            if ($mainTable == substr($joinItem, 0, -1)) {
+            if ($this->matchTableWithJoin($mainTable, $joinItem)) {
+                // this is still the same table so we don't need to add the same join
                 continue;
             }
 
-            $alias = '';
-
-            if ($joinItem == $lastItem) {
-                $alias = $joinAlias; // use $joinAlias only for $lastItem
-            }
-
-            $newJoin = $this->createJoinStatement($clause, $mainTable, $joinItem, $alias);
-            if ($newJoin) {
-                $this->addStatement('JOIN', $newJoin, $parameters);
-            }
-            $mainTable = $joinItem;
+            $mainTable = $this->applyTableJoin($clause, $parameters, $mainTable, $joinItem, $lastItem, $joinAlias);
         }
 
         return $this;
@@ -432,6 +399,104 @@ abstract class Common extends Base
         }
 
         return !$this->isSmartJoinEnabled || strpos($statement, '\.') !== false || strpos($statement, '\:') !== false;
+    }
+
+    /**
+     * @param $statement
+     *
+     * @return array
+     */
+    private function setJoinNameAlias($statement)
+    {
+        $this->regex->tableAlias($statement, $matches); // store any found alias in $matches
+        $joinAlias = '';
+        $joinTable = '';
+
+        if ($matches) {
+            $joinTable = $matches[1];
+            if (isset($matches[4]) && !in_array(strtoupper($matches[4]), ['ON', 'USING'])) {
+                $joinAlias = $matches[4];
+            }
+        }
+
+        return [$joinAlias, $joinTable];
+    }
+
+    /**
+     * @param $table
+     * @param $joinItem
+     *
+     * @return bool
+     */
+    private function matchTableWithJoin($table, $joinItem)
+    {
+        return $table == substr($joinItem, 0, -1);
+    }
+
+    /**
+     * @param $clause
+     * @param $statement
+     * @param $parameters
+     * @param $joinAlias
+     * @param $joinTable
+     *
+     * @return $this
+     */
+    private function addRawJoins($clause, $statement, $parameters, $joinAlias, $joinTable)
+    {
+        if (!$joinAlias) {
+            $joinAlias = $joinTable;
+        }
+
+        if (in_array($joinAlias, $this->joins)) {
+            return $this;
+        } else {
+            $this->joins[] = $joinAlias;
+            $statement = " $clause $statement";
+
+            return $this->addStatement('JOIN', $statement, $parameters);
+        }
+    }
+
+    /**
+     * @return string
+     */
+    private function setMainTable()
+    {
+        if (isset($this->statements['FROM'])) {
+            return $this->statements['FROM'];
+        } elseif (isset($this->statements['UPDATE'])) {
+            return $this->statements['UPDATE'];
+        }
+
+        return '';
+    }
+
+    /**
+     * @param $clause
+     * @param $parameters
+     * @param $mainTable
+     * @param $joinItem
+     * @param $lastItem
+     * @param $joinAlias
+     *
+     * @return mixed
+     */
+    private function applyTableJoin($clause, $parameters, $mainTable, $joinItem, $lastItem, $joinAlias)
+    {
+        $alias = '';
+
+        if ($joinItem == $lastItem) {
+            $alias = $joinAlias; // use $joinAlias only for $lastItem
+        }
+
+        $newJoin = $this->createJoinStatement($clause, $mainTable, $joinItem, $alias);
+
+        if ($newJoin) {
+            $this->addStatement('JOIN', $newJoin, $parameters);
+        }
+
+        return $joinItem;
     }
 
 }
