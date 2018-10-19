@@ -156,16 +156,15 @@ class Select extends Common implements \Countable
 
     /** Fetch all row
      *
-     * @param string $index      specify index column
-     * @param string $selectOnly select columns which could be fetched
+     * @param string $index      - specify index column. Allows for data organization by field using 'field[]'
+     * @param string $selectOnly - select columns which could be fetched
      *
      * @throws Exception
      *
-     * @return \PDOStatement|array of fetched rows
+     * @return array|bool -  fetched rows
      */
     public function fetchAll($index = '', $selectOnly = '')
     {
-        // allows for data organization by field -> fetchAll('column[]')
         $indexAsArray = strpos($index, '[]');
 
         if ($indexAsArray !== false) {
@@ -177,23 +176,7 @@ class Select extends Common implements \Countable
         }
 
         if ($index) {
-            $data = [];
-
-            foreach ($this as $row) {
-                if (is_object($row)) {
-                    $key = $row->{$index};
-                } else {
-                    $key = $row[$index];
-                }
-
-                if ($indexAsArray) {
-                    $data[$key][] = $row;
-                } else {
-                    $data[$key] = $row;
-                }
-            }
-
-            return $data;
+            return $this->buildSelectData($index, $indexAsArray);
         } else {
             if (($result = $this->execute()) !== false) {
                 if ($this->fluent->convertRead === true) {
@@ -203,7 +186,7 @@ class Select extends Common implements \Countable
                 }
             }
 
-            return $result;
+            return false;
         }
     }
 
@@ -233,6 +216,33 @@ class Select extends Common implements \Countable
         } else {
             return $this->execute();
         }
+    }
+
+    /**
+     * @param $index
+     * @param $indexAsArray
+     *
+     * @return array
+     */
+    private function buildSelectData($index, $indexAsArray)
+    {
+        $data = [];
+
+        foreach ($this as $row) {
+            if (is_object($row)) {
+                $key = $row->{$index};
+            } else {
+                $key = $row[$index];
+            }
+
+            if ($indexAsArray) {
+                $data[$key][] = $row;
+            } else {
+                $data[$key] = $row;
+            }
+        }
+
+        return $data;
     }
 
 }
