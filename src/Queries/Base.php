@@ -38,6 +38,9 @@ abstract class Base implements \IteratorAggregate
     /** @var string */
     protected $message = '';
 
+    /** @var @var int */
+    protected $currentFetchMode;
+
     /**
      * BaseQuery constructor.
      *
@@ -245,14 +248,6 @@ abstract class Base implements \IteratorAggregate
                 call_user_func($this->fluent->debug, $this);
             }
         }
-    }
-
-    /**
-     * @return \PDO
-     */
-    protected function getPDO()
-    {
-        return $this->fluent->getPdo();
     }
 
     /**
@@ -537,12 +532,15 @@ abstract class Base implements \IteratorAggregate
     {
         if ($this->object !== false) {
             if (class_exists($this->object)) {
-                $result->setFetchMode(\PDO::FETCH_CLASS, $this->object);
+                $this->currentFetchMode = \PDO::FETCH_CLASS;
+                $result->setFetchMode($this->currentFetchMode, $this->object);
             } else {
-                $result->setFetchMode(\PDO::FETCH_OBJ);
+                $this->currentFetchMode = \PDO::FETCH_OBJ;
+                $result->setFetchMode($this->currentFetchMode);
             }
         } elseif ($this->fluent->getPdo()->getAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE) == \PDO::FETCH_BOTH) {
-            $result->setFetchMode(\PDO::FETCH_ASSOC);
+            $this->currentFetchMode = \PDO::FETCH_ASSOC;
+            $result->setFetchMode($this->currentFetchMode);
         }
     }
 
