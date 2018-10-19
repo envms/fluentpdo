@@ -10,9 +10,6 @@ use Envms\FluentPDO\{Exception, Literal, Query, Regex, Structure, Utilities};
 abstract class Base implements \IteratorAggregate
 {
 
-    /** @var \PDOStatement */
-    private $result;
-
     /** @var float */
     private $totalTime;
 
@@ -24,6 +21,9 @@ abstract class Base implements \IteratorAggregate
 
     /** @var Query */
     protected $fluent;
+
+    /** @var \PDOStatement */
+    protected $result;
 
     /** @var array - definition clauses */
     protected $clauses = [];
@@ -48,6 +48,8 @@ abstract class Base implements \IteratorAggregate
     {
         $this->fluent = $fluent;
         $this->clauses = $clauses;
+        $this->result = null;
+
         $this->initClauses();
 
         $this->regex = new Regex();
