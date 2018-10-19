@@ -13,7 +13,7 @@ FluentPDO is a PHP SQL query builder using PDO. It's a quick and light library f
 
 The latest (2.x) release of FluentPDO officially supports PHP 7.1, 7.2 and 7.3. v2.x is actively maintained.
 
-The legacy (1.x) release of FluentPDO works with PHP 5.4 to 7.1. **Note:** The v1.x branch is no longer supported and will not be maintained or updated.
+The legacy (1.x) release of FluentPDO works with PHP 5.4 to 7.1. **Note:** v1.x is no longer supported and will not be maintained or updated.
 
 ## Reference
 
@@ -23,14 +23,14 @@ The legacy (1.x) release of FluentPDO works with PHP 5.4 to 7.1. **Note:** The v
 
 ### Composer
 
-The preferred way to install FluentPDO is via [composer](http://getcomposer.org/). Version 2.0 is in beta! Please start using v2.0.0 in your projects
-and let us know of any issues you find, and they will be resolved quickly. No further breaking changes will be introduced in the 2.0 branch.
+The preferred way to install FluentPDO is via [composer](http://getcomposer.org/). Version 2.0 is now released! Please start using 2.x in your projects
+and let us know of any issues you find, they will be resolved quickly.
 
 Add the following line in your `composer.json` file:
 
 	"require": {
 		...
-		"envms/fluentpdo": "^2.0.0-beta1"
+		"envms/fluentpdo": "^2.1.0"
 	}
 
 update your dependencies with `composer update`, and you're done!

@@ -122,7 +122,7 @@ class Insert extends Base
     {
         $result = parent::execute();
         if ($result) {
-            return $this->getPDO()->lastInsertId($sequence);
+            return $this->fluent->getPdo()->lastInsertId($sequence);
         }
 
         return false;

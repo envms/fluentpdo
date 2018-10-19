@@ -7,21 +7,28 @@ use Envms\FluentPDO\{Exception, Literal, Utilities};
 /**
  * CommonQuery add JOIN and WHERE clauses for (SELECT, UPDATE, DELETE)
  *
- * @method leftJoin(string $statement) add LEFT JOIN to query
- *                        ($statement can be 'table' name only or 'table:' means back reference)
- * @method innerJoin(string $statement) add INNER JOIN to query
- *                        ($statement can be 'table' name only or 'table:' means back reference)
- * @method groupBy(string $column) add GROUP BY to query
- * @method having(string $column) add HAVING query
- * @method orderBy(string $column) add ORDER BY to query
- * @method limit(int $limit) add LIMIT to query
- * @method offset(int $offset) add OFFSET to query
+ * @method $this from(string $table) - add FROM to DELETE query
+ * @method $this leftJoin(string $statement) - add LEFT JOIN to query
+ *         $statement can be the 'table' name only or 'table:' to back reference the join
+ * @method $this rightJoin(string $statement) - add RIGHT JOIN to query
+ * @method $this innerJoin(string $statement) - add INNER JOIN to query
+ * @method $this outerJoin(string $statement) - add OUTER JOIN to query
+ * @method $this fullJoin(string $statement) - add FULL JOIN to query
+ * @method $this group(string $column) - add GROUP BY to query
+ * @method $this groupBy(string $column) - add GROUP BY to query
+ * @method $this having(string $column) - add HAVING query
+ * @method $this order(string $column) - add ORDER BY to query
+ * @method $this orderBy(string $column) - add ORDER BY to query
+ * @method $this limit(int $limit) - add LIMIT to query
+ * @method $this offset(int $offset) - add OFFSET to query
+ * @method $this comment(string $comment) - add COMMENT (--) to query
  */
 abstract class Common extends Base
 {
 
     /** @var array - methods which are allowed to be called by the magic method __call() */
     private $validMethods = [
+        'comment',
         'from',
         'fullJoin',
         'group',
@@ -58,13 +65,11 @@ abstract class Common extends Base
 
         $clause = Utilities::toUpperWords($name);
 
-        if ($clause == 'GROUP') {
-            $clause = 'GROUP BY';
+        if ($clause == 'GROUP' || $clause == 'ORDER') {
+            $clause = "{$clause} BY";
         }
-        if ($clause == 'ORDER') {
-            $clause = 'ORDER BY';
-        }
-        if ($clause == 'FOOT NOTE') {
+
+        if ($clause == 'COMMENT') {
             $clause = "\n--";
         }
 

@@ -91,7 +91,7 @@ class Select extends Common implements \Countable
      *
      * @return string
      */
-    public function fetchColumn($columnNumber = 0)
+    public function fetchColumn(int $columnNumber = 0)
     {
         if (($s = $this->execute()) !== false) {
             return $s->fetchColumn($columnNumber);
@@ -103,27 +103,30 @@ class Select extends Common implements \Countable
     /**
      * Fetch first row or column
      *
-     * @param string $column column name or empty string for the whole row
+     * @param string $column - column name or empty string for the whole row
+     * @param int    $cursorOrientation
      *
      * @throws Exception
      *
      * @return mixed string, array or false if there is no row
      */
-    public function fetch($column = '')
+    public function fetch(?string $column = null, int $cursorOrientation = \PDO::FETCH_ORI_NEXT)
     {
-        $result = $this->execute();
+        if ($this->result === null) {
+            $this->execute();
+        }
 
-        if ($result === false) {
+        if ($this->result === false) {
             return false;
         }
 
-        $row = $result->fetch();
+        $row = $this->result->fetch($this->currentFetchMode, $cursorOrientation);
 
         if ($this->fluent->convertRead === true) {
-            $row = Utilities::stringToNumeric($result, $row);
+            $row = Utilities::stringToNumeric($this->result, $row);
         }
 
-        if ($row && $column != '') {
+        if ($row && $column !== null) {
             if (is_object($row)) {
                 return $row->{$column};
             } else {
@@ -156,16 +159,15 @@ class Select extends Common implements \Countable
 
     /** Fetch all row
      *
-     * @param string $index      specify index column
-     * @param string $selectOnly select columns which could be fetched
+     * @param string $index      - specify index column. Allows for data organization by field using 'field[]'
+     * @param string $selectOnly - select columns which could be fetched
      *
      * @throws Exception
      *
-     * @return \PDOStatement|array of fetched rows
+     * @return array|bool -  fetched rows
      */
     public function fetchAll($index = '', $selectOnly = '')
     {
-        // allows for data organization by field -> fetchAll('column[]')
         $indexAsArray = strpos($index, '[]');
 
         if ($indexAsArray !== false) {
@@ -177,23 +179,7 @@ class Select extends Common implements \Countable
         }
 
         if ($index) {
-            $data = [];
-
-            foreach ($this as $row) {
-                if (is_object($row)) {
-                    $key = $row->{$index};
-                } else {
-                    $key = $row[$index];
-                }
-
-                if ($indexAsArray) {
-                    $data[$key][] = $row;
-                } else {
-                    $data[$key] = $row;
-                }
-            }
-
-            return $data;
+            return $this->buildSelectData($index, $indexAsArray);
         } else {
             if (($result = $this->execute()) !== false) {
                 if ($this->fluent->convertRead === true) {
@@ -203,7 +189,7 @@ class Select extends Common implements \Countable
                 }
             }
 
-            return $result;
+            return false;
         }
     }
 
@@ -233,6 +219,33 @@ class Select extends Common implements \Countable
         } else {
             return $this->execute();
         }
+    }
+
+    /**
+     * @param $index
+     * @param $indexAsArray
+     *
+     * @return array
+     */
+    private function buildSelectData($index, $indexAsArray)
+    {
+        $data = [];
+
+        foreach ($this as $row) {
+            if (is_object($row)) {
+                $key = $row->{$index};
+            } else {
+                $key = $row[$index];
+            }
+
+            if ($indexAsArray) {
+                $data[$key][] = $row;
+            } else {
+                $data[$key] = $row;
+            }
+        }
+
+        return $data;
     }
 
 }
