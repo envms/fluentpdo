@@ -105,12 +105,9 @@ class Utilities
      */
     public static function convertValue($value)
     {
-        switch(gettype($value)) {
+        switch (gettype($value)) {
             case 'boolean':
                 $conversion = ($value) ? 1 : 0;
-                break;
-            case 'NULL':
-                $conversion = 'NULL';
                 break;
             default:
                 $conversion = $value;
@@ -130,19 +127,17 @@ class Utilities
         return (is_array($subject) || ($subject instanceof \Countable));
     }
 
-    public static function bindNullValue($parameters)
+    /**
+     * @param $value
+     *
+     * @return Literal|mixed
+     */
+    public static function nullToLiteral($value)
     {
-        $query = [];
-
-        foreach($parameters as $k => $v)
-        {
-            if(gettype($v) === 'NULL')
-            {
-                $query[$k] = $v;
-            }
+        if ($value === null) {
+            return new Literal('NULL');
         }
 
-        return $query;
+        return $value;
     }
-
 }

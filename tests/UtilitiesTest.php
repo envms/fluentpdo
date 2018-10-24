@@ -75,7 +75,7 @@ class UtilitiesTest extends TestCase
         $value1 = Utilities::convertSqlWriteValues(false);
         $value2 = Utilities::convertSqlWriteValues(true);
 
-        self::assertEquals(['string', 1, 2, 0, 1, 'NULL', 'false'], $valueArray);
+        self::assertEquals(['string', 1, 2, 0, 1, null, 'false'], $valueArray);
         self::assertEquals(0, $value1);
         self::assertEquals(1, $value2);
     }
