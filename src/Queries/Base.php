@@ -413,9 +413,9 @@ abstract class Base implements \IteratorAggregate
     private function clauseNotEmpty($clause)
     {
         if ((Utilities::isCountable($this->statements[$clause])) && $this->clauses[$clause]) {
-            return (boolean)count($this->statements[$clause]);
+            return (bool)count($this->statements[$clause]);
         } else {
-            return (boolean)$this->statements[$clause];
+            return (bool)$this->statements[$clause];
         }
     }
 
