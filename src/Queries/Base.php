@@ -1,9 +1,7 @@
 <?php
 
 namespace Envms\FluentPDO\Queries;
-use Envms\Osseus\Dev\Debug;
 use Envms\FluentPDO\{Exception, Literal, Query, Regex, Structure, Utilities};
-use SebastianBergmann\CodeCoverage\Util;
 
 /**
  * Base query builder
