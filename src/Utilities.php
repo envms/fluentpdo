@@ -130,4 +130,19 @@ class Utilities
         return (is_array($subject) || ($subject instanceof \Countable));
     }
 
+    public static function bindNullValue($parameters)
+    {
+        $query = [];
+
+        foreach($parameters as $k => $v)
+        {
+            if(gettype($v) === 'NULL')
+            {
+                $query[$k] = $v;
+            }
+        }
+
+        return $query;
+    }
+
 }

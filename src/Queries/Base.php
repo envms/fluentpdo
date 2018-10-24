@@ -1,8 +1,9 @@
 <?php
 
 namespace Envms\FluentPDO\Queries;
-
+use Envms\Osseus\Dev\Debug;
 use Envms\FluentPDO\{Exception, Literal, Query, Regex, Structure, Utilities};
+use SebastianBergmann\CodeCoverage\Util;
 
 /**
  * Base query builder
@@ -479,6 +480,14 @@ abstract class Base implements \IteratorAggregate
     {
         $this->result = $this->fluent->getPdo()->prepare($query);
 
+        $util       = new Utilities();
+        $nullValues = $util->findNullValue($this->getParameters());
+
+        if($nullValues){
+            foreach($nullValues as $k => $v){
+                $this->result->bindParam($k,$v, \PDO::PARAM_NULL);
+            }
+        }
         // At this point, $result is a PDOStatement instance, or false.
         // PDO::prepare() does not reliably return errors. Some database drivers
         // do not support prepared statements, and PHP emulates them. Postgresql
