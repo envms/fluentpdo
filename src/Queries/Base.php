@@ -1,6 +1,7 @@
 <?php
 
 namespace Envms\FluentPDO\Queries;
+
 use Envms\FluentPDO\{Exception, Literal, Query, Regex, Structure, Utilities};
 
 /**
