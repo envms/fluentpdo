@@ -435,7 +435,9 @@ abstract class Base implements \IteratorAggregate
                     if (strpos($key, ':') === 0) { // these are named params e.g. (':name' => 'Mark')
                         $parameters = array_merge($parameters, [$key => $value]);
                     } else {
-                        $parameters[] = $value;
+                        if ($value !== null) {
+                            $parameters[] = $value;
+                        }
                     }
                 }
             } else {
