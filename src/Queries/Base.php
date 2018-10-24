@@ -352,6 +352,28 @@ abstract class Base implements \IteratorAggregate
     }
 
     /**
+     * Converts php null values to Literal instances to be inserted into a database
+     */
+    protected function convertNullValues()
+    {
+        $filterList = ['VALUES', 'ON DUPLICATE KEY UPDATE', 'SET'];
+
+        foreach ($this->statements as $clause => $statement) {
+            if (in_array($clause, $filterList)) {
+                if (isset($statement[0])) {
+                    foreach ($statement[0] as $key => $value) {
+                        $this->statements[$clause][0][$key] = Utilities::nullToLiteral($value);
+                    }
+                } else {
+                    foreach ($statement as $key => $value) {
+                        $this->statements[$clause][$key] = Utilities::nullToLiteral($value);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Generate query
      *
      * @throws Exception
@@ -360,6 +382,10 @@ abstract class Base implements \IteratorAggregate
      */
     protected function buildQuery()
     {
+        if ($this->fluent->convertWrite === true) {
+            $this->convertNullValues();
+        }
+
         $query = '';
 
         foreach ($this->clauses as $clause => $separator) {
@@ -480,14 +506,6 @@ abstract class Base implements \IteratorAggregate
     {
         $this->result = $this->fluent->getPdo()->prepare($query);
 
-        $util       = new Utilities();
-        $nullValues = $util->findNullValue($this->getParameters());
-
-        if($nullValues){
-            foreach($nullValues as $k => $v){
-                $this->result->bindParam($k,$v, \PDO::PARAM_NULL);
-            }
-        }
         // At this point, $result is a PDOStatement instance, or false.
         // PDO::prepare() does not reliably return errors. Some database drivers
         // do not support prepared statements, and PHP emulates them. Postgresql
