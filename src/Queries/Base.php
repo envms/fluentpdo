@@ -351,6 +351,28 @@ abstract class Base implements \IteratorAggregate
     }
 
     /**
+     * Converts php null values to Literal instances to be inserted into a database
+     */
+    protected function convertNullValues()
+    {
+        $filterList = ['VALUES', 'ON DUPLICATE KEY UPDATE', 'SET'];
+
+        foreach ($this->statements as $clause => $statement) {
+            if (in_array($clause, $filterList)) {
+                if (isset($statement[0])) {
+                    foreach ($statement[0] as $key => $value) {
+                        $this->statements[$clause][0][$key] = Utilities::nullToLiteral($value);
+                    }
+                } else {
+                    foreach ($statement as $key => $value) {
+                        $this->statements[$clause][$key] = Utilities::nullToLiteral($value);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Generate query
      *
      * @throws Exception
@@ -359,6 +381,10 @@ abstract class Base implements \IteratorAggregate
      */
     protected function buildQuery()
     {
+        if ($this->fluent->convertWrite === true) {
+            $this->convertNullValues();
+        }
+
         $query = '';
 
         foreach ($this->clauses as $clause => $separator) {
@@ -386,9 +412,9 @@ abstract class Base implements \IteratorAggregate
     private function clauseNotEmpty($clause)
     {
         if ((Utilities::isCountable($this->statements[$clause])) && $this->clauses[$clause]) {
-            return (boolean)count($this->statements[$clause]);
+            return (bool)count($this->statements[$clause]);
         } else {
-            return (boolean)$this->statements[$clause];
+            return (bool)$this->statements[$clause];
         }
     }
 
@@ -408,7 +434,9 @@ abstract class Base implements \IteratorAggregate
                     if (strpos($key, ':') === 0) { // these are named params e.g. (':name' => 'Mark')
                         $parameters = array_merge($parameters, [$key => $value]);
                     } else {
-                        $parameters[] = $value;
+                        if ($value !== null) {
+                            $parameters[] = $value;
+                        }
                     }
                 }
             } else {
