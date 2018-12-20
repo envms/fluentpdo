@@ -2,7 +2,9 @@
 
 namespace Envms\FluentPDO\Queries;
 
-use Envms\FluentPDO\{Exception, Literal, Query};
+use Envms\FluentPDO\Exception;
+use Envms\FluentPDO\Literal;
+use Envms\FluentPDO\Query;
 
 /**
  * UPDATE query builder
@@ -60,7 +62,9 @@ class Update extends Common
             $this->statements['SET'][$fieldOrArray] = $value;
         } else {
             if (!is_array($fieldOrArray)) {
-                throw new Exception('You must pass a value, or provide the SET list as an associative array. column => value');
+                throw new Exception(
+                    'You must pass a value, or provide the SET list as an associative array. column => value'
+                );
             } else {
                 foreach ($fieldOrArray as $field => $value) {
                     $this->statements['SET'][$field] = $value;
@@ -119,8 +123,7 @@ class Update extends Common
                 $key = key($value);
                 $setArray[] = $field . ' = ' . $key;
                 $this->parameters['SET'][$key] = $value[$key];
-            }
-            elseif ($value instanceof Literal) {
+            } elseif ($value instanceof Literal) {
                 $setArray[] = $field . ' = ' . $value;
             } else {
                 $setArray[] = $field . ' = ?';
@@ -130,5 +133,4 @@ class Update extends Common
 
         return ' SET ' . implode(', ', $setArray);
     }
-
 }

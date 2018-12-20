@@ -1,7 +1,4 @@
 <?php
-
-require __DIR__ . '/../_resources/init.php';
-
 use PHPUnit\Framework\TestCase;
 use Envms\FluentPDO\Query;
 
@@ -37,6 +34,18 @@ class InsertTest extends TestCase
         self::assertEquals(['0' => '1', '1' => 'new title', '2' => 'new content'], $query->getParameters());
     }
 
+    public function testInsertStatementWithNullValues()
+    {
+        $query = $this->fluent->insertInto('article', [
+            'user_id' => 1,
+            'title'   => null,
+            'content' => 'new content'
+        ]);
+
+        self::assertEquals('INSERT INTO article (user_id, title, content) VALUES (?, ?, ?)', $query->getQuery(false));
+        self::assertEquals(['0' => '1', '1' => null, '2' => 'new content'], $query->getParameters());
+    }
+
     public function testInsertUpdate()
     {
         $query = $this->fluent->insertInto('article', ['id' => 1])
@@ -59,12 +68,6 @@ class InsertTest extends TestCase
 
         self::assertEquals('INSERT INTO article (id) VALUES (?) ON DUPLICATE KEY UPDATE published_at = ?, title = ?, content = abs(-1)', $query->getQuery(false));
         self::assertEquals([0 => '1', 1 => '2011-12-10 12:10:00', 2 => 'article 1b'], $query->getParameters());
-        self::assertEquals('last_inserted_id = 1', 'last_inserted_id = ' . $query->execute());
-        self::assertEquals(['id' => '1', 'user_id' => '1', 'published_at' => '2011-12-10 12:10:00', 'title' => 'article 1b', 'content' => '1'],
-            $q->fetch());
-        self::assertEquals('last_inserted_id = 1', 'last_inserted_id = ' . $query2->execute());
-        self::assertEquals(['id' => '1', 'user_id' => '1', 'published_at' => '2011-12-10 12:10:00', 'title' => 'article 1', 'content' => 'content 1'],
-            $q2->fetch());
     }
 
     public function testInsertWithLiteral()

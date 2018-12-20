@@ -40,7 +40,8 @@ class Regex
     {
         return preg_replace(
             '/\b(WHERE|FROM|GROUP BY|HAVING|ORDER BY|LIMIT|OFFSET|UNION|ON DUPLICATE KEY UPDATE|VALUES|SET)\b/',
-            "\n$0", $subject
+            "\n$0",
+            $subject
         );
     }
 
@@ -57,7 +58,8 @@ class Regex
     {
         return preg_replace(
             '/\b(INNER|OUTER|LEFT|RIGHT|FULL|CASE|WHEN|END|ELSE|AND|OR)\b/',
-            "\n    $0", $subject
+            "\n    $0",
+            $subject
         );
     }
 
@@ -80,7 +82,8 @@ class Regex
      *
      * @return null|string|string[]
      */
-    public function removeAdditionalJoins($subject) {
+    public function removeAdditionalJoins($subject)
+    {
         return preg_replace('/(?:[^\s]*[.:])?([^\s]+)[.:]([^\s]*)/u', '$1.$2', $subject);
     }
 
@@ -123,8 +126,12 @@ class Regex
      */
     public function tableAlias($subject, &$matches = null)
     {
-        return preg_match('/`?([' . self::SQLCHARS . ']+[.:]?[' . self::SQLCHARS . '*]*)`?(\s+AS)?(\s+`?([' . self::SQLCHARS . ']*)`?)?/ui',
-            $subject, $matches);
+        return preg_match(
+            '/`?([' . self::SQLCHARS . ']+[.:]?[' . self::SQLCHARS .
+            '*]*)`?(\s+AS)?(\s+`?([' . self::SQLCHARS . ']*)`?)?/ui',
+            $subject,
+            $matches
+        );
     }
 
     /**
@@ -152,5 +159,4 @@ class Regex
     {
         return preg_match_all('/([^[:space:]\(\)]+[.:])[' . self::SQLCHARS . ']*/u', $subject, $matches);
     }
-
 }

@@ -2,7 +2,9 @@
 
 namespace Envms\FluentPDO\Queries;
 
-use Envms\FluentPDO\{Exception, Literal, Query};
+use Envms\FluentPDO\Exception;
+use Envms\FluentPDO\Literal;
+use Envms\FluentPDO\Query;
 
 /** INSERT query builder
  */
@@ -103,7 +105,8 @@ class Insert extends Base
     public function onDuplicateKeyUpdate($values)
     {
         $this->statements['ON DUPLICATE KEY UPDATE'] = array_merge(
-            $this->statements['ON DUPLICATE KEY UPDATE'], $values
+            $this->statements['ON DUPLICATE KEY UPDATE'],
+            $values
         );
 
         return $this;
@@ -152,7 +155,8 @@ class Insert extends Base
      */
     protected function getClauseInsertInto()
     {
-        return 'INSERT' . ($this->ignore ? " IGNORE" : '') . ($this->delayed ? " DELAYED" : '') . ' INTO ' . $this->statements['INSERT INTO'];
+        return 'INSERT' . ($this->ignore ? " IGNORE" : '') . ($this->delayed ? " DELAYED" : '') .
+            ' INTO ' . $this->statements['INSERT INTO'];
     }
 
     /**
@@ -259,5 +263,4 @@ class Insert extends Base
         }
         $this->statements['VALUES'][] = $oneValue;
     }
-
 }

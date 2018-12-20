@@ -1,23 +1,17 @@
 language: php
+
 php:
   - 7.1
   - 7.2
   - 7.3
 
-services:
-  - mysql
-
-env:
-  - DB_USER=root
+before_script:
+  - composer install --no-interaction --prefer-source
 
 script: phpunit --configuration phpunit.xml
-before_script:
-  - composer install
-  - mysql -u $DB_USER < tests/_resources/fluentdb.sql
 
-notifications:
-  slack:
-    secure: cyZnqOCV/gO9p23Z8Lr0e4sc3TqXi0v+VQ8neeRTNalYuiwgn9Co1NakCBO7yyku6qyWE9EOaypYBJlZgaLExLAyCGmaSTRduLlE7P1bdcNnkmns0ikoenFzXd5Uq26ExsegGzUGSbjwtzVhiHLUwigPsJNpnwsMOa2Co5ieo04=
+after_script:
+  - php vendor/bin/ocular code-coverage:upload --format=php-clover build/logs/clover.xml
 
 os: linux
 group: stable

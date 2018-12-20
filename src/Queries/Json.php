@@ -1,7 +1,8 @@
 <?php
 namespace Envms\FluentPDO\Queries;
 
-use Envms\FluentPDO\{Query, Utilities};
+use Envms\FluentPDO\Query;
+use Envms\FluentPDO\Utilities;
 
 /**
  * Class Json
@@ -52,5 +53,4 @@ class Json extends Common
             $this->convertTypes = true;
         }
     }
-
 }

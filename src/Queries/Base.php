@@ -2,7 +2,12 @@
 
 namespace Envms\FluentPDO\Queries;
 
-use Envms\FluentPDO\{Exception, Literal, Query, Regex, Structure, Utilities};
+use Envms\FluentPDO\Exception;
+use Envms\FluentPDO\Literal;
+use Envms\FluentPDO\Query;
+use Envms\FluentPDO\Regex;
+use Envms\FluentPDO\Structure;
+use Envms\FluentPDO\Utilities;
 
 /**
  * Base query builder
@@ -434,9 +439,7 @@ abstract class Base implements \IteratorAggregate
                     if (strpos($key, ':') === 0) { // these are named params e.g. (':name' => 'Mark')
                         $parameters = array_merge($parameters, [$key => $value]);
                     } else {
-                        if ($value !== null) {
-                            $parameters[] = $value;
-                        }
+                        $parameters[] = $value;
                     }
                 }
             } else {
@@ -587,5 +590,4 @@ abstract class Base implements \IteratorAggregate
 
         return $this;
     }
-
 }

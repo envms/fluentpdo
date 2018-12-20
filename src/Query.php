@@ -2,10 +2,14 @@
 
 namespace Envms\FluentPDO;
 
-use Envms\FluentPDO\Queries\{Insert, Select, Update, Delete};
+use Envms\FluentPDO\Queries\Insert;
+use Envms\FluentPDO\Queries\Select;
+use Envms\FluentPDO\Queries\Update;
+use Envms\FluentPDO\Queries\Delete;
 
 /**
- * FluentPDO is a quick and light PHP library for rapid query building. It features a smart join builder, which automatically creates table joins.
+ * FluentPDO is a quick and light PHP library for rapid query building.
+ * It features a smart join builder, which automatically creates table joins.
  *
  * For more information see readme.md
  *
@@ -50,7 +54,7 @@ class Query
      * @param \PDO           $pdo
      * @param Structure|null $structure
      */
-    function __construct(\PDO $pdo, Structure $structure = null)
+    public function __construct(\PDO $pdo, Structure $structure = null)
     {
         $this->pdo = $pdo;
 
@@ -295,5 +299,4 @@ class Query
     {
         $this->convertWrite = $flag;
     }
-
 }

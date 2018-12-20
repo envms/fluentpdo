@@ -16,7 +16,7 @@ class Literal
      *
      * @param string $value
      */
-    function __construct($value)
+    public function __construct($value)
     {
         $this->value = $value;
     }
@@ -26,9 +26,8 @@ class Literal
      *
      * @return string
      */
-    function __toString()
+    public function __toString()
     {
         return $this->value;
     }
-
 }

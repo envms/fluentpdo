@@ -2,7 +2,8 @@
 
 namespace Envms\FluentPDO\Queries;
 
-use Envms\FluentPDO\{Exception, Query};
+use Envms\FluentPDO\Exception;
+use Envms\FluentPDO\Query;
 
 /**
  * DELETE query builder
@@ -108,5 +109,4 @@ class Delete extends Common
     {
         return 'DELETE' . ($this->ignore ? " IGNORE" : '') . ' FROM ' . $this->statements['DELETE FROM'];
     }
-
 }

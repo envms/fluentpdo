@@ -2,7 +2,9 @@
 
 namespace Envms\FluentPDO\Queries;
 
-use Envms\FluentPDO\{Exception, Literal, Utilities};
+use Envms\FluentPDO\Exception;
+use Envms\FluentPDO\Literal;
+use Envms\FluentPDO\Utilities;
 
 /**
  * CommonQuery add JOIN and WHERE clauses for (SELECT, UPDATE, DELETE)
@@ -212,7 +214,8 @@ abstract class Common extends Base
     /**
      * @return string
      */
-    protected function getClauseWhere() {
+    protected function getClauseWhere()
+    {
         $firstStatement = array_shift($this->statements['WHERE']);
         $query = " WHERE {$firstStatement[1]}"; // append first statement to WHERE without condition
 
@@ -503,5 +506,4 @@ abstract class Common extends Base
 
         return $joinItem;
     }
-
 }

@@ -2,7 +2,9 @@
 
 namespace Envms\FluentPDO\Queries;
 
-use Envms\FluentPDO\{Exception, Query, Utilities};
+use Envms\FluentPDO\Exception;
+use Envms\FluentPDO\Query;
+use Envms\FluentPDO\Utilities;
 
 /**
  * SELECT query builder
@@ -21,7 +23,7 @@ class Select extends Common implements \Countable
      * @param Query     $fluent
      * @param           $from
      */
-    function __construct(Query $fluent, $from)
+    public function __construct(Query $fluent, $from)
     {
         $clauses = [
             'SELECT'   => ', ',
@@ -247,5 +249,4 @@ class Select extends Common implements \Countable
 
         return $data;
     }
-
 }

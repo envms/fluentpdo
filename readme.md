@@ -1,4 +1,4 @@
-# FluentPDO [![Build Status](https://secure.travis-ci.org/envms/fluentpdo.png?branch=master)](http://travis-ci.org/envms/fluentpdo) [![Maintainability](https://api.codeclimate.com/v1/badges/19210ca91c7055b89705/maintainability)](https://codeclimate.com/github/fpdo/fluentpdo/maintainability)
+# FluentPDO [![Latest Version on Packagist][ico-version]][link-packagist] [![Build Status][ico-travis]][link-travis] [![Coverage Status][ico-scrutinizer]][link-scrutinizer] [![Quality Score][ico-code-quality]][link-code-quality] [![Total Downloads][ico-downloads]][link-downloads]
 
 FluentPDO is a PHP SQL query builder using PDO. It's a quick and light library featuring a smart join builder, which automatically creates table joins for you.
 
@@ -51,7 +51,7 @@ Create a new PDO instance, and pass the instance to FluentPDO:
 
 ```php
 $pdo = new PDO("mysql:dbname=fluentdb", "root");
-$fluent = new \Envms\FluendPDO\Query($pdo);
+$fluent = new \Envms\FluentPDO\Query($pdo);
 ```
 
 Then, creating queries is quick and easy:
@@ -166,3 +166,17 @@ Full documentation can be found on the [FluentPDO homepage](http://envms.github.
 ## License
 
 Free for commercial and non-commercial use under the [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0.html) or [GPL 2.0](http://www.gnu.org/licenses/gpl-2.0.html) licenses.
+
+
+[ico-version]: https://poser.pugx.org/envms/fluentpdo/version
+[ico-travis]: https://api.travis-ci.org/envms/fluentpdo.svg
+[ico-scrutinizer]: https://scrutinizer-ci.com/g/envms/fluentpdo/badges/coverage.png
+[ico-code-quality]: https://scrutinizer-ci.com/g/envms/fluentpdo/badges/quality-score.png
+[ico-downloads]: https://poser.pugx.org/envms/fluentpdo/d/total.svg
+
+[link-packagist]: https://packagist.org/packages/envms/fluentpdo
+[link-travis]: https://travis-ci.org/envms/fluentpdo
+[link-scrutinizer]: https://scrutinizer-ci.com/g/envms/fluentpdo/code-structure
+[link-code-quality]: https://scrutinizer-ci.com/g/envms/fluentpdo
+[link-downloads]: https://packagist.org/packages/envms/fluentpdo
+[link-composer]: https://getcomposer.org

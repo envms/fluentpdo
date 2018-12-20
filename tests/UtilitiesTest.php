@@ -1,7 +1,4 @@
 <?php
-
-require __DIR__ . '/_resources/init.php';
-
 use PHPUnit\Framework\TestCase;
 use Envms\FluentPDO\{Query,Utilities};
 

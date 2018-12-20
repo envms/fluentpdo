@@ -1,7 +1,20 @@
-<phpunit bootstrap="vendor/autoload.php">
+<phpunit bootstrap="tests/_resources/init.php">
     <testsuites>
         <testsuite name="fluent">
             <directory suffix="Test.php">tests</directory>
         </testsuite>
     </testsuites>
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">src</directory>
+        </whitelist>
+    </filter>
+    <php>
+        <ini name="date.timezone" value="UTC"/>
+        <env name="APP_ENV" value="testing"/>
+    </php>
+    <logging>
+        <log type="coverage-clover" target="build/logs/clover.xml"/>
+        <log type="junit" target="build/logs/junit.xml"/>
+    </logging>
 </phpunit>
