@@ -360,8 +360,10 @@ abstract class Base implements \IteratorAggregate
         foreach ($this->statements as $clause => $statement) {
             if (in_array($clause, $filterList)) {
                 if (isset($statement[0])) {
-                    foreach ($statement[0] as $key => $value) {
-                        $this->statements[$clause][0][$key] = Utilities::nullToLiteral($value);
+                    for($i = 0; $i < count($statement); $i++) {
+                        foreach ($statement[$i] as $key => $value) {
+                            $this->statements[$clause][$i][$key] = Utilities::nullToLiteral($value);
+                        }
                     }
                 } else {
                     foreach ($statement as $key => $value) {
