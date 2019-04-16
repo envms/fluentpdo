@@ -40,12 +40,29 @@ class InsertQuery extends BaseQuery
      * 
      * @param mixed $sequence
      *
-     * @return integer last inserted id or false
+     * @return int|bool - Last inserted primary key
      */
     public function execute($sequence = null) {
         $result = parent::execute();
         if ($result) {
             return $this->getPDO()->lastInsertId($sequence);
+        }
+
+        return false;
+    }
+
+    /**
+     * @param null $sequence
+     *
+     * @throws Exception
+     *
+     * @return bool
+     */
+    public function executeWithoutId($sequence = null) {
+        $result = parent::execute();
+
+        if ($result) {
+            return true;
         }
 
         return false;
