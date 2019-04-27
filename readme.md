@@ -122,7 +122,7 @@ LEFT JOIN user ON user.id = article.user_id
 Finally, it's always a good idea to free resources as soon as they are done with their duties:
  
  ```php
-$fpdo->close();
+$fluent->close();
 ```
 
 ## CRUD Query Examples
