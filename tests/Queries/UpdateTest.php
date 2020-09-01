@@ -16,7 +16,7 @@ class UpdateTest extends TestCase
     /** @var Query */
     protected $fluent;
 
-    public function setUp()
+    public function setUp(): void
     {
         global $pdo;
 

@@ -14,7 +14,7 @@ class UtilitiesTest extends TestCase
     /** @var Envms\FluentPDO\Query */
     protected $fluent;
 
-    public function setUp()
+    public function setUp(): void
     {
         global $pdo;
 
