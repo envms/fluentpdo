@@ -2,6 +2,7 @@
 
 namespace Envms\FluentPDO\Queries;
 
+use DateTime, PDO, PDOStatement;
 use Envms\FluentPDO\{Exception, Literal, Query, Regex, Structure, Utilities};
 
 /**
@@ -22,7 +23,7 @@ abstract class Base implements \IteratorAggregate
     /** @var Query */
     protected $fluent;
 
-    /** @var \PDOStatement */
+    /** @var PDOStatement */
     protected $result;
 
     /** @var array - definition clauses */
@@ -167,7 +168,7 @@ abstract class Base implements \IteratorAggregate
     /**
      * Implements method from IteratorAggregate
      *
-     * @return \PDOStatement
+     * @return PDOStatement
      *
      * @throws Exception
      */
@@ -179,7 +180,7 @@ abstract class Base implements \IteratorAggregate
     /**
      * Execute query with earlier added parameters
      *
-     * @return \PDOStatement
+     * @return PDOStatement
      *
      * @throws Exception
      */
@@ -198,62 +199,16 @@ abstract class Base implements \IteratorAggregate
             $execTime = microtime(true);
 
             $this->executeQuery($parameters, $startTime, $execTime);
-            $this->debugger();
+            $this->debug();
         }
 
         return $this->result;
     }
 
     /**
-     * Echo/pass a debug string
-     *
-     * @throws Exception
-     */
-    private function debugger()
-    {
-        if ($this->fluent->debug) {
-            if (!is_callable($this->fluent->debug)) {
-                $backtrace = '';
-                $query = $this->getQuery();
-                $parameters = $this->getParameters();
-                $debug = '';
-
-                if ($parameters) {
-                    $debug = '# parameters: ' . implode(', ', array_map([$this, 'quote'], $parameters)) . "\n";
-                }
-
-                $debug .= $query;
-
-                foreach (debug_backtrace() as $backtrace) {
-                    if (isset($backtrace['file']) && !$this->regex->compareLocation($backtrace['file'])) {
-                        // stop at the first file outside the FluentPDO source
-                        break;
-                    }
-                }
-
-                $time = sprintf('%0.3f', $this->totalTime * 1000) . 'ms';
-                $rows = ($this->result) ? $this->result->rowCount() : 0;
-                $finalString = "# $backtrace[file]:$backtrace[line] ($time; rows = $rows)\n$debug\n\n";
-
-                if (defined('STDERR')) { // if STDERR is set, send there, otherwise just output the string
-                    if (is_resource(STDERR)) {
-                        fwrite(STDERR, $finalString);
-                    } else {
-                        echo $finalString;
-                    }
-                } else {
-                    echo $finalString;
-                }
-            } else {
-                call_user_func($this->fluent->debug, $this);
-            }
-        }
-    }
-
-    /**
      * @return Structure
      */
-    protected function getStructure()
+    protected function getStructure(): Structure
     {
         return $this->fluent->getStructure();
     }
@@ -261,9 +216,9 @@ abstract class Base implements \IteratorAggregate
     /**
      * Get PDOStatement result
      *
-     * @return \PDOStatement
+     * @return ?PDOStatement
      */
-    public function getResult()
+    public function getResult(): ?PDOStatement
     {
         return $this->result;
     }
@@ -273,7 +228,7 @@ abstract class Base implements \IteratorAggregate
      *
      * @return array
      */
-    public function getParameters()
+    public function getParameters(): array
     {
         return $this->buildParameters();
     }
@@ -281,7 +236,7 @@ abstract class Base implements \IteratorAggregate
     /**
      * @return array
      */
-    public function getRawClauses()
+    public function getRawClauses(): array
     {
         return $this->clauses;
     }
@@ -289,7 +244,7 @@ abstract class Base implements \IteratorAggregate
     /**
      * @return array
      */
-    public function getRawStatements()
+    public function getRawStatements(): array
     {
         return $this->statements;
     }
@@ -297,7 +252,7 @@ abstract class Base implements \IteratorAggregate
     /**
      * @return array
      */
-    public function getRawParameters()
+    public function getRawParameters(): array
     {
         return $this->parameters;
     }
@@ -325,7 +280,7 @@ abstract class Base implements \IteratorAggregate
     /**
      * @return string
      */
-    public function getMessage()
+    public function getMessage(): string
     {
         return $this->message;
     }
@@ -335,11 +290,10 @@ abstract class Base implements \IteratorAggregate
      *
      * @param bool $formatted - Return formatted query
      *
-     * @throws Exception
-     *
      * @return string
+     * @throws Exception
      */
-    public function getQuery($formatted = true)
+    public function getQuery(bool $formatted = true): string
     {
         $query = $this->buildQuery();
 
@@ -351,9 +305,25 @@ abstract class Base implements \IteratorAggregate
     }
 
     /**
+     * Select an item as object
+     *
+     * @param object|boolean $object  If set to true, items are returned as stdClass, otherwise a class
+     *                                name can be passed and a new instance of this class is returned.
+     *                                Can be set to false to return items as an associative array.
+     *
+     * @return $this
+     */
+    public function asObject($object = true)
+    {
+        $this->object = $object;
+
+        return $this;
+    }
+
+    /**
      * Converts php null values to Literal instances to be inserted into a database
      */
-    protected function convertNullValues()
+    protected function convertNullValues(): void
     {
         $filterList = ['VALUES', 'ON DUPLICATE KEY UPDATE', 'SET'];
 
@@ -377,9 +347,8 @@ abstract class Base implements \IteratorAggregate
     /**
      * Generate query
      *
-     * @throws Exception
-     *
      * @return string
+     * @throws Exception
      */
     protected function buildQuery()
     {
@@ -404,20 +373,6 @@ abstract class Base implements \IteratorAggregate
         }
 
         return trim(str_replace(['\.', '\:'], ['.', ':'], $query));
-    }
-
-    /**
-     * @param $clause
-     *
-     * @return bool
-     */
-    private function clauseNotEmpty($clause)
-    {
-        if ((Utilities::isCountable($this->statements[$clause])) && $this->clauses[$clause]) {
-            return (bool)count($this->statements[$clause]);
-        } else {
-            return (bool)$this->statements[$clause];
-        }
     }
 
     /**
@@ -487,14 +442,28 @@ abstract class Base implements \IteratorAggregate
     }
 
     /**
+     * @param $clause
+     *
+     * @return bool
+     */
+    private function clauseNotEmpty($clause)
+    {
+        if ((Utilities::isCountable($this->statements[$clause])) && $this->clauses[$clause]) {
+            return (bool)count($this->statements[$clause]);
+        }
+
+        return (bool)$this->statements[$clause];
+    }
+
+    /**
      * @param \DateTime $val
      *
      * @return mixed
      */
     private function formatValue($val)
     {
-        if ($val instanceof \DateTime) {
-            return $val->format("Y-m-d H:i:s"); // may be driver specific
+        if ($val instanceof DateTime) {
+            return $val->format('Y-m-d H:i:s'); // may be driver specific
         }
 
         return $val;
@@ -509,22 +478,22 @@ abstract class Base implements \IteratorAggregate
     {
         $this->result = $this->fluent->getPdo()->prepare($query);
 
-        // At this point, $result is a PDOStatement instance, or false.
-        // PDO::prepare() does not reliably return errors. Some database drivers
-        // do not support prepared statements, and PHP emulates them. Postgresql
-        // does support prepared statements, but PHP does not call Postgresql's
-        // prepare function until we call PDOStatement::execute() below.
-        // If PDO::prepare() worked properly, this is where we would check
-        // for prepare errors, such as invalid SQL.
+        /*
+         At this point, $result is a PDOStatement instance, or false.
+         PDO::prepare() does not reliably return errors. Some database drivers
+         do not support prepared statements, and PHP emulates them. Postgresql
+         does support prepared statements, but PHP does not call Postgresql's
+         prepare function until we call PDOStatement::execute() below.
+         If PDO::prepare() was consistent, this is where we would check
+         for prepare errors, such as invalid SQL.
+        */
 
         if ($this->result === false) {
             $error = $this->fluent->getPdo()->errorInfo();
-            $message = "SQLSTATE: {$error[0]} - Driver Code: {$error[1]} - Message: {$error[2]}";
+            $this->message = "SQLSTATE: {$error[0]} - Driver Code: {$error[1]} - Message: {$error[2]}";
 
             if ($this->fluent->exceptionOnError === true) {
-                throw new Exception($message);
-            } else {
-                $this->message = $message;
+                throw new Exception($this->message);
             }
         }
     }
@@ -543,12 +512,10 @@ abstract class Base implements \IteratorAggregate
             $this->totalTime = microtime(true) - $startTime;
         } else {
             $error = $this->result->errorInfo();
-            $message = "SQLSTATE: {$error[0]} - Driver Code: {$error[1]} - Message: {$error[2]}";
+            $this->message = "SQLSTATE: {$error[0]} - Driver Code: {$error[1]} - Message: {$error[2]}";
 
             if ($this->fluent->exceptionOnError === true) {
-                throw new Exception($message);
-            } else {
-                $this->message = $message;
+                throw new Exception($this->message);
             }
 
             $this->result = false;
@@ -556,38 +523,64 @@ abstract class Base implements \IteratorAggregate
     }
 
     /**
-     * @param \PDOStatement $result
+     * @param PDOStatement $result
      */
-    private function setObjectFetchMode(\PDOStatement &$result): void
+    private function setObjectFetchMode(PDOStatement $result): void
     {
         if ($this->object !== false) {
             if (class_exists($this->object)) {
-                $this->currentFetchMode = \PDO::FETCH_CLASS;
+                $this->currentFetchMode = PDO::FETCH_CLASS;
                 $result->setFetchMode($this->currentFetchMode, $this->object);
             } else {
-                $this->currentFetchMode = \PDO::FETCH_OBJ;
+                $this->currentFetchMode = PDO::FETCH_OBJ;
                 $result->setFetchMode($this->currentFetchMode);
             }
-        } elseif ($this->fluent->getPdo()->getAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE) == \PDO::FETCH_BOTH) {
-            $this->currentFetchMode = \PDO::FETCH_ASSOC;
+        } elseif ($this->fluent->getPdo()->getAttribute(PDO::ATTR_DEFAULT_FETCH_MODE) === PDO::FETCH_BOTH) {
+            $this->currentFetchMode = PDO::FETCH_ASSOC;
             $result->setFetchMode($this->currentFetchMode);
         }
     }
 
     /**
-     * Select an item as object
+     * Echo/pass a debug string
      *
-     * @param  \object|boolean $object If set to true, items are returned as stdClass, otherwise a class
-     *                                 name can be passed and a new instance of this class is returned.
-     *                                 Can be set to false to return items as an associative array.
-     *
-     * @return $this
+     * @throws Exception
      */
-    public function asObject($object = true)
+    private function debug()
     {
-        $this->object = $object;
+        if (!empty($this->fluent->debug)) {
+            if (!is_callable($this->fluent->debug)) {
+                $backtrace = '';
+                $query = $this->getQuery();
+                $parameters = $this->getParameters();
+                $debug = '';
 
-        return $this;
+                if ($parameters) {
+                    $debug = '# parameters: ' . implode(', ', array_map([$this, 'quote'], $parameters)) . "\n";
+                }
+
+                $debug .= $query;
+
+                foreach (debug_backtrace() as $backtrace) {
+                    if (isset($backtrace['file']) && !$this->regex->compareLocation($backtrace['file'])) {
+                        // stop at the first file outside the FluentPDO source
+                        break;
+                    }
+                }
+
+                $time = sprintf('%0.3f', $this->totalTime * 1000) . 'ms';
+                $rows = ($this->result) ? $this->result->rowCount() : 0;
+                $finalString = "# {$backtrace['file']}:{$backtrace['line']} ({$time}; rows = {$rows})\n{$debug}\n\n";
+
+                // if STDERR is set, send there, otherwise just output the string
+                if (defined('STDERR') && is_resource(STDERR)) {
+                    fwrite(STDERR, $finalString);
+                } else {
+                    echo $finalString;
+                }
+            } else {
+                $this->fluent->debug($this);
+            }
+        }
     }
-
 }
