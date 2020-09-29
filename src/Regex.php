@@ -113,7 +113,7 @@ class Regex
      */
     public function sqlParameter(string $subject, &$matches = null)
     {
-        return preg_match('/(\?|:\w+)/i', $subject, $matches);
+        return preg_match('/(\?|:\w+)/', $subject, $matches);
     }
 
     /**
