@@ -59,11 +59,7 @@ class Query
             $this->throwExceptionOnError(true);
         }
 
-        if (!$structure) {
-            $structure = new Structure();
-        }
-
-        $this->structure = $structure;
+        $this->structure = ($structure instanceof Structure) ? $structure : new Structure();
     }
 
     /**
