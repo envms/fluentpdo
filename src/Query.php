@@ -23,11 +23,11 @@ class Query
 {
     /** @var PDO */
     protected $pdo;
-    /** @var Structure|null */
+    /** @var Structure */
     protected $structure;
 
     /** @var bool|callable */
-    public $debug;
+    public $debug = false;
 
     /** @var bool - Determines whether to convert types when fetching rows from Select */
     public $convertRead = false;
