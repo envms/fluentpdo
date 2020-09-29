@@ -156,7 +156,7 @@ class Regex
      */
     public function tableJoinFull(string $subject, &$matches = null)
     {
-        return preg_match_all('/([^[:space:]\(\)]+[.:])[' . self::SQLCHARS . ']*/u', $subject, $matches);
+        return preg_match_all('/([^[:space:]()]+[.:])[' . self::SQLCHARS . ']*/u', $subject, $matches);
     }
 
 }
