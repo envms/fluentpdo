@@ -391,15 +391,11 @@ abstract class Base implements IteratorAggregate
                     if (strpos($key, ':') === 0) { // these are named params e.g. (':name' => 'Mark')
                         $parameters = array_merge($parameters, [$key => $value]);
                     } else {
-                        if ($value !== null) {
-                            $parameters[] = $value;
-                        }
+                        $parameters[] = $value;
                     }
                 }
-            } else {
-                if ($clauses !== false && $clauses !== null) {
-                    $parameters[] = $clauses;
-                }
+            } elseif ($clauses !== false && $clauses !== null) {
+                $parameters[] = $clauses;
             }
         }
 
