@@ -2,13 +2,13 @@
 
 namespace Envms\FluentPDO\Queries;
 
-use DateTime, PDO, PDOStatement;
+use DateTime, IteratorAggregate, PDO, PDOStatement;
 use Envms\FluentPDO\{Exception, Literal, Query, Regex, Structure, Utilities};
 
 /**
  * Base query builder
  */
-abstract class Base implements \IteratorAggregate
+abstract class Base implements IteratorAggregate
 {
 
     /** @var float */
@@ -75,7 +75,7 @@ abstract class Base implements \IteratorAggregate
     /**
      * Initialize statement and parameter clauses.
      */
-    private function initClauses()
+    private function initClauses(): void
     {
         foreach ($this->clauses as $clause => $value) {
             if ($value) {
