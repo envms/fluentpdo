@@ -18,6 +18,7 @@ use Envms\FluentPDO\Queries\{Insert, Select, Update, Delete};
 
 /**
  * Class Query
+ * @method debug(Queries\Base $param)
  */
 class Query
 {
