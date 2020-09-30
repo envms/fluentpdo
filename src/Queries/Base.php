@@ -365,7 +365,7 @@ abstract class Base implements IteratorAggregate
                 } elseif ($separator === null) {
                     $query .= " {$clause} {$this->statements[$clause]}";
                 } elseif (is_callable($separator)) {
-                    $query .= call_user_func($separator);
+                    $query .= $separator();
                 } else {
                     throw new Exception("Clause '$clause' is incorrectly set to '$separator'.");
                 }
