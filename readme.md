@@ -23,14 +23,13 @@ The legacy (1.x) release of FluentPDO works with PHP 5.4 to 7.1. **Note:** v1.x 
 
 ### Composer
 
-The preferred way to install FluentPDO is via [composer](http://getcomposer.org/). Version 2.0 is now released! Please start using 2.x in your projects
-and let us know of any issues you find, they will be resolved quickly.
+The preferred way to install FluentPDO is via [composer](http://getcomposer.org/).
 
 Add the following line in your `composer.json` file:
 
 	"require": {
 		...
-		"envms/fluentpdo": "^2.1.0"
+		"envms/fluentpdo": "^2.2.0"
 	}
 
 update your dependencies with `composer update`, and you're done!
