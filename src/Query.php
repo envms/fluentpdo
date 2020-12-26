@@ -48,7 +48,7 @@ class Query
     /**
      * Query constructor
      *
-     * @param PDO        $pdo
+     * @param PDO $pdo
      * @param ?Structure $structure
      */
     public function __construct(PDO $pdo, ?Structure $structure = null)
@@ -94,7 +94,7 @@ class Query
      * Create INSERT INTO query
      *
      * @param ?string $table
-     * @param array   $values - accepts one or multiple rows, @see docs
+     * @param array $values - accepts one or multiple rows, @see docs
      *
      * @return Insert
      *
@@ -203,8 +203,8 @@ class Query
      * Set table name comprised of prefix.separator.table
      *
      * @param ?string $table
-     * @param string  $prefix
-     * @param string  $separator
+     * @param string $prefix
+     * @param string $separator
      *
      * @return $this
      *
@@ -289,5 +289,32 @@ class Query
     public function convertWriteTypes(bool $flag): void
     {
         $this->convertWrite = $flag;
+    }
+
+
+    /**
+     * query select raw sql
+     * @param $sql
+     * @param array $data
+     * @return array
+     */
+    public function rawQuery($sql, $data=[])
+    {
+        $sth = $this->pdo->prepare($sql);
+        $sth->execute($data);
+        return $sth->fetchAll();
+    }
+
+    /**
+     * execute insert,update,delete raw sql
+     * @param $sql
+     * @param array $data
+     * @return int
+     */
+    public function rawExecute($sql, $data=[])
+    {
+        $sth = $this->pdo->prepare($sql);
+        $sth->execute($data);
+        return $sth->rowCount();
     }
 }
