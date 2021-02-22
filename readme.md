@@ -9,11 +9,25 @@ FluentPDO is a PHP SQL query builder using PDO. It's a quick and light library f
 - Ability to build complex SELECT, INSERT, UPDATE & DELETE queries with little code
 - Type hinting for magic methods with code completion in smart IDEs
 
-## Requirements
+## Versions
 
-The latest (2.x) release of FluentPDO officially supports PHP 7.2 to PHP 7.4. v2.x is actively maintained.
+#### Version 2.x
 
-The legacy (1.x) release of FluentPDO works with PHP 5.4 to 7.1. **Note:** v1.x is no longer supported and will not be maintained or updated.
+The stable release of FluentPDO and actively maintained. Officially supports PHP 7.3 to PHP 8.0,
+but it can work with previous versions of PHP 7.
+
+#### Version 1.x
+
+The legacy release of FluentPDO. It is no longer supported and will not be maintained or updated.
+This version works with PHP 5.4 to 7.1.
+
+#### Version 3.x - alpha
+
+This version is a full rewrite of Fluent from the ground up. Its main advantage is
+significantly less memory usage and much greater performance in query building. It also places
+a few additional restrictions to make queries easier to read and maintain. Documentation has also
+been a very common request, and version 3 is being fully documented alongside development.
+Details and metrics will be posted once available.
 
 ## Reference
 
