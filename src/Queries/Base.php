@@ -23,7 +23,7 @@ abstract class Base implements IteratorAggregate
     /** @var Query */
     protected $fluent;
 
-    /** @var PDOStatement */
+    /** @var PDOStatement|null|bool */
     protected $result;
 
     /** @var array - definition clauses */
@@ -216,9 +216,9 @@ abstract class Base implements IteratorAggregate
     /**
      * Get PDOStatement result
      *
-     * @return ?PDOStatement
+     * @return PDOStatement|null|bool
      */
-    public function getResult(): ?PDOStatement
+    public function getResult()
     {
         return $this->result;
     }
