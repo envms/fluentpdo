@@ -143,8 +143,8 @@ $fluent->close();
 ##### SELECT
 
 ```php
-$query = $fluent->from('article')->where('id', 1);
-$query = $fluent->from('user', 1); // shorter version if selecting one row by primary key
+$query = $fluent->from('article')->where('id', 1)->fetch();
+$query = $fluent->from('user', 1)->fetch(); // shorter version if selecting one row by primary key
 ```
 
 ##### INSERT
