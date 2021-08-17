@@ -53,7 +53,7 @@ update your dependencies with `composer update`, and you're done!
 If you prefer not to use composer, download the latest release, create the directory `Envms/FluentPDO` in your library directory, and drop this repository into it. Finally, add:
 
 ```php
-require "[lib-dir]/Envms/FluentPDO/src/Query.php";
+require '[lib-dir]/Envms/FluentPDO/src/Query.php';
 ```
 
 to the top of your application. **Note:** You will need an autoloader to use FluentPDO without changing its source code.
@@ -63,7 +63,7 @@ to the top of your application. **Note:** You will need an autoloader to use Flu
 Create a new PDO instance, and pass the instance to FluentPDO:
 
 ```php
-$pdo = new PDO("mysql:dbname=fluentdb", "root");
+$pdo = new PDO('mysql:dbname=fluentdb', 'user', 'password');
 $fluent = new \Envms\FluentPDO\Query($pdo);
 ```
 
@@ -91,7 +91,7 @@ To get data from the select, all we do is loop through the returned array:
 
 ```php
 foreach ($query as $row) {
-    echo "$row[title]\n";
+    echo "$row['title']\n";
 }
 ```
 
@@ -173,8 +173,6 @@ $query = $fluent->deleteFrom('article', 1)->execute(); // shorter version if del
 ```
 
 ***Note**: INSERT, UPDATE and DELETE queries will only run after you call `->execute()`*
-
-Full documentation can be found on the [FluentPDO homepage](http://envms.github.io/fluentpdo/)
 
 ## License
 
