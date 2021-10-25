@@ -1,5 +1,5 @@
 {
-	"name": "gillsonkell/fluentpdo",
+	"name": "envms/fluentpdo",
 	"description": "FluentPDO is a quick and light PHP library for rapid query building. It features a smart join builder, which automatically creates table joins.",
 	"keywords": ["db", "database", "dbal", "pdo", "fluent", "query", "builder", "mysql", "oracle"],
 	"homepage": "https://github.com/envms/fluentpdo",
