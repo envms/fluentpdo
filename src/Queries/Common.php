@@ -504,4 +504,12 @@ abstract class Common extends Base
         return $joinItem;
     }
 
+    public function __clone()
+    {
+        foreach ($this->clauses as $clause => $value) {
+            if (is_array($value) && $value[0] instanceof Common) {
+                $this->clauses[$clause][0] = $this;
+            }
+        }
+    }
 }
