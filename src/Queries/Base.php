@@ -172,7 +172,7 @@ abstract class Base implements IteratorAggregate
      *
      * @throws Exception
      */
-    public function getIterator()
+    #[\ReturnTypeWillChange] public function getIterator()
     {
         return $this->execute();
     }
