@@ -206,9 +206,9 @@ class CommonTest extends TestCase
 
     public function testFromOtherDB()
     {
-        $queryPrint = $this->fluent->from('db2.user')->order('db2.user.name')->getQuery(false);
+        $queryPrint = $this->fluent->from('db2.user')->where('db2.user.name', 'name')->order('db2.user.name')->getQuery(false);
 
-        self::assertEquals('SELECT db2.user.* FROM db2.user ORDER BY db2.user.name', $queryPrint);
+        self::assertEquals('SELECT db2.user.* FROM db2.user WHERE db2.user.name = ? ORDER BY db2.user.name', $queryPrint);
     }
 
     public function testJoinTableWithUsing()
