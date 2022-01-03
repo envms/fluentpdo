@@ -39,8 +39,8 @@ abstract class Base implements IteratorAggregate
     /** @var string */
     protected $message = '';
 
-    /** @var @var int */
-    protected $currentFetchMode;
+    /** @var int */
+    protected $currentFetchMode = PDO::FETCH_DEFAULT;
 
     /**
      * BaseQuery constructor.
@@ -172,6 +172,7 @@ abstract class Base implements IteratorAggregate
      *
      * @throws Exception
      */
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         return $this->execute();
