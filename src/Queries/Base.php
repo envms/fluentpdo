@@ -40,7 +40,7 @@ abstract class Base implements IteratorAggregate
     protected $message = '';
 
     /** @var int */
-    protected $currentFetchMode = PDO::FETCH_DEFAULT;
+    protected $currentFetchMode;
 
     /**
      * BaseQuery constructor.
@@ -50,6 +50,7 @@ abstract class Base implements IteratorAggregate
      */
     protected function __construct(Query $fluent, $clauses)
     {
+        $this->currentFetchMode = defined('PDO::FETCH_DEFAULT') ? PDO::FETCH_DEFAULT : PDO::FETCH_BOTH;
         $this->fluent = $fluent;
         $this->clauses = $clauses;
         $this->result = null;
