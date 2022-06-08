@@ -46,7 +46,9 @@ class Utilities
      */
     public static function stringToNumeric(\PDOStatement $statement, $rows)
     {
-        for ($i = 0; ($columnMeta = $statement->getColumnMeta($i)) !== false; $i++) {
+        $columnCount = $statement->columnCount();
+        for ($i = 0; $columnCount > $i ; $i++) {
+            $columnMeta = $statement->getColumnMeta($i);
             $type = $columnMeta['native_type'];
 
             switch ($type) {
