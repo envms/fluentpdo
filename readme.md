@@ -159,7 +159,9 @@ $query = $fluent->insertInto('article', $values)->execute(); // shorter version
 ##### UPDATE
 
 ```php
-$set = array('published_at' => new FluentLiteral('NOW()'));
+use Envms\FluentPDO\Literal;
+
+$set = array('published_at' => new Literal('NOW()'));
 
 $query = $fluent->update('article')->set($set)->where('id', 1)->execute();
 $query = $fluent->update('article', $set, 1)->execute(); // shorter version if updating one row by primary key
