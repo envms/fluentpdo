@@ -164,7 +164,7 @@ class Select extends Common implements \Countable
      *
      * @throws Exception
      *
-     * @return array|bool -  fetched rows
+     * @return array|false -  fetched rows
      */
     public function fetchAll($index = '', $selectOnly = '')
     {
