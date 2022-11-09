@@ -49,7 +49,7 @@ abstract class Common extends Base
     protected $joins = [];
 
     /** @var bool - Disable adding undefined joins to query? */
-    protected $isSmartJoinEnabled = true;
+    protected $isSmartJoinEnabled = false;
 
     /**
      * @param string $name
