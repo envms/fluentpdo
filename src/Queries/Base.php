@@ -49,8 +49,15 @@ abstract class Base implements IteratorAggregate
      * @param       $clauses
      */
     protected function __construct(Query $fluent, $clauses)
-    {
-        $this->currentFetchMode = defined('PDO::FETCH_DEFAULT') ? PDO::FETCH_DEFAULT : PDO::FETCH_BOTH;
+    {        
+        if (defined('PDO::FETCH_DEFAULT')) {
+            $this->currentFetchMode = $fluent->getPdo()->getAttribute(PDO::FETCH_DEFAULT) ?? PDO::FETCH_DEFAULT;
+        } elseif (defined('PDO::ATTR_DEFAULT_FETCH_MODE')) {
+            $this->currentFetchMode = $fluent->getPdo()->getAttribute(PDO::ATTR_DEFAULT_FETCH_MODE) ?? PDO::ATTR_DEFAULT_FETCH_MODE;
+        } else {
+            $this->currentFetchMode = PDO::FETCH_BOTH;
+        }
+        
         $this->fluent = $fluent;
         $this->clauses = $clauses;
         $this->result = null;
